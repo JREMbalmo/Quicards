@@ -1,132 +1,66 @@
 package com.quiboysstudio.quicards;
 
 public class QuiCards {
+    
+    //variables
+    private static boolean activeStatus = true;
 
     public static void main(String[] args) {
+        init();
+        run();
+    }
+
+    private static void init() {
         
         //initialize states
-        State.startScreen = new StartScreen();
-        State.serverMenu = new ServerMenu();
-        State.loginMenu = new LoginMenu();
-        State.mainMenu = new MainMenu();
+        State.exitState = new ExitState();
+        State.startScreen = new StartScreen();                      //loading screen
+        State.serverMenu = new ServerMenu();                        //server menu
+        State.hostServerMenu = new HostServerMenu();                //host server menu
+        State.joinServerMenu = new JoinServerMenu();                //join server menu
+        State.loginMenu = new LoginMenu();                          //login account menu
+        State.registerMenu = new RegisterMenu();                    //register account menu
+        State.mainMenu = new MainMenu();                            // main menu
         
-        //start app
+        //setup current state after opening app
         State.currentState = State.startScreen;
+    }
+
+    private static void run() {
         
-        while (true) {
+        //run app
+        while (activeStatus) {
             State.currentState.enter();
             State.currentState.update();
         }
-        
-        
+    }
+    
+    public static void setActiveStatus(boolean status) {
+        activeStatus = status;
     }
 }
 
 /*
--- Delete the old database
-DROP DATABASE `1stSem_SY2025_2026`;
-
--- Create the database
-CREATE DATABASE `1stSem_SY2025_2026`;
-
--- Use the newly created database
-USE `1stSem_SY2025_2026`;
-
--- Create the students table
-CREATE TABLE Students (
-    studentID INT PRIMARY KEY,
-    name TEXT,
-    address TEXT,
-    contact TEXT,
-    email TEXT,
-    course TEXT,
-    gender TEXT,
-    year TEXT
-);
-
--- Create the subjects table
-CREATE TABLE Subjects (
-    subjectID INT PRIMARY KEY,
-    subjectUnits INT,
-    subjectCode TEXT,
-    subjectSchedule TEXT,
-    subjectDescription TEXT
-);
-
--- Create the teachers table
-CREATE TABLE Teachers (
-    teacherID INT PRIMARY KEY,
-    teacherName TEXT,
-    teacherAddress TEXT,
-    teacherContact TEXT,
-    teacherEmail TEXT,
-    teacherDepartment TEXT
-);
-
--- Create the enrolled table
-CREATE TABLE Enroll (
-    eid INT PRIMARY KEY,
-    studid INT,
-    subjid INT
-);
-
--- Create the assign table
-CREATE TABLE Assign (
-    subid INT,
-    tid INT
-);
+MySQL commands
 
 -- Delete the old database
-DROP DATABASE `2ndSem_SY2025_2026`;
+DROP DATABASE Server;
 
 -- Create the database
-CREATE DATABASE `2ndSem_SY2025_2026`;
+CREATE DATABASE Server;
 
 -- Use the newly created database
-USE `2ndSem_SY2025_2026`;
+USE Server;
 
--- Create the students table
-CREATE TABLE Students (
-    studentID INT PRIMARY KEY,
-    name TEXT,
-    address TEXT,
-    contact TEXT,
-    email TEXT,
-    course TEXT,
-    gender TEXT,
-    year TEXT
+-- Create serverdetails table
+CREATE TABLE ServerDetails (
+    name VARCHAR(32) UNIQUE
 );
 
--- Create the subjects table
-CREATE TABLE Subjects (
-    subjectID INT PRIMARY KEY,
-    subjectUnits INT,
-    subjectCode TEXT,
-    subjectSchedule TEXT,
-    subjectDescription TEXT
-);
-
--- Create the teachers table
-CREATE TABLE Teachers (
-    teacherID INT PRIMARY KEY,
-    teacherName TEXT,
-    teacherAddress TEXT,
-    teacherContact TEXT,
-    teacherEmail TEXT,
-    teacherDepartment TEXT
-);
-
-
--- Create the enrolled table
-CREATE TABLE Enroll (
-    eid INT PRIMARY KEY,
-    studid INT,
-    subjid INT
-);
-
--- Create the assign table
-CREATE TABLE Assign (
-    subid INT,
-    tid INT
+-- Create the users table
+CREATE TABLE Users (
+    ID INT PRIMARY KEY,
+    name VARCHAR(32) UNIQUE,
+    password TEXT
 );
 */
