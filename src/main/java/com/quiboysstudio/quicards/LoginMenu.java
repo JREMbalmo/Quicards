@@ -11,4 +11,8 @@ public class LoginMenu extends State{
     public void update() {
         
     }
+    
+    private void exit() {
+        
+    }
 }

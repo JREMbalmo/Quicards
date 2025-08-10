@@ -56,7 +56,11 @@ USE Server;
 
 -- Create serverdetails table
 CREATE TABLE ServerDetails (
-    name VARCHAR(32) UNIQUE
+    name VARCHAR(32) UNIQUE,
+    serverOwner VARCHAR(32) UNIQUE,
+    serverIP VARCHAR(64) UNIQUE,
+    isMasterServer TINYINT(1) NOT NULL DEFAULT 0,
+    masterServerIP VARCHAR(64) UNIQUE
 );
 
 -- Create the users table

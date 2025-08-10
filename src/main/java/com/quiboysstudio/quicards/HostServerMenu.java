@@ -85,7 +85,7 @@ public class HostServerMenu extends State{
         password = scanner.nextLine();
             
         connectServer(ip, port, username, password);
-        currentState = serverMenu; //temp, only run when client successfully connects to server
+        currentState = loginMenu; //temp, only run when client successfully connects to server
     }
     
     private void setupMasterServer(String ip, String port, String username, String password) {
@@ -96,7 +96,7 @@ public class HostServerMenu extends State{
                         "Setting up maseter server hosted at %s with %s as port using %s user with %s as password",
                         ip, port, username, password)
             );
-            currentState = serverMenu; //temp
+            currentState = registerMenu; //temp
         } else {
             
             System.out.println("Someone else owns that server!");

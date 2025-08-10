@@ -35,12 +35,16 @@ public class JoinServerMenu extends State{
         connectServer(ip, port, username, password);
     }
     
-    private void connectServer(String ip, String port, String username, String password) {
+    private void connectServer(String ip, String port, String username, String password) { 
         System.out.println(String.format(
                 "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
                 ip, port, username, password));
-        currentState = loginMenu; //only run when successfully connected to server
-        exit(); //only run when successful
+        
+        Server.setDatabase(ip, port, username, password);
+        if (Server.DBConnect()) {
+            currentState = loginMenu; //only run when successfully connected to server
+            exit(); //only run when successful
+        }
     }
 
     private void init() {

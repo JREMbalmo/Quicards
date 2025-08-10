@@ -11,4 +11,8 @@ public class RegisterMenu extends State{
     public void update() {
         
     }
+    
+    private void exit() {
+        
+    }
 }
