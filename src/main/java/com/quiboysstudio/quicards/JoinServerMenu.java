@@ -13,11 +13,6 @@ public class JoinServerMenu extends State{
     public void update() {
         showMenu();
     }
-    
-    @Override
-    public void exit() {
-        cleanUp();
-    }
 
     private void showMenu() {
         //variables
@@ -28,24 +23,24 @@ public class JoinServerMenu extends State{
         
         System.out.println("Showing JoinServerMenu menu");
         
-        while (true) {
-            System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
-            ip = scanner.nextLine();
-            System.out.print("Enter port: ");
-            port = scanner.nextLine();
-            System.out.print("Enter username of MySQL user: ");
-            username = scanner.nextLine();
-            System.out.print("Enter password of MySQL user: ");
-            password = scanner.nextLine();
+        System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
+        ip = scanner.nextLine();
+        System.out.print("Enter port: ");
+        port = scanner.nextLine();
+        System.out.print("Enter username of MySQL user: ");
+        username = scanner.nextLine();
+        System.out.print("Enter password of MySQL user: ");
+        password = scanner.nextLine();
             
-            connectServer(ip, port, username, password);
-        }
+        connectServer(ip, port, username, password);
     }
     
     private void connectServer(String ip, String port, String username, String password) {
         System.out.println(String.format(
                 "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
                 ip, port, username, password));
+        currentState = loginMenu; //only run when successfully connected to server
+        exit(); //only run when successful
     }
 
     private void init() {
@@ -53,7 +48,7 @@ public class JoinServerMenu extends State{
         System.out.println("Entering JoinServerMenu state");
     }
 
-    private void cleanUp() {
+    private void exit() {
         System.out.println("Removing elements from JoinServerMenu");
         System.out.println("Preparing to transition to next state");
     }

@@ -15,11 +15,13 @@ public class QuiCards {
         //initialize states
         State.exitState = new ExitState();
         State.startScreen = new StartScreen();                      //loading screen
+        
         State.serverMenu = new ServerMenu();                        //server menu
         State.hostServerMenu = new HostServerMenu();                //host server menu
         State.joinServerMenu = new JoinServerMenu();                //join server menu
         State.loginMenu = new LoginMenu();                          //login account menu
         State.registerMenu = new RegisterMenu();                    //register account menu
+        
         State.mainMenu = new MainMenu();                            // main menu
         
         //setup current state after opening app

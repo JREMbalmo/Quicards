@@ -11,15 +11,11 @@ public class ExitState extends State{
     public void update() {
         exitApp();
     }
-    
-    @Override
-    public void exit() {
-        cleanUp();
-    }
 
     private void exitApp() {
         System.out.println("Preparing to exit app");
         QuiCards.setActiveStatus(false);
+        exit();
     }
     
     private void init() {
@@ -27,7 +23,7 @@ public class ExitState extends State{
         System.out.println("Entering Exit state");
     }
 
-    private void cleanUp() {
+    private void exit() {
         System.out.println("Removing elements from Exit");
         System.out.println("Exiting app");
     }

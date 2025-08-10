@@ -11,5 +11,4 @@ public abstract class State extends JFrame{
     //main methods
     public void enter() {}
     public void update() {}
-    public void exit() {}
 }

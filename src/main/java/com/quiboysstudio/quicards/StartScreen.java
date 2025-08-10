@@ -11,11 +11,6 @@ public class StartScreen extends State {
     public void update() {
         showStartScreen();
     }
-
-    @Override
-    public void exit() {
-        cleanUp();
-    }
     
     private void showStartScreen() {
         System.out.println("Showing start screen");
@@ -32,7 +27,7 @@ public class StartScreen extends State {
         System.out.println("Entering StartScreen State");
     }
     
-    private void cleanUp() {
+    private void exit() {
         System.out.println("Removing elements from StartScreen state");
         System.out.println("Preparing to transition to next state");
     }

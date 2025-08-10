@@ -11,9 +11,4 @@ public class RegisterMenu extends State{
     public void update() {
         
     }
-    
-    @Override
-    public void exit() {
-        
-    }
 }

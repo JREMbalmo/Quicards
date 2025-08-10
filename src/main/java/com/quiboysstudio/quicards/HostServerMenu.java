@@ -17,11 +17,6 @@ public class HostServerMenu extends State{
         showMenu();
     }
     
-    @Override
-    public void exit() {
-        cleanUp();
-    }
-    
     private void showMenu() {
         //variables
         String ip, port, username, password;
@@ -41,7 +36,7 @@ public class HostServerMenu extends State{
             System.out.print("Enter password of MySQL user: ");
             password = scanner.nextLine();
             
-            connectServer(ip, port, username, password);
+            connectServer(ip, port, username, password); //only proceed if successfully connected otherwise return
             
             System.out.println("Choose Action:");
             System.out.println("1. Link to a master server");
@@ -51,7 +46,6 @@ public class HostServerMenu extends State{
             switch(scanner.nextLine()) {
                 case "1":
                     linkServer();
-                    currentState = serverMenu; //temp
                     exit();
                     return;
                 case "2":
@@ -91,6 +85,7 @@ public class HostServerMenu extends State{
         password = scanner.nextLine();
             
         connectServer(ip, port, username, password);
+        currentState = serverMenu; //temp, only run when client successfully connects to server
     }
     
     private void setupMasterServer(String ip, String port, String username, String password) {
@@ -123,7 +118,7 @@ public class HostServerMenu extends State{
         System.out.println("Entering HostServerMenu state");
     }
 
-    private void cleanUp() {
+    private void exit() {
         System.out.println("Removing elements from HostServerMenuState");
         System.out.println("Preparing to transition to next state");
     }

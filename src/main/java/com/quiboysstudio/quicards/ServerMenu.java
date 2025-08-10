@@ -14,11 +14,6 @@ public class ServerMenu extends State{
         showMenu();
     }
     
-    @Override
-    public void exit() {
-        cleanUp();
-    }
-    
     private void showMenu() {
         //variables
         String input;
@@ -59,7 +54,7 @@ public class ServerMenu extends State{
         System.out.println("Entering ServerMenu state");
     }
 
-    private void cleanUp() {
+    private void exit() {
         System.out.println("Removing elements from ServerMenu state");
         System.out.println("Preparing to transition to next state");
     }
