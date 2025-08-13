@@ -3,6 +3,7 @@ package com.quiboysstudio.quicards;
 import java.util.Scanner;
 
 public class JoinServerMenu extends State{
+    //INCLUDE CANCEL BUTTON (RETURN TO SERVERMENU)
     
     @Override
     public void enter() {
