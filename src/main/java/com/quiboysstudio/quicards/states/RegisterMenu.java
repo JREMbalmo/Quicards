@@ -1,5 +1,7 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.states;
 
+import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.account.User;
 import java.util.Scanner;
 
 public class RegisterMenu extends State{

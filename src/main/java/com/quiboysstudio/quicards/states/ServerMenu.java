@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.states;
 
 import java.util.Scanner;
 

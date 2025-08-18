@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.account;
 
 import java.security.SecureRandom;
 
@@ -10,7 +10,7 @@ public class User {
     //objects
     private static final SecureRandom secureRandom = new SecureRandom();
     
-    User(int ID, String username, String password, String seed) {
+    public User(int ID, String username, String password, String seed) {
         this.ID = ID;
         this.username = username;
         this.password = password;

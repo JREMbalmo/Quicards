@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.states;
 
 public class MainMenu extends State{
     

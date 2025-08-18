@@ -1,4 +1,6 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.states;
+
+import com.quiboysstudio.quicards.managers.StateManager;
 
 public class ExitState extends State{
     

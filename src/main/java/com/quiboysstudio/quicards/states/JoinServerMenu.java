@@ -1,5 +1,6 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.states;
 
+import com.quiboysstudio.quicards.server.Server;
 import java.util.Scanner;
 
 public class JoinServerMenu extends State{

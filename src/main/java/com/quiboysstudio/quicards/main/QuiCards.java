@@ -1,4 +1,6 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.main;
+
+import com.quiboysstudio.quicards.managers.StateManager;
 
 public class QuiCards {
     public static void main(String[] args) {

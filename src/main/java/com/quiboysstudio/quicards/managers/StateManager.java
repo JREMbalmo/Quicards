@@ -1,6 +1,7 @@
-package com.quiboysstudio.quicards;
+package com.quiboysstudio.quicards.managers;
 
 //imports
+import com.quiboysstudio.quicards.states.*;
 import java.awt.BorderLayout;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
