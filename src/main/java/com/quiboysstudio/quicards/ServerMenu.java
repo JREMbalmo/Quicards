@@ -23,29 +23,27 @@ public class ServerMenu extends State{
         
         System.out.println("Showing ServerMenu menu");
         
-        while (true) {
-            System.out.println("Choose Action:");
-            System.out.println("1. Host Server");
-            System.out.println("2. Join Server");
-            System.out.println("3. Exit App");
-            input = scanner.nextLine();
+        System.out.println("Choose Action:");
+        System.out.println("1. Host Server");
+        System.out.println("2. Join Server");
+        System.out.println("3. Exit App");
+        input = scanner.nextLine();
             
-            switch (input) {
-                case "1":
-                    currentState = hostServerMenu;
-                    exit();
-                    return;
-                case "2":
-                    currentState = joinServerMenu;
-                    exit();
-                    return;
-                case "3":
-                    currentState = exitState;
-                    exit();
-                    return;
-                default:
-                    System.out.println("Invalid input, please try again.");
-            }
+        switch (input) {
+            case "1":
+                currentState = hostServerMenu;
+                exit();
+                break;
+            case "2":
+                currentState = joinServerMenu;
+                exit();
+                break;
+            case "3":
+                currentState = exitState;
+                exit();
+                break;
+            default:
+                System.out.println("Invalid input, please try again.");
         }
     }
 

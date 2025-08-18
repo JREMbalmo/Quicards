@@ -26,37 +26,35 @@ public class HostServerMenu extends State{
         
         System.out.println("Showing HostServerMenu menu");
         
-        while (true) {
-            System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
-            ip = scanner.nextLine();
-            System.out.print("Enter port: ");
-            port = scanner.nextLine();
-            System.out.print("Enter username of MySQL user: ");
-            username = scanner.nextLine();
-            System.out.print("Enter password of MySQL user: ");
-            password = scanner.nextLine();
+        System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
+        ip = scanner.nextLine();
+        System.out.print("Enter port: ");
+        port = scanner.nextLine();
+        System.out.print("Enter username of MySQL user: ");
+        username = scanner.nextLine();
+        System.out.print("Enter password of MySQL user: ");
+        password = scanner.nextLine();
             
-            connectServer(ip, port, username, password); //only proceed if successfully connected otherwise return
+        connectServer(ip, port, username, password); //only proceed if successfully connected otherwise return
             
-            System.out.println("Choose Action:");
-            System.out.println("1. Link to a master server");
-            System.out.println("2. Host independent server");
-            System.out.println("3. Go Back");
+        System.out.println("Choose Action:");
+        System.out.println("1. Link to a master server");
+        System.out.println("2. Host independent server");
+        System.out.println("3. Go Back");
             
-            switch(scanner.nextLine()) {
-                case "1":
-                    linkServer();
-                    exit();
-                    return;
-                case "2":
-                    setupMasterServer(ip, port, username, password);
-                    exit();
-                    return;
-                case "3":
-                    return;
-                default:
-                    System.out.println("Invalid input, please try again.");
-            }
+        switch(scanner.nextLine()) {
+            case "1":
+                linkServer();
+                exit();
+                break;
+            case "2":
+                setupServer(ip, port, username, password);
+                exit();
+                break;
+            case "3":
+                break;
+            default:
+                System.out.println("Invalid input, please try again.");
         }
     }
 
@@ -88,12 +86,12 @@ public class HostServerMenu extends State{
         currentState = loginMenu; //temp, only run when client successfully connects to server
     }
     
-    private void setupMasterServer(String ip, String port, String username, String password) {
-        if (checkMasterServer(ip, port, username, password)) {
+    private void setupServer(String ip, String port, String username, String password) {
+        if (checkServer(ip, port, username, password)) {
             
             System.out.println(
                     String.format(
-                        "Setting up maseter server hosted at %s with %s as port using %s user with %s as password",
+                        "Setting up server hosted at %s with %s as port using %s user with %s as password",
                         ip, port, username, password)
             );
             currentState = registerMenu; //temp
@@ -104,7 +102,7 @@ public class HostServerMenu extends State{
     }
     
     //check if mysql server is already master hosted by someone else
-    private boolean checkMasterServer(String ip, String port, String username, String password) {
+    private boolean checkServer(String ip, String port, String username, String password) {
         //variables
         boolean vacant = false; //temp
         

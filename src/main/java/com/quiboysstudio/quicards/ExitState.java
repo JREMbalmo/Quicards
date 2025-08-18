@@ -14,7 +14,7 @@ public class ExitState extends State{
 
     private void exitApp() {
         System.out.println("Preparing to exit app");
-        QuiCards.setActiveStatus(false);
+        StateManager.setActiveStatus(false);
         exit();
     }
     
