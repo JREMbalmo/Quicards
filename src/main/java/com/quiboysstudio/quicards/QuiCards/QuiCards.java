@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards.main;
+package com.quiboysstudio.quicards.QuiCards;
 
 import com.quiboysstudio.quicards.managers.StateManager;
 
