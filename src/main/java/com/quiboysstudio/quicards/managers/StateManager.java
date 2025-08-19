@@ -1,9 +1,8 @@
 package com.quiboysstudio.quicards.managers;
 
 //imports
+import com.quiboysstudio.quicards.configs.FrameConfig;
 import com.quiboysstudio.quicards.states.*;
-import java.awt.BorderLayout;
-import javax.swing.JFrame;
 
 public class StateManager {
     //variables
@@ -22,18 +21,8 @@ public class StateManager {
         
         State.mainMenu = new MainMenu();                            // main menu
         
-        //setup frame
-        State.frame.setSize(1920,1080); //standard 1080p
-        State.frame.setResizable(false);
-        State.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        State.frame.setLayout(new BorderLayout());
-        State.frame.setLocationRelativeTo(null);
-        State.frame.setTitle("QuiCards");
-        
-        State.frame.setVisible(true);
-        
         //setup initial current state after opening app
-        State.currentState = State.startScreen;
+        State.currentState = State.serverMenu; //State.startScreen;
     }
 
     public static void run() {

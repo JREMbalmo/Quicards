@@ -1,14 +1,16 @@
 package com.quiboysstudio.quicards.states;
 
+import com.quiboysstudio.quicards.configs.FrameConfig;
 import javax.swing.JFrame;
 
-public abstract class State extends JFrame{
+public abstract class State{
     //frame
-    public static JFrame frame = new JFrame();
+    public static JFrame frame = FrameConfig.initFrame();
     
     //valid states
-    public static State startScreen, serverMenu, loginMenu, mainMenu, currentState,
+    public static State startScreen, serverMenu, loginMenu, mainMenu,
             hostServerMenu, joinServerMenu, registerMenu, exitState;
+    public static State currentState;
     
     //main methods
     public void enter() {}
