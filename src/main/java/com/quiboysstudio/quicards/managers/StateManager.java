@@ -1,13 +1,15 @@
 package com.quiboysstudio.quicards.managers;
 
 //imports
-import com.quiboysstudio.quicards.configs.FrameConfig;
 import com.quiboysstudio.quicards.states.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class StateManager {
-    //variables
-    private static boolean activeStatus = true;
-
+    //objects
+    private static Timer mainLoop;
+    private static TimerTask task;
+    
     public static void init() {
         //initialize states
         State.exitState = new ExitState();
@@ -22,18 +24,26 @@ public class StateManager {
         State.mainMenu = new MainMenu();                            // main menu
         
         //setup initial current state after opening app
-        State.currentState = State.serverMenu; //State.startScreen;
+        State.currentState = State.startScreen;
+        
+        //setup timer
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                State.currentState.enter();
+                State.currentState.update();
+            }
+        };
+        
+        mainLoop = new Timer();
     }
 
     public static void run() {
-        //run app
-        while (activeStatus) {
-            State.currentState.enter();
-            State.currentState.update();
-        }
+        //run main loop every 1ms
+        mainLoop.scheduleAtFixedRate(task, 0, 1);
     }
     
-    public static void setActiveStatus(boolean status) {
-        activeStatus = status;
+    public static void off() {
+        mainLoop.cancel();
     }
 }

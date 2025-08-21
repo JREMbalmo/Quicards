@@ -16,7 +16,7 @@ public class ExitState extends State{
 
     private void exitApp() {
         System.out.println("Preparing to exit app");
-        StateManager.setActiveStatus(false);
+        StateManager.off();
         exit();
     }
     

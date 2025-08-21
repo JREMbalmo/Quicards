@@ -23,12 +23,14 @@ public class ServerMenu extends State{
     
     private void showMenu() {
         
-        try {
+        if (running) return;
+        running = true;
+        
+        System.out.println("Showing server menu");
+        
         frame.add(panel);
         frame.revalidate();
         frame.repaint();
-        Thread.sleep(50000);
-        } catch (Exception e) {}
         
         System.out.println("Showing ServerMenu menu");
         
@@ -40,19 +42,24 @@ public class ServerMenu extends State{
     }
 
     private void init() {
+        if (running) return;
+        
+        System.out.println("initializing elements from server menu");
+        
         //create panel
         panel = new JPanel();
-        panel.setSize(1920,1080);
+        panel.setSize(FrameConfig.scale(frame, 1920, 1080));
         panel.setBackground(FrameConfig.BLUE);
         panel.setLayout(new BorderLayout());
         
         //create logo panel
-        gameLogo = new ImageIcon(new ImageIcon("resources//logos//main_game.png").getImage().getScaledInstance(360, 360, Image.SCALE_SMOOTH));
+        gameLogo = new ImageIcon(new ImageIcon("resources//logos//main_game.png").getImage().
+                getScaledInstance(FrameConfig.scale(frame, 360), FrameConfig.scale(frame, 360), Image.SCALE_SMOOTH));
         logoLabel = new JLabel();
         logoLabel.setIcon(gameLogo);
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoLabel.setVerticalAlignment(JLabel.CENTER);
-        logoLabel.setPreferredSize(new Dimension(360,360));
+        logoLabel.setPreferredSize(FrameConfig.scale(frame, 360, 360));
         panel.add(logoLabel, BorderLayout.NORTH);
         
         //buttons
@@ -62,6 +69,9 @@ public class ServerMenu extends State{
         System.out.println("Removing elements from ServerMenu state");
         System.out.println("Preparing to transition to next state");
     }
+    
+    //variables
+    private boolean running = false;
     
     //objects
     private static JPanel panel;
