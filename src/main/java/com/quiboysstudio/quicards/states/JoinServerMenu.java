@@ -1,9 +1,20 @@
 package com.quiboysstudio.quicards.states;
 
+import com.quiboysstudio.quicards.configs.FrameConfig;
 import com.quiboysstudio.quicards.server.Server;
+import java.awt.BorderLayout;
 import java.util.Scanner;
+import javax.swing.Box;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 public class JoinServerMenu extends State{
+    
+    //variables
+    private boolean running = false;
+    
+    //objects
+    private static JPanel buttonPanel;
     
     @Override
     public void enter() {
@@ -16,6 +27,14 @@ public class JoinServerMenu extends State{
     }
 
     private void showMenu() {
+        
+        if (running) return;
+        running = true;
+        
+        frame.add(buttonPanel, BorderLayout.CENTER);
+        frame.revalidate();
+        frame.repaint();
+        
         //variables
         String ip, port, username, password;
         
@@ -49,8 +68,24 @@ public class JoinServerMenu extends State{
     }
 
     private void init() {
+        if (running) return;
+        
         System.out.println("Initializing elements from JoinServerMenu state");
         System.out.println("Entering JoinServerMenu state");
+        
+        //create button panel with buttons
+        buttonPanel = new JPanel();
+        buttonPanel.setBackground(FrameConfig.BLUE);
+        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
+        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        //buttons
+        buttonPanel.add(FrameConfig.createStateChangerButton("adfadfadfa", 557, FrameConfig.ORANGE, hostServerMenu));
+        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
+        buttonPanel.add(FrameConfig.createStateChangerButton("Jadfadfa", 557, FrameConfig.ORANGE, joinServerMenu));
+        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
+        buttonPanel.add(FrameConfig.createStateChangerButton("adfadf", 557, FrameConfig.ORANGE, exitState));
+        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
+        frame.add(buttonPanel, BorderLayout.CENTER);
     }
 
     @Override

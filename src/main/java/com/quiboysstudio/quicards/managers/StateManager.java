@@ -39,8 +39,8 @@ public class StateManager {
     }
 
     public static void run() {
-        //run main loop every 1ms
-        mainLoop.scheduleAtFixedRate(task, 0, 100);
+        //run main loop every 200ms
+        mainLoop.scheduleAtFixedRate(task, 0, 200);
     }
     
     public static void off() {

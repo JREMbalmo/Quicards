@@ -1,8 +1,8 @@
 package com.quiboysstudio.quicards.states;
 
+//imports
 import com.quiboysstudio.quicards.configs.FrameConfig;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Image;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -16,7 +16,7 @@ public class ServerMenu extends State{
     private boolean running = false;
     
     //objects
-    private static JPanel panel;
+    private static JPanel header;
     private static JPanel buttonPanel;
     private static JLabel logoLabel;
     private static ImageIcon gameLogo;
@@ -38,7 +38,8 @@ public class ServerMenu extends State{
         
         System.out.println("Showing server menu");
         
-        frame.add(panel);
+        frame.add(header, BorderLayout.NORTH);
+        frame.add(buttonPanel, BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
 
@@ -49,13 +50,16 @@ public class ServerMenu extends State{
         
         System.out.println("initializing elements from server menu");
         
-        //create panel
-        panel = new JPanel();
-        panel.setPreferredSize(FrameConfig.scale(frame, 1920, 1080));
-        panel.setBackground(FrameConfig.BLUE);
-        panel.setLayout(new BorderLayout());
+        //change frame background
+        frame.getContentPane().setBackground(FrameConfig.BLUE);
         
-        //create logo panel
+        //create header panel
+        header = new JPanel();
+        header.setPreferredSize(FrameConfig.scale(frame,1920,203));
+        header.setBackground(FrameConfig.BLUE);
+        header.setLayout(new BorderLayout());
+        
+        //create logo label
         gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage().
                 getScaledInstance(FrameConfig.scale(frame, 622), FrameConfig.scale(frame, 150), Image.SCALE_SMOOTH));
         logoLabel = new JLabel();
@@ -63,13 +67,14 @@ public class ServerMenu extends State{
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoLabel.setVerticalAlignment(JLabel.BOTTOM);
         logoLabel.setPreferredSize(FrameConfig.scale(frame, 622, 202));
-        panel.add(logoLabel, BorderLayout.NORTH);
+        header.add(logoLabel, BorderLayout.CENTER);
+        frame.add(header, BorderLayout.NORTH);
         
         //create button panel with buttons
         buttonPanel = new JPanel();
         buttonPanel.setBackground(FrameConfig.BLUE);
         buttonPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
-        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 220),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
         //buttons
         buttonPanel.add(FrameConfig.createStateChangerButton("Host Server", 557, FrameConfig.ORANGE, hostServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
@@ -77,7 +82,7 @@ public class ServerMenu extends State{
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
         buttonPanel.add(FrameConfig.createStateChangerButton("Exit", 557, FrameConfig.ORANGE, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        panel.add(buttonPanel);
+        frame.add(buttonPanel, BorderLayout.CENTER);
     }
 
     @Override
@@ -85,7 +90,7 @@ public class ServerMenu extends State{
         System.out.println("Removing elements from ServerMenu state");
         System.out.println("Preparing to transition to next state");
         running = false;
-        frame.getContentPane().removeAll();
+        frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(buttonPanel));
         frame.revalidate();
         frame.repaint();
     }
