@@ -15,4 +15,5 @@ public abstract class State{
     //main methods
     public void enter() {}
     public void update() {}
+    public void exit() {}
 }

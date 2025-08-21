@@ -1,5 +1,6 @@
 package com.quiboysstudio.quicards.states;
 
+//imports
 import com.quiboysstudio.quicards.configs.FrameConfig;
 import java.awt.BorderLayout;
 import java.awt.Image;
@@ -9,6 +10,16 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class StartScreen extends State {
+    
+    //variables
+    private int phase = 0;
+    private boolean running = false;
+    
+    //objects
+    private JLabel logoLabel;
+    private JPanel panel;
+    private ImageIcon studioLogo, gameLogo;
+    private Timer splashScreen;
     
     @Override
     public void enter() {
@@ -41,10 +52,10 @@ public class StartScreen extends State {
         //init
         //logo setup
         logoLabel = new JLabel();
-        studioLogo = new ImageIcon(new ImageIcon("resources//logos//black_background_studio.png").getImage().
+        studioLogo = new ImageIcon(new ImageIcon("resources//logos//studio_logo_white_text.png").getImage().
                 getScaledInstance(FrameConfig.scale(frame, 720), FrameConfig.scale(frame, 720), Image.SCALE_SMOOTH));
-        gameLogo = new ImageIcon(new ImageIcon("resources//logos//main_game.png").getImage().
-                getScaledInstance(FrameConfig.scale(frame, 720), FrameConfig.scale(frame, 720), Image.SCALE_SMOOTH));
+        gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_notext.png").getImage().
+                getScaledInstance(FrameConfig.scale(frame, 500), FrameConfig.scale(frame, 500), Image.SCALE_SMOOTH));
         
         //panel setup
         panel = new JPanel();
@@ -113,7 +124,8 @@ public class StartScreen extends State {
         System.out.println("Entering StartScreen State");
     }
     
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from StartScreen state");
         System.out.println("Preparing to transition to next state");
         // clear everything from the frame before going to next state
@@ -122,14 +134,4 @@ public class StartScreen extends State {
         frame.revalidate();
         frame.repaint();
     }
-    
-    //variables
-    private int phase = 0;
-    private boolean running = false;
-    
-    //objects
-    private JLabel logoLabel;
-    private JPanel panel;
-    private ImageIcon studioLogo, gameLogo;
-    private Timer splashScreen;
 }

@@ -116,7 +116,8 @@ public class HostServerMenu extends State{
         System.out.println("Entering HostServerMenu state");
     }
 
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from HostServerMenuState");
         System.out.println("Preparing to transition to next state");
     }

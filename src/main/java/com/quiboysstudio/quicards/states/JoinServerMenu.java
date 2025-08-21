@@ -53,7 +53,8 @@ public class JoinServerMenu extends State{
         System.out.println("Entering JoinServerMenu state");
     }
 
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from JoinServerMenu");
         System.out.println("Preparing to transition to next state");
     }

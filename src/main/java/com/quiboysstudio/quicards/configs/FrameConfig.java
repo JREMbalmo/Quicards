@@ -6,6 +6,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
@@ -40,15 +43,12 @@ public class FrameConfig extends JFrame{
     private static final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     private static final GraphicsDevice gd = ge.getDefaultScreenDevice();
     
-    //objects
-    public static JFrame frame;
-    
     //init frame
     public static JFrame initFrame() {
         //setup frame
-        frame = new JFrame();
-        //frame.setSize(1920,1080); //standard 1080p
-        frame.setSize(1280,720);
+        JFrame frame = new JFrame();
+        frame.setSize(1920,1080); //standard 1080p
+        //frame.setSize(1280,720);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -101,9 +101,72 @@ public class FrameConfig extends JFrame{
         return (int) (designWidth * scale);
     }
     
-    public static JButton createStateChangerButton(State currentState, State nextState, String text) {
-        JButton button = new JButton(text);
+    public static Color getAltColor(Color color) {
+        if (color.equals(BLACK)) return GRAY;
+        if (color.equals(BLUE)) return DARK_BLUE;
+        if (color.equals(ORANGE)) return DARK_ORANGE;
+        if (color.equals(GRAY)) return DARK_GRAY;
+        if (color.equals(WHITE)) return DARK_WHITE;
         
+        System.out.println("Color not found");
+        return WHITE; //whtie default if not found
+    }
+    
+    public static JButton createStateChangerButton(String text, int width, Color color, State nextState) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setForeground(WHITE);
+        button.setBackground(color);
+        button.setPreferredSize(FrameConfig.scale(State.frame, scale(State.frame, width), scale(State.frame, 78)));
+        button.setFocusable(false);
+        button.setBorder(BorderFactory.createLineBorder(BLACK, scale(State.frame, 3)));
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBorder(BorderFactory.createLineBorder(WHITE, scale(State.frame, 3)));
+                button.revalidate();
+                button.repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBorder(BorderFactory.createLineBorder(BLACK, scale(State.frame, 3)));
+                button.revalidate();
+                button.repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                button.setBackground(getAltColor(color));
+
+                if (button.getBackground().equals(BLACK)) {
+                    button.setForeground(BLACK);
+                } else {
+                    button.setForeground(WHITE);
+                }
+
+                button.repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                button.setBackground(color);
+                button.setForeground(WHITE);
+                button.repaint();
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                State.currentState.exit();
+                State.currentState = nextState;
+                button.repaint();
+            }
+        });
+
         return button;
     }
+
 }

@@ -18,6 +18,7 @@ public class ExitState extends State{
         System.out.println("Preparing to exit app");
         StateManager.off();
         exit();
+        System.exit(0);
     }
     
     private void init() {
@@ -25,7 +26,8 @@ public class ExitState extends State{
         System.out.println("Entering Exit state");
     }
 
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from Exit");
         System.out.println("Exiting app");
     }

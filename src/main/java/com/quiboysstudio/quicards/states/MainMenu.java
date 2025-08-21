@@ -21,7 +21,8 @@ public class MainMenu extends State{
         System.out.println("Entering MainMenu state");
     }
     
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from MainMenu");
         System.out.println("Preparing to transition to next state");
     }

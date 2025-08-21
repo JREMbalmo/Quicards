@@ -68,7 +68,8 @@ public class RegisterMenu extends State{
         System.out.println("Entering RegisterMenu state");
     }
     
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from RegisterMenu");
         System.out.println("Preparing to transition to next state");
     }

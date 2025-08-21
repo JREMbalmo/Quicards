@@ -103,7 +103,8 @@ public class LoginMenu extends State{
         System.out.println("Entering LoginMenu state");
     }
     
-    private void exit() {
+    @Override
+    public void exit() {
         System.out.println("Removing elements from LoginMenu");
         System.out.println("Preparing to transition to next state");
     }
