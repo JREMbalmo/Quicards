@@ -2,6 +2,7 @@ package com.quiboysstudio.quicards.states;
 
 //imports
 import com.quiboysstudio.quicards.configs.FrameConfig;
+import com.quiboysstudio.quicards.configs.ButtonConfig;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import javax.swing.Box;
@@ -76,11 +77,11 @@ public class ServerMenu extends State{
         buttonPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
         buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
         //buttons
-        buttonPanel.add(FrameConfig.createStateChangerButton("Host Server", 557, FrameConfig.ORANGE, hostServerMenu));
+        buttonPanel.add(ButtonConfig.createStateChangerButton("Host Server", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, hostServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(FrameConfig.createStateChangerButton("Join Server", 557, FrameConfig.ORANGE, joinServerMenu));
+        buttonPanel.add(ButtonConfig.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, joinServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(FrameConfig.createStateChangerButton("Exit", 557, FrameConfig.ORANGE, exitState));
+        buttonPanel.add(ButtonConfig.createStateChangerButton("Exit", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
         frame.add(buttonPanel, BorderLayout.CENTER);
     }

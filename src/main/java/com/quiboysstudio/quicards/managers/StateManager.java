@@ -12,16 +12,22 @@ public class StateManager {
     
     public static void init() {
         //initialize states
+        
+        //loading screen
         State.exitState = new ExitState();
         State.startScreen = new StartScreen();                      //loading screen
         
+        //pre-launch page
         State.serverMenu = new ServerMenu();                        //server menu
         State.hostServerMenu = new HostServerMenu();                //host server menu
         State.joinServerMenu = new JoinServerMenu();                //join server menu
         State.loginMenu = new LoginMenu();                          //login account menu
         State.registerMenu = new RegisterMenu();                    //register account menu
         
+        //launch page
         State.mainMenu = new MainMenu();                            // main menu
+        
+        //post-launchpage
         
         //setup initial current state after opening app
         State.currentState = State.startScreen;
