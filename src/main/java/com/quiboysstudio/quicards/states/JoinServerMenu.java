@@ -7,7 +7,6 @@ import com.quiboysstudio.quicards.configs.LabelConfig;
 import com.quiboysstudio.quicards.configs.TextFieldConfig;
 import com.quiboysstudio.quicards.server.Server;
 import java.awt.BorderLayout;
-import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,6 +20,7 @@ public class JoinServerMenu extends State{
     
     //objects
     private static JPanel serverInfoPanel;
+    private static JPanel buttonPanel;
     
     @Override
     public void enter() {
@@ -71,11 +71,17 @@ public class JoinServerMenu extends State{
         System.out.println("Initializing elements from JoinServerMenu state");
         System.out.println("Entering JoinServerMenu state");
         
-        //main pane2
+        //main panel;
         serverInfoPanel = new JPanel();
         serverInfoPanel.setBackground(FrameConfig.BLUE);
         serverInfoPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
         serverInfoPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        
+        //button panel
+        buttonPanel = new JPanel();
+        buttonPanel.setBackground(FrameConfig.BLUE);
+        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 50),0,0,0));
         
         //text fields
         JTextField ipField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
@@ -100,12 +106,10 @@ public class JoinServerMenu extends State{
         serverInfoPanel.add(passwordField);
         
         //buttons
-        serverInfoPanel.add(ButtonConfig.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, serverMenu));
-        serverInfoPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        serverInfoPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE,
+        buttonPanel.add(ButtonConfig.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, serverMenu));
+        buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE,
                 connectServer(ipField,portField,usernameField,passwordField)));
-        serverInfoPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        frame.add(serverInfoPanel, BorderLayout.CENTER);
+        serverInfoPanel.add(buttonPanel);
     }
 
     @Override

@@ -77,12 +77,12 @@ public class ButtonConfig {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                button.setBackground(FrameConfig.getAltColor(color));
-                if (button.getBackground().equals(Color.BLACK)) {
+                if (button.getBackground().getRGB() == Color.BLACK.getRGB()) {
                     button.setForeground(Color.BLACK);
                 } else {
-                    button.setForeground(Color.WHITE);
+                    button.setForeground(FrameConfig.WHITE);
                 }
+                button.setBackground(FrameConfig.getAltColor(color));
                 button.repaint();
             }
 
