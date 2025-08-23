@@ -33,7 +33,6 @@ public class JoinServerMenu extends State{
     }
 
     private void showMenu() {
-        
         if (running) return;
         running = true;
         
@@ -52,10 +51,12 @@ public class JoinServerMenu extends State{
             Server.setDatabase(String.valueOf(ip.getText()), String.valueOf(port.getText()),
                     String.valueOf(username.getText()), String.valueOf(password.getText()));
             if (Server.DBConnect()) {
+                //run if connection is successful
                 JOptionPane.showMessageDialog(null, "Connected to server");
                 currentState = loginMenu;
                 exit();
             } else {
+                //run if connection failed
                 JOptionPane.showMessageDialog(null, "Can't connect to server");
                 ip.setText(null);
                 port.setText(null);

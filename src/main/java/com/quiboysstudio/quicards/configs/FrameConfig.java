@@ -52,8 +52,8 @@ public class FrameConfig extends JFrame{
     public static JFrame initFrame() {
         //setup frame
         JFrame frame = new JFrame();
-        //frame.setSize(1920,1080); //standard 1080p
-        frame.setSize(1280,720);
+        frame.setSize(1920,1080); //standard 1080p
+        //frame.setSize(1280,720);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());

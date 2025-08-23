@@ -10,6 +10,15 @@ public class QuiCards {
 }
 
 /*
+MySQL server setup
+
+bind address to 0.0.0.0
+grant all privileges on *.* to 'root'@'%' identified by 'root';
+go to router login page
+go to port forwarding
+enable rule
+
+
 MySQL commands
 
 -- Delete the old database

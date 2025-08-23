@@ -30,7 +30,7 @@ public class StateManager {
         //post-launchpage
         
         //setup initial current state after opening app
-        State.currentState = State.serverMenu;
+        State.currentState = State.startScreen;
         
         //setup timer
         task = new TimerTask() {
