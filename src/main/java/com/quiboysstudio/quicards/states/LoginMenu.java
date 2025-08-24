@@ -137,7 +137,7 @@ public class LoginMenu extends State{
         
         //labels
         usernameLabel = LabelConfig.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = LabelConfig.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = LabelConfig.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //add components to login panel
         loginPanel.add(usernameLabel);
