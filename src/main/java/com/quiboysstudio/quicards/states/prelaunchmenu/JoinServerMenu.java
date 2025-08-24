@@ -49,7 +49,7 @@ public class JoinServerMenu extends State{
         frame.repaint();
     }
     
-    private void connectServer() { 
+    private void attemptConnectServer() { 
         //variables
         String ip = String.valueOf(ipField.getText());
         String port = String.valueOf(portField.getText());
@@ -60,23 +60,15 @@ public class JoinServerMenu extends State{
                 "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
                 ip, port, username, password));
 
-        Server.setDatabase(ip, port, username, password);
-        if (Server.DBConnect()) {
+        Server.setServer(ip, port, username, password, Server.JOIN);
+        if (Server.connectServer()) {
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
-            ipField.setText(null);
-            portField.setText(null);
-            usernameField.setText(null);
-            passwordField.setText(null);
             currentState = loginMenu;
             exit();
         } else {
             //run if connection failed
             JOptionPane.showMessageDialog(null, "Can't connect to server");
-            ipField.setText(null);
-            portField.setText(null);
-            usernameField.setText(null);
-            passwordField.setText(null);
         }
     }
 
@@ -121,7 +113,7 @@ public class JoinServerMenu extends State{
         
         //buttons
         buttonPanel.add(ButtonConfig.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, serverMenu));
-        buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {connectServer();}));
+        buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         
         initialized = true;
@@ -137,5 +129,9 @@ public class JoinServerMenu extends State{
         
         //cleanup
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(serverInfoPanel));
+        ipField.setText(null);
+        portField.setText(null);
+        usernameField.setText(null);
+        passwordField.setText(null);
     }
 }

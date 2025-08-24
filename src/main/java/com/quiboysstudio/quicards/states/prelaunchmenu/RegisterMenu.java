@@ -79,7 +79,7 @@ public class RegisterMenu extends State{
                         "('" + username + "','" + password + "','" + seed + "');"
                 );
                 Server.result = Server.statement.executeQuery(
-                        "select ID from Users where username = " + username + ";");
+                        "select ID from Users where username = '" + username + "';");
                 
                 if (Server.result.next()) {
                     id = Server.result.getInt("ID");

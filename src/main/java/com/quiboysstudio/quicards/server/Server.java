@@ -11,6 +11,8 @@ public class Server {
     private static String database;
     private static String username;
     private static String password;
+    public static final boolean JOIN = true;
+    public static final boolean HOST = false;
     
     //objects
     public static Connection connection;
@@ -23,13 +25,17 @@ public class Server {
         password = null;
     }
     
-    public static void setDatabase(String ip, String port, String username, String password) {
-        database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+    public static void setServer(String ip, String port, String username, String password, boolean type) {
+        if (type) {
+            database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+        } else {
+            database = String.format("jdbc:mysql://%s:%s/?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+        }
         Server.username = username;
         Server.password = password;
     }
     
-    public static boolean DBConnect() {
+    public static boolean connectServer() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(database, username, password);

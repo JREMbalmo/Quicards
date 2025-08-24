@@ -1,6 +1,5 @@
 package com.quiboysstudio.quicards.states.misc;
 
-import com.quiboysstudio.quicards.managers.StateManager;
 import com.quiboysstudio.quicards.states.State;
 
 public class ExitState extends State{
@@ -17,8 +16,8 @@ public class ExitState extends State{
 
     private void exitApp() {
         System.out.println("Preparing to exit app");
-        StateManager.off();
         exit();
+        frame.dispose();
         System.exit(0);
     }
     

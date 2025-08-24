@@ -32,14 +32,13 @@ USE Server;
 
 -- Create serverdetails table
 CREATE TABLE ServerDetails (
-    serverName VARCHAR(32) UNIQUE,
-    host VARCHAR(32) UNIQUE,
-    serverIP VARCHAR(64) UNIQUE
+    serverIP VARCHAR(64) PRIMARY KEY,
+    isActive TINYINT(1) UNIQUE
 );
 
 -- Create peerservers table
 CREATE TABLE PeerServers (
-    serverIP VARCHAR(64) UNIQUE,
+    serverIP VARCHAR(64) PRIMARY KEY,
     isActive TINYINT(1) NOT NULL DEFAULT 0
 );
 
