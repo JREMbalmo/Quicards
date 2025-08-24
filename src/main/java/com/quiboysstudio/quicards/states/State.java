@@ -9,7 +9,8 @@ public abstract class State{
     
     //valid states
     public static State startScreen, serverMenu, loginMenu, mainMenu,
-            hostServerMenu, joinServerMenu, registerMenu, exitState;
+            hostServerMenu, joinServerMenu, registerMenu, exitState, wipState,
+            settingsMenu, storeMenu, inventoryMenu, createRoomMenu, joinRoomMenu;
     public static State currentState;
     
     //main methods

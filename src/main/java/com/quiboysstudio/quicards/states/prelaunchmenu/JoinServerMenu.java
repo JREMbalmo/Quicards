@@ -1,11 +1,9 @@
-package com.quiboysstudio.quicards.states;
+package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
-import com.quiboysstudio.quicards.configs.FrameConfig;
-import com.quiboysstudio.quicards.configs.ButtonConfig;
-import com.quiboysstudio.quicards.configs.LabelConfig;
-import com.quiboysstudio.quicards.configs.TextFieldConfig;
+import com.quiboysstudio.quicards.configs.*;
 import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -84,10 +82,8 @@ public class JoinServerMenu extends State{
 
     private void init() {
         if (initialized) return;
-        initialized = true;
         
         System.out.println("Initializing elements from JoinServerMenu state");
-        System.out.println("Entering JoinServerMenu state");
         
         //main panel;
         serverInfoPanel = new JPanel();
@@ -127,6 +123,10 @@ public class JoinServerMenu extends State{
         buttonPanel.add(ButtonConfig.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, serverMenu));
         buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {connectServer();}));
         serverInfoPanel.add(buttonPanel);
+        
+        initialized = true;
+        
+        System.out.println("Entering JoinServerMenu state");
     }
 
     @Override

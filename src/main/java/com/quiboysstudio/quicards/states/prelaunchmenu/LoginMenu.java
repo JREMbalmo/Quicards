@@ -1,12 +1,11 @@
-package com.quiboysstudio.quicards.states;
+package com.quiboysstudio.quicards.states.prelaunchmenu;
 
+//imports
 import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.account.User;
-import com.quiboysstudio.quicards.configs.ButtonConfig;
-import com.quiboysstudio.quicards.configs.FrameConfig;
-import com.quiboysstudio.quicards.configs.LabelConfig;
-import com.quiboysstudio.quicards.configs.TextFieldConfig;
-import static com.quiboysstudio.quicards.states.State.frame;
+import com.quiboysstudio.quicards.configs.*;
+import com.quiboysstudio.quicards.states.State;
+import java.awt.BorderLayout;
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -46,7 +45,7 @@ public class LoginMenu extends State{
         
         System.out.println("Showing LoginMenu");
         
-        frame.add(actionsPanel);
+        frame.add(actionsPanel, BorderLayout.CENTER);
         frame.revalidate();
         frame.repaint();
     }
@@ -69,8 +68,9 @@ public class LoginMenu extends State{
         //send queries for login
         try {
             //variables
-            String serverUsername, serverPassword, seed;
             int ID;
+            String serverUsername, serverPassword;
+            long seed;
 
             //check if user actually exists
             Server.result = Server.statement.executeQuery(
@@ -83,6 +83,7 @@ public class LoginMenu extends State{
                 serverPassword = Server.result.getString("password");
             } else {
                 JOptionPane.showMessageDialog(null, "Username doesn't exist!");
+                passwordField.setText(null);
                 return;
             }
 
@@ -90,7 +91,7 @@ public class LoginMenu extends State{
             if (password.equals(serverPassword)) {
                 JOptionPane.showMessageDialog(null, "Login successful!");
                 ID = Server.result.getInt("ID");
-                seed = Server.result.getString("seed");
+                seed = Server.result.getLong("seed");
                 User user = new User(ID, serverUsername, serverPassword, seed);
                 currentState = mainMenu;
                 exit();
@@ -105,10 +106,8 @@ public class LoginMenu extends State{
     
     private void init() {
         if (initialized) return;
-        initialized = true;
         
         System.out.println("Initializing elements from LoginMenu state");
-        System.out.println("Entering LoginMenu state");
         
         //actions panel
         actionsPanel = new JPanel();
@@ -157,6 +156,10 @@ public class LoginMenu extends State{
         
         //add button panel to login panel
         loginPanel.add(buttonPanel);
+        
+        initialized = true;
+        
+        System.out.println("Entering LoginMenu state");
     }
     
     @Override
@@ -166,5 +169,7 @@ public class LoginMenu extends State{
         running = false;
         if (actionsPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(actionsPanel));
         if (loginPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(loginPanel));
+        usernameField.setText(null);
+        passwordField.setText(null);
     }
 }

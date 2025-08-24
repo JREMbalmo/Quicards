@@ -1,8 +1,8 @@
-package com.quiboysstudio.quicards.states;
+package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
-import com.quiboysstudio.quicards.configs.FrameConfig;
-import com.quiboysstudio.quicards.configs.ButtonConfig;
+import com.quiboysstudio.quicards.configs.*;
+import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import javax.swing.Box;
@@ -49,7 +49,6 @@ public class ServerMenu extends State{
 
     private void init() {
         if (initialized) return;
-        initialized = true;
         
         System.out.println("initializing elements from server menu");
         
@@ -86,6 +85,8 @@ public class ServerMenu extends State{
         buttonPanel.add(ButtonConfig.createStateChangerButton("Exit", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
         frame.add(buttonPanel, BorderLayout.CENTER);
+        
+        initialized = true;
     }
 
     @Override

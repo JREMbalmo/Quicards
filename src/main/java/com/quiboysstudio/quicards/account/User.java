@@ -4,13 +4,14 @@ import java.security.SecureRandom;
 
 public class User {
     //variables
-    private static String username, password, seed;
     private static int ID = 0;
+    private static String username, password;
+    private static long seed;
     
     //objects
     private static final SecureRandom secureRandom = new SecureRandom();
     
-    public User(int ID, String username, String password, String seed) {
+    public User(int ID, String username, String password, long seed) {
         this.ID = ID;
         this.username = username;
         this.password = password;
@@ -25,7 +26,7 @@ public class User {
         return password;
     }
     
-    public static String getSeed() {
+    public static long getSeed() {
         return seed;
     }
     
@@ -36,7 +37,7 @@ public class User {
     public static void logout() {
         username = null;
         password = null;
-        seed = null;
+        seed = 0;
         ID = 0;
     }
         

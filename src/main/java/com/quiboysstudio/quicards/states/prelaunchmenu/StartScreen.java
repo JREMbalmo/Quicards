@@ -1,7 +1,8 @@
-package com.quiboysstudio.quicards.states;
+package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
 import com.quiboysstudio.quicards.configs.FrameConfig;
+import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import javax.swing.ImageIcon;
@@ -46,7 +47,6 @@ public class StartScreen extends State {
         
         //stops initializing again if done once
         if (initialized) return;
-        initialized = true;
         
         System.out.println("Initializing JFrame");
         System.out.println("Initializing elements from StartScreen state");
@@ -124,6 +124,8 @@ public class StartScreen extends State {
         });
         
         System.out.println("Entering StartScreen State");
+        
+        initialized = true;
     }
     
     @Override

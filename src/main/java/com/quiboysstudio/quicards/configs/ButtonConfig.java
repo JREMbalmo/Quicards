@@ -6,18 +6,34 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ButtonConfig {
-    
+
     static int roundness = 80;
-    //custom button subclass for rounded corners & custom hover states
+
+    //custom button subclass for rounded corners and custom hover states
     private static class RoundedButton extends JButton {
         boolean hovering = false;
+        private Color defaultBackground;
+        private Color defaultForeground;
 
-        public RoundedButton(String text) {
+        public RoundedButton(String text, Color color) {
             super(text);
             setContentAreaFilled(false);
             setBorderPainted(false);
             setOpaque(false);
             setFocusPainted(false);
+
+            // store default colors
+            this.defaultBackground = color;
+            this.defaultForeground = Color.WHITE;
+            setBackground(defaultBackground);
+            setForeground(defaultForeground);
+        }
+
+        public void resetVisualState() {
+            hovering = false;
+            setBackground(defaultBackground);
+            setForeground(defaultForeground);
+            repaint();
         }
 
         @Override
@@ -26,8 +42,10 @@ public class ButtonConfig {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), FrameConfig.scale(State.frame, roundness), FrameConfig.scale(State.frame, roundness));
-            
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(),
+                    FrameConfig.scale(State.frame, roundness),
+                    FrameConfig.scale(State.frame, roundness));
+
             super.paintComponent(g2);
             g2.dispose();
         }
@@ -38,9 +56,27 @@ public class ButtonConfig {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             g2.setColor(hovering ? Color.WHITE : Color.BLACK);
-            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, FrameConfig.scale(State.frame, roundness), FrameConfig.scale(State.frame, roundness));
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1,
+                    FrameConfig.scale(State.frame, roundness),
+                    FrameConfig.scale(State.frame, roundness));
 
             g2.dispose();
+        }
+
+        @Override
+        public void setVisible(boolean aFlag) {
+            super.setVisible(aFlag);
+            if (!aFlag) {
+                resetVisualState();
+            }
+        }
+
+        @Override
+        protected void processFocusEvent(FocusEvent e) {
+            super.processFocusEvent(e);
+            if (e.getID() == FocusEvent.FOCUS_LOST) {
+                resetVisualState();
+            }
         }
     }
 
@@ -54,12 +90,8 @@ public class ButtonConfig {
 
     //general button
     public static JButton createCustomButton(String text, Font font, int width, Color color, Runnable action) {
-        RoundedButton button = new RoundedButton(text);
-        button.setForeground(Color.WHITE);
-        button.setBackground(color);
-        button.setPreferredSize(FrameConfig.scale(State.frame,
-                width,
-                78));
+        RoundedButton button = new RoundedButton(text, color);
+        button.setPreferredSize(FrameConfig.scale(State.frame, width, 78));
         button.setFont(font);
 
         button.addMouseListener(new MouseAdapter() {
@@ -96,7 +128,7 @@ public class ButtonConfig {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (action != null) {
-                    action.run(); // ✅ Execute your custom method
+                    action.run();
                 }
                 button.repaint();
             }

@@ -1,5 +1,6 @@
-package com.quiboysstudio.quicards.states;
+package com.quiboysstudio.quicards.states.prelaunchmenu;
 
+import com.quiboysstudio.quicards.states.State;
 import java.util.Scanner;
 
 //TO DO:

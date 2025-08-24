@@ -1,20 +1,28 @@
 package com.quiboysstudio.quicards.managers;
 
 //imports
+import com.quiboysstudio.quicards.states.misc.*;
+import com.quiboysstudio.quicards.states.postlaunchmenu.*;
+import com.quiboysstudio.quicards.states.prelaunchmenu.*;
 import com.quiboysstudio.quicards.states.*;
+import com.quiboysstudio.quicards.states.matchmaking.*;
+import com.quiboysstudio.quicards.states.store.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class StateManager {
     //objects
-    private static Timer mainLoop;
+    private static final Timer mainLoop = new Timer();
     private static TimerTask task;
     
     public static void init() {
         //initialize states
         
-        //loading screen
+        //misc states
         State.exitState = new ExitState();
+        State.wipState = new WIPState();
+        
+        //loading screen
         State.startScreen = new StartScreen();                      //loading screen
         
         //pre-launch page
@@ -24,10 +32,17 @@ public class StateManager {
         State.loginMenu = new LoginMenu();                          //login account menu
         State.registerMenu = new RegisterMenu();                    //register account menu
         
-        //launch page
+        //post-launch page
         State.mainMenu = new MainMenu();                            // main menu
+        State.inventoryMenu = new InventoryMenu();                  //inventory menu
+        State.settingsMenu = new SettingsMenu();                    //settings menu
         
-        //post-launchpage
+        //store
+        State.storeMenu = new StoreMenu();                          //store
+        
+        //matchmaking
+        State.createRoomMenu = new CreateRoomMenu();                //create room
+        State.joinRoomMenu = new JoinRoomMenu();                    //join room
         
         //setup initial current state after opening app
         State.currentState = State.serverMenu;
@@ -40,8 +55,6 @@ public class StateManager {
                 State.currentState.update();
             }
         };
-        
-        mainLoop = new Timer();
     }
 
     public static void run() {
