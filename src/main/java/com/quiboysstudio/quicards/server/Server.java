@@ -17,6 +17,12 @@ public class Server {
     public static Statement statement;
     public static ResultSet result;
     
+    public static void leaveServer() {
+        database = null;
+        username = null;
+        password = null;
+    }
+    
     public static void setDatabase(String ip, String port, String username, String password) {
         database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
         Server.username = username;

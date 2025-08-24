@@ -17,10 +17,20 @@ public class JoinServerMenu extends State{
     
     //variables
     private boolean running = false;
+    private boolean initialized = false;
     
     //objects
-    private static JPanel serverInfoPanel;
-    private static JPanel buttonPanel;
+    private JPanel serverInfoPanel;
+    private JPanel buttonPanel;
+    private JTextField ipField;
+    private JTextField portField;
+    private JTextField usernameField;
+    private JTextField passwordField;
+    private JLabel ipLabel;
+    private JLabel portLabel;
+    private JLabel usernameLabel;
+    private JLabel passwordLabel;
+    
     
     @Override
     public void enter() {
@@ -41,33 +51,40 @@ public class JoinServerMenu extends State{
         frame.repaint();
     }
     
-    private Runnable connectServer(JTextField ip, JTextField port, JTextField username, JTextField password) { 
-        return () -> {
-            System.out.println(String.format(
-                    "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
-                    String.valueOf(ip.getText()), String.valueOf(port.getText()),
-                    String.valueOf(username.getText()), String.valueOf(password.getText())));
+    private void connectServer() { 
+        //variables
+        String ip = String.valueOf(ipField.getText());
+        String port = String.valueOf(portField.getText());
+        String username = String.valueOf(usernameField.getText());
+        String password = String.valueOf(passwordField.getText());
+            
+        System.out.println(String.format(
+                "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
+                ip, port, username, password));
 
-            Server.setDatabase(String.valueOf(ip.getText()), String.valueOf(port.getText()),
-                    String.valueOf(username.getText()), String.valueOf(password.getText()));
-            if (Server.DBConnect()) {
-                //run if connection is successful
-                JOptionPane.showMessageDialog(null, "Connected to server");
-                currentState = loginMenu;
-                exit();
-            } else {
-                //run if connection failed
-                JOptionPane.showMessageDialog(null, "Can't connect to server");
-                ip.setText(null);
-                port.setText(null);
-                username.setText(null);
-                password.setText(null);
-            }
-        };
+        Server.setDatabase(ip, port, username, password);
+        if (Server.DBConnect()) {
+            //run if connection is successful
+            JOptionPane.showMessageDialog(null, "Connected to server");
+            ipField.setText(null);
+            portField.setText(null);
+            usernameField.setText(null);
+            passwordField.setText(null);
+            currentState = loginMenu;
+            exit();
+        } else {
+            //run if connection failed
+            JOptionPane.showMessageDialog(null, "Can't connect to server");
+            ipField.setText(null);
+            portField.setText(null);
+            usernameField.setText(null);
+            passwordField.setText(null);
+        }
     }
 
     private void init() {
-        if (running) return;
+        if (initialized) return;
+        initialized = true;
         
         System.out.println("Initializing elements from JoinServerMenu state");
         System.out.println("Entering JoinServerMenu state");
@@ -85,16 +102,16 @@ public class JoinServerMenu extends State{
         buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 50),0,0,0));
         
         //text fields
-        JTextField ipField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        JTextField portField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        JTextField usernameField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        JTextField passwordField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        ipField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        portField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        usernameField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = TextFieldConfig.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        JLabel ipLabel = LabelConfig.createRoundedLabel("IP",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        JLabel portLabel = LabelConfig.createRoundedLabel("Port",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        JLabel usernameLabel = LabelConfig.createRoundedLabel("Username",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        JLabel passwordLabel = LabelConfig.createRoundedLabel("Password",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        ipLabel = LabelConfig.createRoundedLabel("IP",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        portLabel = LabelConfig.createRoundedLabel("Port",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        usernameLabel = LabelConfig.createRoundedLabel("Username",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = LabelConfig.createRoundedLabel("Password",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
         //add components
         serverInfoPanel.add(ipLabel);
@@ -108,8 +125,7 @@ public class JoinServerMenu extends State{
         
         //buttons
         buttonPanel.add(ButtonConfig.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, serverMenu));
-        buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE,
-                connectServer(ipField,portField,usernameField,passwordField)));
+        buttonPanel.add(ButtonConfig.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {connectServer();}));
         serverInfoPanel.add(buttonPanel);
     }
 
@@ -118,8 +134,8 @@ public class JoinServerMenu extends State{
         System.out.println("Removing elements from JoinServerMenu");
         System.out.println("Preparing to transition to next state");
         running = false;
+        
+        //cleanup
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(serverInfoPanel));
-        frame.revalidate();
-        frame.repaint();
     }
 }

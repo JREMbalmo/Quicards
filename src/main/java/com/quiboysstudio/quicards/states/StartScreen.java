@@ -14,6 +14,7 @@ public class StartScreen extends State {
     //variables
     private int phase = 0;
     private boolean running = false;
+    private boolean initialized = false;
     
     //objects
     private JLabel logoLabel;
@@ -44,7 +45,8 @@ public class StartScreen extends State {
     private void init() {
         
         //stops initializing again if done once
-        if (running) return;
+        if (initialized) return;
+        initialized = true;
         
         System.out.println("Initializing JFrame");
         System.out.println("Initializing elements from StartScreen state");
@@ -128,9 +130,17 @@ public class StartScreen extends State {
     public void exit() {
         System.out.println("Removing elements from StartScreen state");
         System.out.println("Preparing to transition to next state");
+        
         // clear everything from the frame before going to next state
         running = false;
         frame.getContentPane().removeAll();
+        panel.removeAll();
+        logoLabel = null;
+        panel = null;
+        studioLogo = null;
+        gameLogo = null;
+        splashScreen = null;
+        
         frame.revalidate();
         frame.repaint();
     }

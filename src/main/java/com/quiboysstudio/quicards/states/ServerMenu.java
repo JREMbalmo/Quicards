@@ -15,12 +15,13 @@ public class ServerMenu extends State{
     
     //variables
     private boolean running = false;
+    private boolean initialized = false;
     
     //objects
-    private static JPanel header;
-    private static JPanel buttonPanel;
-    private static JLabel logoLabel;
-    private static ImageIcon gameLogo;
+    private JPanel header;
+    private JPanel buttonPanel;
+    private JLabel logoLabel;
+    private ImageIcon gameLogo;
     
     @Override
     public void enter() {
@@ -47,7 +48,8 @@ public class ServerMenu extends State{
     }
 
     private void init() {
-        if (running) return;
+        if (initialized) return;
+        initialized = true;
         
         System.out.println("initializing elements from server menu");
         
@@ -92,7 +94,5 @@ public class ServerMenu extends State{
         System.out.println("Preparing to transition to next state");
         running = false;
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(buttonPanel));
-        frame.revalidate();
-        frame.repaint();
     }
 }
