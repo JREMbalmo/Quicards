@@ -29,7 +29,6 @@ public class JoinServerMenu extends State{
     private JLabel usernameLabel;
     private JLabel passwordLabel;
     
-    
     @Override
     public void enter() {
         init();
@@ -61,6 +60,16 @@ public class JoinServerMenu extends State{
                 ip, port, username, password));
 
         Server.setServer(ip, port, username, password, Server.JOIN);
+        
+        //check if server has correct setup
+//        if (!Server.checkServer()) {
+//            JOptionPane.showMessageDialog(null, "Server does not have correct setup!");
+//            return;
+//        }
+        
+        //check if server is being hosted
+        
+        
         if (Server.connectServer()) {
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
