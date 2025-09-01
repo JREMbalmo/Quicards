@@ -1,9 +1,12 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
+import com.quiboysstudio.quicards.components.CustomButton;
+import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.CustomTextField;
+import com.quiboysstudio.quicards.components.CustomLabel;
 import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.account.User;
-import com.quiboysstudio.quicards.configs.*;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.Box;
@@ -111,16 +114,16 @@ public class LoginMenu extends State{
         
         //actions panel
         actionsPanel = new JPanel();
-        actionsPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
+        actionsPanel.setPreferredSize(FrameConfig.scale(frame, 580, 520));
         actionsPanel.setBackground(FrameConfig.BLUE);
         actionsPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
         
         //actions buttons
-        actionsPanel.add(ButtonConfig.createCustomButton("Login Account", FrameConfig.SATOSHI_BOLD, 577, FrameConfig.ORANGE, () -> {showLoginMenu();}));
+        actionsPanel.add(CustomButton.createCustomButton("Login Account", FrameConfig.SATOSHI_BOLD, 577, () -> {showLoginMenu();}));
         actionsPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        actionsPanel.add(ButtonConfig.createStateChangerButton("Create Account", FrameConfig.SATOSHI_BOLD, 577, FrameConfig.ORANGE, registerMenu));
+        actionsPanel.add(CustomButton.createStateChangerButton("Create Account", FrameConfig.SATOSHI_BOLD, 577, registerMenu));
         actionsPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        actionsPanel.add(ButtonConfig.createCustomButton("Change Server", FrameConfig.SATOSHI_BOLD, 577, FrameConfig.BLACK,
+        actionsPanel.add(CustomButton.createCustomButton("Change Server", FrameConfig.SATOSHI_BOLD, 577,
                 () -> {Server.leaveServer(); currentState = serverMenu; exit();}));
         actionsPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
         
@@ -131,12 +134,12 @@ public class LoginMenu extends State{
         loginPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
         
         //text fields
-        usernameField = TextFieldConfig.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        passwordField = TextFieldConfig.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        usernameField = CustomTextField.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        passwordField = CustomTextField.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = LabelConfig.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = LabelConfig.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = CustomLabel.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = CustomLabel.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //add components to login panel
         loginPanel.add(usernameLabel);
@@ -151,8 +154,8 @@ public class LoginMenu extends State{
         buttonPanel.setPreferredSize(FrameConfig.scale(frame, 556, 150));
         
         //login buttons
-        buttonPanel.add(ButtonConfig.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {exit();}));
-        buttonPanel.add(ButtonConfig.createCustomButton("Login", FrameConfig.SATOSHI_BOLD, 250, FrameConfig.ORANGE, () -> {loginAttempt();}));
+        buttonPanel.add(CustomButton.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {exit();}));
+        buttonPanel.add(CustomButton.createCustomButton("Login", FrameConfig.SATOSHI_BOLD, 250, () -> {loginAttempt();}));
         
         //add button panel to login panel
         loginPanel.add(buttonPanel);

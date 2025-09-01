@@ -1,14 +1,14 @@
-package com.quiboysstudio.quicards.configs;
+package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.states.State;
 import javax.swing.*;
 import java.awt.*;
 
-public class TextFieldConfig extends JTextField {
+public class CustomTextField extends JTextField {
     private int roundness = 50;
     private Color borderColor;
 
-    public TextFieldConfig(Color borderColor) {
+    public CustomTextField(Color borderColor) {
         this.borderColor = borderColor;
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(FrameConfig.scale(State.frame, 5),
@@ -49,7 +49,7 @@ public class TextFieldConfig extends JTextField {
     public static JTextField createRoundedTextField(int width, int height,
             Color backgroundColor, Color borderColor, Font font) {
 
-        TextFieldConfig field = new TextFieldConfig(borderColor);
+        CustomTextField field = new CustomTextField(borderColor);
         field.setBackground(backgroundColor);
         field.setFont(font);
         field.setForeground(Color.BLACK);

@@ -1,13 +1,16 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
-import com.quiboysstudio.quicards.configs.*;
+import com.quiboysstudio.quicards.components.CustomButton;
+import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Image;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -22,6 +25,8 @@ public class ServerMenu extends State{
     private JPanel buttonPanel;
     private JLabel logoLabel;
     private ImageIcon gameLogo;
+    private JLayeredPane layeredPanel;
+    private JPanel firstLayerPanel;
     
     @Override
     public void enter() {
@@ -40,8 +45,7 @@ public class ServerMenu extends State{
         
         System.out.println("Showing server menu");
         
-        frame.add(header, BorderLayout.NORTH);
-        frame.add(buttonPanel, BorderLayout.CENTER);
+        cardLayout.show(cardPanel, "Server Menu");
         frame.revalidate();
         frame.repaint();
 
@@ -49,43 +53,57 @@ public class ServerMenu extends State{
 
     private void init() {
         if (initialized) return;
-        
+
         System.out.println("initializing elements from server menu");
+
+        // initialize layered panel
+        layeredPanel = new JLayeredPane();
+        layeredPanel.setOpaque(false);
+        layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         
-        //change frame background
-        frame.getContentPane().setBackground(FrameConfig.BLUE);
+        //initialize first layer
+        firstLayerPanel = new JPanel();
+        firstLayerPanel.setOpaque(false);
+        firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        firstLayerPanel.setLayout(new BorderLayout());
         
-        //create header panel
+        // create header panel
         header = new JPanel();
-        header.setPreferredSize(FrameConfig.scale(frame,1920,203));
-        header.setBackground(FrameConfig.BLUE);
+        header.setOpaque(false);
         header.setLayout(new BorderLayout());
-        
-        //create logo label
-        gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage().
-                getScaledInstance(FrameConfig.scale(frame, 622), FrameConfig.scale(frame, 150), Image.SCALE_SMOOTH));
-        logoLabel = new JLabel();
-        logoLabel.setIcon(gameLogo);
+        header.setBorder(new EmptyBorder(FrameConfig.scale(frame, 50), 0, 0, 0));
+        gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
+                .getScaledInstance(FrameConfig.scale(frame, 622), FrameConfig.scale(frame, 150), Image.SCALE_SMOOTH));
+        logoLabel = new JLabel(gameLogo);
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoLabel.setVerticalAlignment(JLabel.BOTTOM);
-        logoLabel.setPreferredSize(FrameConfig.scale(frame, 622, 202));
         header.add(logoLabel, BorderLayout.CENTER);
-        frame.add(header, BorderLayout.NORTH);
+
+        //add header to first layer
+        firstLayerPanel.add(header, BorderLayout.NORTH);
         
-        //create button panel with buttons
+        // create button panel with buttons
         buttonPanel = new JPanel();
-        buttonPanel.setBackground(FrameConfig.BLUE);
-        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
+        buttonPanel.setBackground(null);
+        buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
-        //buttons
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Host Server", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, hostServerMenu));
-        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, joinServerMenu));
-        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Exit", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, exitState));
-        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        frame.add(buttonPanel, BorderLayout.CENTER);
+        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 580, 520));
+        buttonPanel.add(CustomButton.createStateChangerButton("Host Server", FrameConfig.SATOSHI_BOLD, 557, hostServerMenu));
+        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100)));
+        buttonPanel.add(CustomButton.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, joinServerMenu));
+        buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100)));
+        buttonPanel.add(CustomButton.createStateChangerButton("Exit", FrameConfig.SATOSHI_BOLD, 557, exitState));
         
+        //add button panel to first layer
+        firstLayerPanel.add(buttonPanel, BorderLayout.CENTER);
+        
+        //add components
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0)); //background
+        layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //create server menu card
+        cardPanel.add("Server Menu", layeredPanel);
+
         initialized = true;
     }
 

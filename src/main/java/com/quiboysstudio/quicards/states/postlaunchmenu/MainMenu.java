@@ -1,7 +1,8 @@
 package com.quiboysstudio.quicards.states.postlaunchmenu;
 
+import com.quiboysstudio.quicards.components.CustomButton;
+import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.account.User;
-import com.quiboysstudio.quicards.configs.*;
 import com.quiboysstudio.quicards.states.State;
 import static com.quiboysstudio.quicards.states.State.frame;
 import java.awt.BorderLayout;
@@ -52,20 +53,20 @@ public class MainMenu extends State{
         buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 30),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
         
         //buttons
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Join Room", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, wipState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Join Room", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Create Room", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.ORANGE, wipState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Create Room", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Store", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, wipState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Store", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Inventory", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, wipState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Inventory", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Settings", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, wipState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Settings", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createCustomButton("Log Out", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, () -> {
+        buttonPanel.add(CustomButton.createCustomButton("Log Out", FrameConfig.SATOSHI_BOLD, 557, () -> {
             User.logout(); currentState = loginMenu; exit();}));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
-        buttonPanel.add(ButtonConfig.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, FrameConfig.BLACK, exitState));
+        buttonPanel.add(CustomButton.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameConfig.scale(frame, 100))); //padding
         
         initialized = true;

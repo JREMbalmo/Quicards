@@ -1,7 +1,9 @@
-package com.quiboysstudio.quicards.configs;
+package com.quiboysstudio.quicards.components;
 
-import java.awt.BorderLayout;
+import com.quiboysstudio.quicards.states.State;
+import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -9,8 +11,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import java.io.File;
 import java.awt.Font;
+import java.awt.Image;
+import java.util.Random;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class FrameConfig extends JFrame{
+    //main frame
+    public static JFrame frame;
+    
     //colors
     public static final Color  BLACK = new Color(0,0,0);
     public static final Color  BLUE = new Color(22,33,61);
@@ -42,6 +51,10 @@ public class FrameConfig extends JFrame{
     public static Font SATOSHI_BOLD;
     public static Font SATOSHI_ITALIC;
     
+    //background
+    public static JPanel backgroundPanel;
+    public static JLabel backgroundLabel;
+    
     //frame configs
     private static final int BASE_WIDTH = 1920;
     private static final int BASE_HEIGHT = 1080;
@@ -51,16 +64,18 @@ public class FrameConfig extends JFrame{
     //init frame
     public static JFrame initFrame() {
         //setup frame
-        JFrame frame = new JFrame();
-        //frame.setSize(1920,1080); //standard 1080p
-        frame.setSize(1280,720);
+        frame = new JFrame();
+        frame.setSize(1920,1080); //standard 1080p
+        //frame.setSize(1280,720);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
+        frame.getContentPane().setLayout(new CardLayout());
         frame.setLocationRelativeTo(null);
         frame.setTitle("QuiCards");
         frame.getContentPane().setBackground(BLACK);
         frame.setIconImage(new ImageIcon("resources//logos//game_logo_appicon.png").getImage());
+        frame.setContentPane(new JPanel(new CardLayout()));
+        
         
         //setup fonts
         try {
@@ -76,6 +91,19 @@ public class FrameConfig extends JFrame{
         } catch (Exception e) {
             System.out.println("Error loading fonts: " + e);
         }
+        
+        //create background panel
+        backgroundPanel = new JPanel();
+        backgroundPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        backgroundPanel.setLayout(null);
+        backgroundPanel.setOpaque(false);
+        backgroundLabel = new JLabel();
+        backgroundLabel.setPreferredSize(scale(frame,1920,1080));
+        backgroundLabel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        backgroundLabel.setOpaque(false);
+        backgroundPanel.add(backgroundLabel);
+        generateBackground();
+        
         //attempt to fullscreen
 //        if (gd.isFullScreenSupported()) {
 //            //fullscreen if supported
@@ -122,13 +150,25 @@ public class FrameConfig extends JFrame{
     }
     
     public static Color getAltColor(Color color) {
-        if (color.equals(BLACK)) return GRAY;
-        if (color.equals(BLUE)) return DARK_BLUE;
-        if (color.equals(ORANGE)) return DARK_ORANGE;
-        if (color.equals(GRAY)) return DARK_GRAY;
-        if (color.equals(WHITE)) return DARK_WHITE;
+        int r = Math.max(0, color.getRed() - 30);
+        int g = Math.max(0, color.getGreen() - 30);
+        int b = Math.max(0, color.getBlue() - 30);
+        return new Color(r, g, b, color.getAlpha());
+    }
+    
+    public static void generateBackground() {
+        Random random = new Random();
         
-        System.out.println("Color not found");
-        return WHITE; //whtie default if not found
+        int num = random.nextInt(1) + 1;
+        
+        backgroundLabel.setIcon(new ImageIcon(new ImageIcon("resources//backgrounds//bg" + num + ".png").getImage().
+                getScaledInstance(scale(frame, 1920), scale(frame, 1080), Image.SCALE_SMOOTH)));
+    }
+    
+    public static Container getCardPanel() {
+        Container cardPanel = frame.getContentPane();
+        cardPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        cardPanel.setLayout(State.cardLayout);
+        return cardPanel;
     }
 }

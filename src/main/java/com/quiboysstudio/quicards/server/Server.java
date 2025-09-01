@@ -56,32 +56,14 @@ public class Server {
         return false; //default
     }
     
-//    public static boolean connectServer() {
-//        try {
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-//            connection = DriverManager.getConnection(database, username, password);
-//            statement = connection.createStatement();
-//            System.out.println("Connected to server!");
-//            return true;
-//        } catch(Exception e) {
-//            System.out.println("Failed to connect to server: " + e);
-//            return false;
-//        }
-//    }
-    
-        public static boolean connectServer(){
-        String db = "Server";
-        String uname = "admin";
-        String pswd = "]#KCzK9[MeePV8<6YN~o2YOj48dT";
-
-        try{
+    public static boolean connectServer() {
+        try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://paydaybank.cluster-chqoc26c4kyy.ap-southeast-1.rds.amazonaws.com:3306/" + db + "?serverTimezone=UTC";
-            connection = DriverManager.getConnection(url, uname, pswd);
+            connection = DriverManager.getConnection(database, username, password);
             statement = connection.createStatement();
             System.out.println("Connected to server!");
             return true;
-        } catch (Exception e) {
+        } catch(Exception e) {
             System.out.println("Failed to connect to server: " + e);
             return false;
         }

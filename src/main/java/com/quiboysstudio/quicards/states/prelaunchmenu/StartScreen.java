@@ -1,7 +1,7 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
-import com.quiboysstudio.quicards.configs.FrameConfig;
+import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;

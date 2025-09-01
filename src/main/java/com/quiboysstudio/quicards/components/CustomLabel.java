@@ -1,14 +1,14 @@
-package com.quiboysstudio.quicards.configs;
+package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.states.State;
 import javax.swing.*;
 import java.awt.*;
 
-public class LabelConfig extends JLabel {
+public class CustomLabel extends JLabel {
     private int roundness = 50;
     private Color borderColor;
 
-    public LabelConfig(String text, Color borderColor) {
+    public CustomLabel(String text, Color borderColor) {
         super(text, SwingConstants.CENTER);
         this.borderColor = borderColor;
         setOpaque(false);
@@ -46,7 +46,7 @@ public class LabelConfig extends JLabel {
     public static JLabel createRoundedLabel(String text, int width, int height,
             Color backgroundColor, Color borderColor, Font font, Color fontColor) {
         
-        LabelConfig label = new LabelConfig(text, borderColor);
+        CustomLabel label = new CustomLabel(text, borderColor);
         label.setBackground(backgroundColor);
         label.setFont(font);
         label.setForeground(fontColor);
