@@ -1,6 +1,7 @@
 package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.states.State;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,12 +10,16 @@ public class CustomTextField extends JTextField {
     private Color borderColor;
 
     public CustomTextField(Color borderColor) {
-        this.borderColor = borderColor;
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(FrameConfig.scale(State.frame, 5),
-                FrameConfig.scale(State.frame, 10),
-                FrameConfig.scale(State.frame, 5),
-                FrameConfig.scale(State.frame, 10))); //padding
+        setBackground(Color.WHITE); // input area always white
+        setForeground(Color.BLACK); // user text stays readable
+        this.borderColor = borderColor;
+        setBorder(BorderFactory.createEmptyBorder(
+                FrameUtil.scale(State.frame, 5),
+                FrameUtil.scale(State.frame, 10),
+                FrameUtil.scale(State.frame, 5),
+                FrameUtil.scale(State.frame, 10)
+        )); // padding
     }
 
     @Override
@@ -22,40 +27,40 @@ public class CustomTextField extends JTextField {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        int arc = FrameUtil.scale(State.frame, roundness);
+        int borderSize = FrameUtil.scale(State.frame, 3);
+
+        int x = borderSize;
+        int y = borderSize;
+        int w = getWidth() - (borderSize * 2 - 1);
+        int h = getHeight() - (borderSize * 2 - 1);
+
+        // Fill background white inside the border
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1,
-                FrameConfig.scale(State.frame, roundness),
-                FrameConfig.scale(State.frame, roundness));
+        g2.fillRoundRect(x, y, w, h, arc, arc);
 
         super.paintComponent(g2);
         g2.dispose();
     }
-
 
     @Override
     protected void paintBorder(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        int arc = FrameUtil.scale(State.frame, roundness);
+        int borderSize = FrameUtil.scale(State.frame, 3);
+
+        g2.setStroke(new BasicStroke(borderSize));
         g2.setColor(borderColor);
-        g2.setStroke(new BasicStroke(1));
-        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1,
-                FrameConfig.scale(State.frame, roundness),
-                FrameConfig.scale(State.frame, roundness));
+        g2.drawRoundRect(
+            borderSize / 2,
+            borderSize / 2,
+            getWidth() - borderSize,
+            getHeight() - borderSize,
+            arc, arc
+        );
 
         g2.dispose();
-    }
-    
-    public static JTextField createRoundedTextField(int width, int height,
-            Color backgroundColor, Color borderColor, Font font) {
-
-        CustomTextField field = new CustomTextField(borderColor);
-        field.setBackground(backgroundColor);
-        field.setFont(font);
-        field.setForeground(Color.BLACK);
-        field.setCaretColor(Color.BLACK);
-        field.setPreferredSize(FrameConfig.scale(State.frame, width, height));
-
-        return field;
     }
 }

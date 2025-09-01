@@ -2,6 +2,7 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;
@@ -55,19 +56,19 @@ public class StartScreen extends State {
         //logo setup
         logoLabel = new JLabel();
         studioLogo = new ImageIcon(new ImageIcon("resources//logos//studio_logo_white_text.png").getImage().
-                getScaledInstance(FrameConfig.scale(frame, 720), FrameConfig.scale(frame, 720), Image.SCALE_SMOOTH));
+                getScaledInstance(FrameUtil.scale(frame, 720), FrameUtil.scale(frame, 720), Image.SCALE_SMOOTH));
         gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_notext.png").getImage().
-                getScaledInstance(FrameConfig.scale(frame, 500), FrameConfig.scale(frame, 500), Image.SCALE_SMOOTH));
+                getScaledInstance(FrameUtil.scale(frame, 500), FrameUtil.scale(frame, 500), Image.SCALE_SMOOTH));
         
         //panel setup
         panel = new JPanel();
         panel.setBackground(FrameConfig.BLACK);
-        panel.setSize(FrameConfig.scale(frame, 1920, 1080));
+        panel.setSize(FrameUtil.scale(frame, 1920, 1080));
         panel.setLayout(new BorderLayout());
         panel.add(logoLabel, BorderLayout.CENTER);
         
         //label config
-        logoLabel.setPreferredSize(FrameConfig.scale(frame, 1, 1));
+        logoLabel.setPreferredSize(FrameUtil.scale(frame, 1, 1));
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoLabel.setVerticalAlignment(JLabel.CENTER);
         

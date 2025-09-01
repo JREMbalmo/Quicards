@@ -1,11 +1,13 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
-import com.quiboysstudio.quicards.components.CustomButton;
+//imports
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.FrameConfig;
-import com.quiboysstudio.quicards.components.CustomTextField;
-import com.quiboysstudio.quicards.components.CustomLabel;
 import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.account.User;
+import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
+import com.quiboysstudio.quicards.components.factories.CustomLabelFactory;
+import com.quiboysstudio.quicards.components.factories.CustomTextFieldFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -110,29 +112,29 @@ public class RegisterMenu extends State{
         
         //register panel
         registerPanel = new JPanel();
-        registerPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
+        registerPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
         registerPanel.setBackground(FrameConfig.BLUE);
-        registerPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        registerPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //text fields
-        usernameField = CustomTextField.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        passwordField = CustomTextField.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        confirmField = CustomTextField.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        usernameField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        passwordField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        confirmField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = CustomLabel.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = CustomLabel.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        confirmLabel = CustomLabel.createRoundedLabel("Confirm", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        confirmLabel = CustomLabelFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //button panel
         buttonPanel = new JPanel();
         buttonPanel.setBackground(FrameConfig.BLUE);
-        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 50),0,0,0));
-        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
+        buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
         
         //register buttons
-        buttonPanel.add(CustomButton.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, loginMenu));
-        buttonPanel.add(CustomButton.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
+        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, loginMenu));
+        buttonPanel.add(CustomButtonFactory.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
         
         //add components
         registerPanel.add(usernameLabel);

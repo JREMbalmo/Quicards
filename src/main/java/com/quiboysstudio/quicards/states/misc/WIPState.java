@@ -1,7 +1,9 @@
 package com.quiboysstudio.quicards.states.misc;
 
-import com.quiboysstudio.quicards.components.CustomButton;
+//imports
 import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.Image;
 import javax.swing.ImageIcon;
@@ -49,13 +51,13 @@ public class WIPState extends State{
         
         //panel
         panel = new JPanel();
-        panel.setPreferredSize(FrameConfig.scale(frame, 500, 500));
+        panel.setPreferredSize(FrameUtil.scale(frame, 500, 500));
         panel.setBackground(FrameConfig.BLUE);
-        panel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 30),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        panel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 30),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //imageicon
         ImageIcon icon = new ImageIcon(new ImageIcon("resources//misc//wip.png").getImage().
-                getScaledInstance(FrameConfig.scale(frame, 500), FrameConfig.scale(frame, 500), Image.SCALE_SMOOTH));
+                getScaledInstance(FrameUtil.scale(frame, 500), FrameUtil.scale(frame, 500), Image.SCALE_SMOOTH));
         
         //label
         label = new JLabel();
@@ -64,7 +66,7 @@ public class WIPState extends State{
         
         //add components
         panel.add(label);
-        panel.add(CustomButton.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, mainMenu));
+        panel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, mainMenu));
         
         System.out.println("Entering WIP state");
         

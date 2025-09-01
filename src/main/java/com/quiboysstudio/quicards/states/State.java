@@ -1,6 +1,6 @@
 package com.quiboysstudio.quicards.states;
 
-import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import java.awt.CardLayout;
 import java.awt.Container;
 import javax.swing.JFrame;
@@ -10,8 +10,8 @@ public abstract class State{
     public static final CardLayout cardLayout = new CardLayout();
     
     //frame
-    public static final JFrame frame = FrameConfig.initFrame();
-    public static final Container cardPanel = FrameConfig.getCardPanel();
+    public static final JFrame frame = FrameUtil.initFrame();
+    public static final Container cardPanel = FrameUtil.getCardPanel(cardLayout);
     
     //valid states
     public static State startScreen, serverMenu, loginMenu, mainMenu,

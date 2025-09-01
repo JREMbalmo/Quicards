@@ -1,10 +1,11 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
-import com.quiboysstudio.quicards.components.CustomButton;
 import com.quiboysstudio.quicards.components.FrameConfig;
-import com.quiboysstudio.quicards.components.CustomTextField;
-import com.quiboysstudio.quicards.components.CustomLabel;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
+import com.quiboysstudio.quicards.components.factories.CustomLabelFactory;
+import com.quiboysstudio.quicards.components.factories.CustomTextFieldFactory;
 import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
@@ -92,26 +93,26 @@ public class JoinServerMenu extends State{
         //main panel;
         serverInfoPanel = new JPanel();
         serverInfoPanel.setBackground(FrameConfig.BLUE);
-        serverInfoPanel.setPreferredSize(FrameConfig.scale(frame, 557, 520));
-        serverInfoPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 150),FrameConfig.scale(frame, 650),0,FrameConfig.scale(frame, 650)));
+        serverInfoPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
+        serverInfoPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //button panel
         buttonPanel = new JPanel();
         buttonPanel.setBackground(FrameConfig.BLUE);
-        buttonPanel.setPreferredSize(FrameConfig.scale(frame, 556, 150));
-        buttonPanel.setBorder(new EmptyBorder(FrameConfig.scale(frame, 50),0,0,0));
+        buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
         
         //text fields
-        ipField = CustomTextField.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        portField = CustomTextField.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        usernameField = CustomTextField.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        passwordField = CustomTextField.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        ipField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        portField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        usernameField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        ipLabel = CustomLabel.createRoundedLabel("IP",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        portLabel = CustomLabel.createRoundedLabel("Port",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        usernameLabel = CustomLabel.createRoundedLabel("Username",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        passwordLabel = CustomLabel.createRoundedLabel("Password",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        ipLabel = CustomLabelFactory.createRoundedLabel("IP",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        portLabel = CustomLabelFactory.createRoundedLabel("Port",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
         //add components
         serverInfoPanel.add(ipLabel);
@@ -124,8 +125,8 @@ public class JoinServerMenu extends State{
         serverInfoPanel.add(passwordField);
         
         //buttons
-        buttonPanel.add(CustomButton.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
-        buttonPanel.add(CustomButton.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
+        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
+        buttonPanel.add(CustomButtonFactory.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         
         initialized = true;
