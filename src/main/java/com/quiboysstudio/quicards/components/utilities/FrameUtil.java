@@ -19,8 +19,8 @@ public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig
     public static JFrame initFrame() {
         //setup frame
         frame = new JFrame();
-        frame.setSize(1920,1080); //standard 1080p
-        //frame.setSize(1280,720);
+        //frame.setSize(1920,1080); //standard 1080p
+        frame.setSize(1280,720);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new CardLayout());
@@ -58,14 +58,14 @@ public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig
         generateBackground();
         
         //attempt to fullscreen
-        if (gd.isFullScreenSupported()) {
-            //fullscreen if supported
-            gd.setFullScreenWindow(frame);
-        } else {
-            // fallback if fullscreen not supported
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            frame.setVisible(true);
-        }
+//        if (gd.isFullScreenSupported()) {
+//            //fullscreen if supported
+//            gd.setFullScreenWindow(frame);
+//        } else {
+//            // fallback if fullscreen not supported
+//            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//            frame.setVisible(true);
+//        }
         
         frame.setVisible(true);
         

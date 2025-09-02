@@ -73,7 +73,7 @@ public class ServerMenu extends State{
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50), 0, 0, 0));
         gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
-                .getScaledInstance(FrameUtil.scale(frame, 622), FrameUtil.scale(frame, 150), Image.SCALE_SMOOTH));
+                .getScaledInstance(FrameUtil.scale(frame, 721), FrameUtil.scale(frame, 171), Image.SCALE_SMOOTH));
         logoLabel = CustomLabelFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
         logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoLabel.setVerticalAlignment(JLabel.CENTER);
