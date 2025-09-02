@@ -77,8 +77,7 @@ public class JoinServerMenu extends State{
         if (Server.connectServer()) {
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
-            currentState = loginMenu;
-            exit();
+            exit(loginMenu);
         } else {
             //run if connection failed
             JOptionPane.showMessageDialog(null, "Can't connect to server");
@@ -109,12 +108,12 @@ public class JoinServerMenu extends State{
         passwordField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        ipLabel = CustomLabelFactory.createRoundedLabel("IP",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        portLabel = CustomLabelFactory.createRoundedLabel("Port",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        usernameLabel = CustomLabelFactory.createRoundedLabel("Username",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        passwordLabel = CustomLabelFactory.createRoundedLabel("Password",200,50,FrameConfig.BLUE,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        ipLabel = CustomLabelFactory.createRoundedLabel("IP",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        portLabel = CustomLabelFactory.createRoundedLabel("Port",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
-        //add components
+        //add component
         serverInfoPanel.add(ipLabel);
         serverInfoPanel.add(ipField);
         serverInfoPanel.add(portLabel);
@@ -135,10 +134,12 @@ public class JoinServerMenu extends State{
     }
 
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from JoinServerMenu");
         System.out.println("Preparing to transition to next state");
         running = false;
+        previousState = currentState;
+        currentState = nextState;
         
         //cleanup
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(serverInfoPanel));

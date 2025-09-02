@@ -66,7 +66,7 @@ public class WIPState extends State{
         
         //add components
         panel.add(label);
-        panel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, mainMenu));
+        panel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, previousState));
         
         System.out.println("Entering WIP state");
         
@@ -74,10 +74,12 @@ public class WIPState extends State{
     }
     
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from WIP State");
         System.out.println("Preparing to transition to next state");
-        running = false;
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(panel));
+        running = false;
+        previousState = currentState;
+        currentState = nextState;
     }
 }

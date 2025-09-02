@@ -6,13 +6,22 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CustomLabel extends JLabel {
-    private int roundness = 50;
+    private int roundness = 50; //default
     private Color borderColor;
 
     // Default gradient colors
     private static final Color TOP_COLOR = new Color(150, 150, 150, (int)(255 * 0.8));
     private static final Color BOTTOM_COLOR = new Color(30, 30, 30, (int)(255 * 0.8));
 
+    public CustomLabel(String text, Color color, int roundness) {
+        super(text, SwingConstants.CENTER);
+        setOpaque(false);
+        setForeground(Color.WHITE); // keep text visible
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        borderColor = color;
+        this.roundness = roundness;
+    }
+    
     public CustomLabel(String text, Color color) {
         super(text, SwingConstants.CENTER);
         setOpaque(false);
@@ -20,7 +29,7 @@ public class CustomLabel extends JLabel {
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         borderColor = color;
     }
-
+    
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();

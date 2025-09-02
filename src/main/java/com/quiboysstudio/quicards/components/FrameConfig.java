@@ -1,18 +1,10 @@
 package com.quiboysstudio.quicards.components;
 
-import com.quiboysstudio.quicards.states.State;
-import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import java.io.File;
 import java.awt.Font;
-import java.awt.Image;
-import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 

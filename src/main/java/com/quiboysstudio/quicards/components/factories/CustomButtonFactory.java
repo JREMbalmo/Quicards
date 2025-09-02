@@ -12,8 +12,7 @@ public class CustomButtonFactory {
         //state changer button
     public static JButton createStateChangerButton(String text, Font font, int width, State nextState) {
         return createCustomButton(text, font, width, () -> {
-            State.currentState.exit();
-            State.currentState = nextState;
+            State.currentState.exit(nextState);
         });
     }
 

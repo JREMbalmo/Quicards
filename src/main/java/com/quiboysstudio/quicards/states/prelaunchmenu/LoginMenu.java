@@ -97,8 +97,7 @@ public class LoginMenu extends State{
                 ID = Server.result.getInt("ID");
                 seed = Server.result.getLong("seed");
                 User user = new User(ID, serverUsername, serverPassword, seed);
-                currentState = mainMenu;
-                exit();
+                exit(mainMenu);
             } else {
                 JOptionPane.showMessageDialog(null, "Incorrect login information!");
             }
@@ -125,7 +124,7 @@ public class LoginMenu extends State{
         actionsPanel.add(CustomButtonFactory.createStateChangerButton("Create Account", FrameConfig.SATOSHI_BOLD, 577, registerMenu));
         actionsPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         actionsPanel.add(CustomButtonFactory.createCustomButton("Change Server", FrameConfig.SATOSHI_BOLD, 577,
-                () -> {Server.leaveServer(); currentState = serverMenu; exit();}));
+                () -> {Server.leaveServer(); exit(serverMenu);}));
         actionsPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         
         //login panel
@@ -139,8 +138,8 @@ public class LoginMenu extends State{
         passwordField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //add components to login panel
         loginPanel.add(usernameLabel);
@@ -155,7 +154,7 @@ public class LoginMenu extends State{
         buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
         
         //login buttons
-        buttonPanel.add(CustomButtonFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {exit();}));
+        buttonPanel.add(CustomButtonFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {exit(loginMenu);}));
         buttonPanel.add(CustomButtonFactory.createCustomButton("Login", FrameConfig.SATOSHI_BOLD, 250, () -> {loginAttempt();}));
         
         //add button panel to login panel
@@ -167,10 +166,13 @@ public class LoginMenu extends State{
     }
     
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from LoginMenu");
         System.out.println("Preparing to transition to next state");
         running = false;
+        previousState = currentState;
+        currentState = nextState;
+        
         if (actionsPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(actionsPanel));
         if (loginPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(loginPanel));
         usernameField.setText(null);

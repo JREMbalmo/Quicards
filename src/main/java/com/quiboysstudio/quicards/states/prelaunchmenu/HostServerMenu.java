@@ -46,11 +46,11 @@ public class HostServerMenu extends State{
         switch(scanner.nextLine()) {
             case "1":
                 linkServer();
-                exit();
+                exit(wipState);
                 break;
             case "2":
                 setupServer(ip, port, username, password);
-                exit();
+                exit(wipState);
                 break;
             case "3":
                 break;
@@ -118,7 +118,7 @@ public class HostServerMenu extends State{
     }
 
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from HostServerMenuState");
         System.out.println("Preparing to transition to next state");
     }

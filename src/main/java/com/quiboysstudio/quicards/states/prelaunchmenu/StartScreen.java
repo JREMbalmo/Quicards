@@ -119,8 +119,7 @@ public class StartScreen extends State {
                 //move to servermenu state
                 case 5:
                     splashScreen.stop();
-                    currentState = serverMenu;
-                    exit();
+                    exit(serverMenu);
             }
         });
         
@@ -130,11 +129,11 @@ public class StartScreen extends State {
     }
     
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from StartScreen state");
         System.out.println("Preparing to transition to next state");
         
-        // clear everything from the frame before going to next state
+        //clear everything from the frame before going to next state
         running = false;
         frame.getContentPane().removeAll();
         panel.removeAll();
@@ -144,7 +143,7 @@ public class StartScreen extends State {
         gameLogo = null;
         splashScreen = null;
         
-        frame.revalidate();
-        frame.repaint();
+        previousState = currentState;
+        currentState = nextState;
     }
 }

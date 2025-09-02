@@ -66,7 +66,7 @@ public class MainMenu extends State{
         buttonPanel.add(CustomButtonFactory.createStateChangerButton("Settings", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         buttonPanel.add(CustomButtonFactory.createCustomButton("Log Out", FrameConfig.SATOSHI_BOLD, 557, () -> {
-            User.logout(); currentState = loginMenu; exit();}));
+            User.logout(); exit(loginMenu);}));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         buttonPanel.add(CustomButtonFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
@@ -75,10 +75,12 @@ public class MainMenu extends State{
     }
     
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from MainMenu");
         System.out.println("Preparing to transition to next state");
-        running = false;
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(buttonPanel));
+        running = false;
+        previousState = currentState;
+        currentState = nextState;
     }
 }

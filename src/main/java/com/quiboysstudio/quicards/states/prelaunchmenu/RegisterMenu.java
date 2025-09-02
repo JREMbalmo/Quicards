@@ -92,8 +92,7 @@ public class RegisterMenu extends State{
                 
                 //setup user class
                 User user = new User(id, username, password, seed);
-                currentState = mainMenu;
-                exit();
+                exit(mainMenu);
             } else {
                 JOptionPane.showMessageDialog(null, "Username is already taken!");
                 passwordField.setText(null);
@@ -122,9 +121,9 @@ public class RegisterMenu extends State{
         confirmField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        confirmLabel = CustomLabelFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.BLUE, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        confirmLabel = CustomLabelFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //button panel
         buttonPanel = new JPanel();
@@ -151,10 +150,13 @@ public class RegisterMenu extends State{
     }
     
     @Override
-    public void exit() {
+    public void exit(State nextState) {
         System.out.println("Removing elements from RegisterMenu");
         System.out.println("Preparing to transition to next state");
         running = false;
+        previousState = currentState;
+        currentState = nextState;
+        
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(registerPanel));
         usernameField.setText(null);
         passwordField.setText(null);

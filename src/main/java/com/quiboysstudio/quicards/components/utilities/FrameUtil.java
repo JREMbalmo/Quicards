@@ -26,7 +26,6 @@ public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig
         frame.getContentPane().setLayout(new CardLayout());
         frame.setLocationRelativeTo(null);
         frame.setTitle("QuiCards");
-        frame.getContentPane().setBackground(BLACK);
         frame.setIconImage(new ImageIcon("resources//logos//game_logo_appicon.png").getImage());
         frame.setContentPane(new JPanel(new CardLayout()));
         
@@ -59,14 +58,14 @@ public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig
         generateBackground();
         
         //attempt to fullscreen
-//        if (gd.isFullScreenSupported()) {
-//            //fullscreen if supported
-//            gd.setFullScreenWindow(frame);
-//        } else {
-//            // fallback if fullscreen not supported
-//            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//            frame.setVisible(true);
-//        }
+        if (gd.isFullScreenSupported()) {
+            //fullscreen if supported
+            gd.setFullScreenWindow(frame);
+        } else {
+            // fallback if fullscreen not supported
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setVisible(true);
+        }
         
         frame.setVisible(true);
         
@@ -123,6 +122,7 @@ public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig
         Container cardPanel = frame.getContentPane();
         cardPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         cardPanel.setLayout(cardLayout);
+        cardPanel.setBackground(BLACK);
         return cardPanel;
     }
 }

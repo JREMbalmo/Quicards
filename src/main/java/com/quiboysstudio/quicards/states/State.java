@@ -22,11 +22,5 @@ public abstract class State{
     //main methods
     public void enter() {}
     public void update() {}
-    public void exit() {}
-    
-    //state changer
-    public static void changeState(State state) {
-        previousState = currentState;
-        currentState = state;
-    }
+    public void exit(State nextState) {}
 }
