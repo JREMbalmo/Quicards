@@ -5,6 +5,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import javax.swing.JFrame;
 import java.awt.Font;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -38,6 +39,11 @@ public class FrameConfig extends JFrame{
     public static final Color  TRANSPARENT_DARK_GRAY = new Color(214,214,214,50);
     public static final Color  TRANSPARENT_DARK_WHITE = new Color(235,235,235,50);
     
+    //header
+    public static JPanel header;
+    public static JLabel logoLabel;
+    public static ImageIcon gameLogo;
+    
     //fonts
     public static Font SATOSHI;
     public static Font SATOSHI_BOLD;
@@ -47,9 +53,11 @@ public class FrameConfig extends JFrame{
     public static JPanel backgroundPanel;
     public static JLabel backgroundLabel;
     
-    //frame configs
+    //size
     public static final int BASE_WIDTH = 1920;
     public static final int BASE_HEIGHT = 1080;
+    
+    //graphics stuff
     protected static final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     protected static final GraphicsDevice gd = ge.getDefaultScreenDevice();
 }

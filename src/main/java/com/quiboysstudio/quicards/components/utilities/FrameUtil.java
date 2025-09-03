@@ -1,6 +1,7 @@
 package com.quiboysstudio.quicards.components.utilities;
 
 //imports
+import com.quiboysstudio.quicards.components.FrameConfig;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -13,8 +14,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
-public class FrameUtil extends com.quiboysstudio.quicards.components.FrameConfig{
+public class FrameUtil extends FrameConfig{
     //init frame
     public static JFrame initFrame() {
         //setup frame

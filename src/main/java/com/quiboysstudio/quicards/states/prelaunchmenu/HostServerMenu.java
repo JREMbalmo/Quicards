@@ -1,12 +1,38 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
+//imports
+import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.components.factories.*;
+import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
-import java.util.Scanner;
-
-//TO DO:
-//ADD CANCEL FEATURE (go back to server menu)
+import java.awt.BorderLayout;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 public class HostServerMenu extends State{
+    
+    //variables
+    private boolean running = false;
+    private boolean initialized = false;
+    
+    //objects
+    private JPanel serverInfoPanel;
+    private JPanel buttonPanel;
+    private JTextField ipField;
+    private JTextField portField;
+    private JTextField usernameField;
+    private JTextField passwordField;
+    private JLabel ipLabel;
+    private JLabel portLabel;
+    private JLabel usernameLabel;
+    private JLabel passwordLabel;
+    private JLayeredPane layeredPanel;
+    private JPanel firstLayerPanel;
     
     @Override
     public void enter() {
@@ -17,109 +43,136 @@ public class HostServerMenu extends State{
     public void update() {
         showMenu();
     }
-    
+
     private void showMenu() {
-        //variables
-        String ip, port, username, password;
+        if (running) return;
+        running = true;
         
-        //objects
-        Scanner scanner = new Scanner(System.in);
+        //add header to first layer
+        firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
         
-        System.out.println("Showing HostServerMenu menu");
+        //add background
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
         
-        System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
-        ip = scanner.nextLine();
-        System.out.print("Enter port: ");
-        port = scanner.nextLine();
-        System.out.print("Enter username of MySQL user: ");
-        username = scanner.nextLine();
-        System.out.print("Enter password of MySQL user: ");
-        password = scanner.nextLine();
-            
-        connectServer(ip, port, username, password); //only proceed if successfully connected otherwise return
-            
-        System.out.println("Choose Action:");
-        System.out.println("1. Link to a master server");
-        System.out.println("2. Host independent server");
-        System.out.println("3. Go Back");
-            
-        switch(scanner.nextLine()) {
-            case "1":
-                linkServer();
-                exit(wipState);
-                break;
-            case "2":
-                setupServer(ip, port, username, password);
-                exit(wipState);
-                break;
-            case "3":
-                break;
-            default:
-                System.out.println("Invalid input, please try again.");
-        }
-    }
-
-    private void connectServer(String ip, String port, String username, String password) {
-        System.out.println(
-                String.format(
-                    "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
-                    ip, port, username, password)
-        );
-    }
-
-    private void linkServer() {
-        //variables
-        String ip, port, username, password;
-        
-        //objects
-        Scanner scanner = new Scanner(System.in);
-        
-        System.out.print("Enter IP Adress of Ubuntu server hosting the MySQL server: ");
-        ip = scanner.nextLine();
-        System.out.print("Enter port: ");
-        port = scanner.nextLine();
-        System.out.print("Enter username of MySQL user: ");
-        username = scanner.nextLine();
-        System.out.print("Enter password of MySQL user: ");
-        password = scanner.nextLine();
-            
-        connectServer(ip, port, username, password);
-        currentState = loginMenu; //temp, only run when client successfully connects to server
+        cardLayout.show(cardPanel, "Host Server Menu");
+        frame.revalidate();
+        frame.repaint();
     }
     
-    private void setupServer(String ip, String port, String username, String password) {
-        if (checkServer(ip, port, username, password)) {
+    private void attemptConnectServer() { 
+        //variables
+        String ip = String.valueOf(ipField.getText());
+        String port = String.valueOf(portField.getText());
+        String username = String.valueOf(usernameField.getText());
+        String password = String.valueOf(passwordField.getText());
+
             
-            System.out.println(
-                    String.format(
-                        "Setting up server hosted at %s with %s as port using %s user with %s as password",
-                        ip, port, username, password)
-            );
-            currentState = registerMenu; //temp
+        System.out.println(String.format(
+                "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
+                ip, port, username, password));
+
+        Server.setServer(ip, port, username, password);
+        
+        //check if server has correct setup
+//        if (!Server.checkServer()) {
+//            JOptionPane.showMessageDialog(null, "Server does not have correct setup!");
+//            return;
+//        }
+        
+        //check if server is being hosted
+        
+        
+        if (Server.connectServer()) {
+            //run if connection is successful
+            JOptionPane.showMessageDialog(null, "Connected to server");
+            exit(loginMenu);
         } else {
-            
-            System.out.println("Someone else owns that server!");
+            //run if connection failed
+            JOptionPane.showMessageDialog(null, "Can't connect to server");
         }
     }
-    
-    //check if mysql server is already master hosted by someone else
-    private boolean checkServer(String ip, String port, String username, String password) {
-        //variables
-        boolean vacant = false; //temp
-        
-        System.out.println("Checking if server is valid not hosted by anyone else");
-        
-        return vacant;
-    }
-    
+
     private void init() {
+        if (initialized) return;
+        
         System.out.println("Initializing elements from HostServerMenu state");
+        
+        // initialize layered panel
+        layeredPanel = new JLayeredPane();
+        layeredPanel.setOpaque(false);
+        layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        
+        //initialize first layer
+        firstLayerPanel = new JPanel();
+        firstLayerPanel.setOpaque(false);
+        firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        firstLayerPanel.setLayout(new BorderLayout());
+        
+        //main panel;
+        serverInfoPanel = new JPanel();
+        serverInfoPanel.setOpaque(false);
+        serverInfoPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
+        serverInfoPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
+        
+        //button panel
+        buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
+        
+        //text fields
+        ipField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        portField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        usernameField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = CustomTextFieldFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        
+        //labels
+        ipLabel = CustomLabelFactory.createRoundedLabel("IP",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        portLabel = CustomLabelFactory.createRoundedLabel("Port",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        usernameLabel = CustomLabelFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = CustomLabelFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        
+        //add components
+        serverInfoPanel.add(ipLabel);
+        serverInfoPanel.add(ipField);
+        serverInfoPanel.add(portLabel);
+        serverInfoPanel.add(portField);
+        serverInfoPanel.add(usernameLabel);
+        serverInfoPanel.add(usernameField);
+        serverInfoPanel.add(passwordLabel);
+        serverInfoPanel.add(passwordField);
+        
+        //buttons
+        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
+        buttonPanel.add(CustomButtonFactory.createCustomButton("Host", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
+        serverInfoPanel.add(buttonPanel);
+        
+        //subpanels
+        firstLayerPanel.add(serverInfoPanel, BorderLayout.CENTER);
+        
+        //panel layers
+        layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //create host server menu card
+        cardPanel.add("Host Server Menu", layeredPanel);
+        
+        initialized = true;
+        
         System.out.println("Entering HostServerMenu state");
     }
 
     @Override
     public void exit(State nextState) {
-        System.out.println("Removing elements from HostServerMenuState");
+        System.out.println("Removing elements from HostServerMenu");
         System.out.println("Preparing to transition to next state");
+        //cleanup
+        ipField.setText(null);
+        portField.setText(null);
+        usernameField.setText(null);
+        passwordField.setText(null);
+        
+        running = false;
+        previousState = currentState;
+        currentState = nextState;
     }
 }

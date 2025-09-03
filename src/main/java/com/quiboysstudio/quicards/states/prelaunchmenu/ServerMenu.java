@@ -22,10 +22,7 @@ public class ServerMenu extends State{
     private boolean initialized = false;
     
     //objects
-    private JPanel header;
     private JPanel buttonPanel;
-    private JLabel logoLabel;
-    private ImageIcon gameLogo;
     private JLayeredPane layeredPanel;
     private JPanel firstLayerPanel;
     
@@ -46,6 +43,12 @@ public class ServerMenu extends State{
         
         System.out.println("Showing server menu");
         
+        //add header to first layer
+        firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
+        
+        //add background
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
+        
         cardLayout.show(cardPanel, "Server Menu");
         frame.revalidate();
         frame.repaint();
@@ -53,6 +56,7 @@ public class ServerMenu extends State{
     }
 
     private void init() {
+        
         if (initialized) return;
 
         System.out.println("initializing elements from server menu");
@@ -68,20 +72,17 @@ public class ServerMenu extends State{
         firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         firstLayerPanel.setLayout(new BorderLayout());
         
-        // create header panel
-        header = new JPanel();
-        header.setOpaque(false);
-        header.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50), 0, 0, 0));
-        gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
+        //create header panel
+        FrameConfig.header = new JPanel();
+        FrameConfig.header.setOpaque(false);
+        FrameConfig.header.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50), 0, 0, 0));
+        FrameConfig.gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
                 .getScaledInstance(FrameUtil.scale(frame, 721), FrameUtil.scale(frame, 171), Image.SCALE_SMOOTH));
-        logoLabel = CustomLabelFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
-        logoLabel.setHorizontalAlignment(JLabel.CENTER);
-        logoLabel.setVerticalAlignment(JLabel.CENTER);
-        logoLabel.setIcon(gameLogo);
-        header.add(logoLabel);
-
-        //add header to first layer
-        firstLayerPanel.add(header, BorderLayout.NORTH);
+        FrameConfig.logoLabel = CustomLabelFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
+        FrameConfig.logoLabel.setHorizontalAlignment(JLabel.CENTER);
+        FrameConfig.logoLabel.setVerticalAlignment(JLabel.CENTER);
+        FrameConfig.logoLabel.setIcon(FrameConfig.gameLogo);
+        FrameConfig.header.add(FrameConfig.logoLabel);
         
         //create button panel with buttons
         buttonPanel = new JPanel();
@@ -96,12 +97,10 @@ public class ServerMenu extends State{
         buttonPanel.add(CustomButtonFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         
-        
         //add button panel to first layer
         firstLayerPanel.add(buttonPanel, BorderLayout.CENTER);
         
         //add components
-        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0)); //background
         layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
         
         //create server menu card

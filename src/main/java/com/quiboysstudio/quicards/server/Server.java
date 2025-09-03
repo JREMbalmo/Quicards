@@ -25,14 +25,18 @@ public class Server {
         password = null;
     }
     
-    public static void setServer(String ip, String port, String username, String password, boolean type) {
-        if (type) {
-            database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
-        } else {
-            database = String.format("jdbc:mysql://%s:%s/?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
-        }
+    public static void setServer(String ip, String port, String username, String password) {
+        database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+            
         Server.username = username;
         Server.password = password;
+    }
+    
+    public static void setServer(String ip, String port) {
+        database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+        
+        Server.username = "user";
+        Server.password = "userPass";
     }
     
     public static boolean checkServer() {

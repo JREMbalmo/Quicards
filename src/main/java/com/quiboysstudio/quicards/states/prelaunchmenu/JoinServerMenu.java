@@ -63,7 +63,7 @@ public class JoinServerMenu extends State{
                 "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
                 ip, port, username, password));
 
-        Server.setServer(ip, port, username, password, Server.JOIN);
+        Server.setServer(ip, port);
         
         //check if server has correct setup
 //        if (!Server.checkServer()) {
