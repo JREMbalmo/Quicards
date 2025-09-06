@@ -11,8 +11,6 @@ public class Server {
     private static String database;
     private static String username;
     private static String password;
-    public static final boolean JOIN = true;
-    public static final boolean HOST = false;
     
     //objects
     public static Connection connection;
@@ -23,13 +21,6 @@ public class Server {
         database = null;
         username = null;
         password = null;
-    }
-    
-    public static void setServer(String ip, String port, String username, String password) {
-        database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
-            
-        Server.username = username;
-        Server.password = password;
     }
     
     public static void setServer(String ip, String port) {

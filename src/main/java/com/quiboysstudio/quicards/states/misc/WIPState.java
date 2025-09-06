@@ -3,7 +3,7 @@ package com.quiboysstudio.quicards.states.misc;
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
+import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.Image;
 import javax.swing.ImageIcon;
@@ -66,7 +66,7 @@ public class WIPState extends State{
         
         //add components
         panel.add(label);
-        panel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, previousState));
+        panel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 557, previousState));
         
         System.out.println("Entering WIP state");
         

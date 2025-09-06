@@ -5,9 +5,7 @@ import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.account.User;
-import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
-import com.quiboysstudio.quicards.components.factories.CustomLabelFactory;
-import com.quiboysstudio.quicards.components.factories.CustomTextFieldFactory;
+import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -116,14 +114,14 @@ public class RegisterMenu extends State{
         registerPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //text fields
-        usernameField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        passwordField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        confirmField = CustomTextFieldFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        usernameField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        passwordField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        confirmField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = CustomLabelFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = CustomLabelFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        confirmLabel = CustomLabelFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = ComponentFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        passwordLabel = ComponentFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        confirmLabel = ComponentFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
         
         //button panel
         buttonPanel = new JPanel();
@@ -132,8 +130,8 @@ public class RegisterMenu extends State{
         buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
         
         //register buttons
-        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, loginMenu));
-        buttonPanel.add(CustomButtonFactory.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, loginMenu));
+        buttonPanel.add(ComponentFactory.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
         
         //add components
         registerPanel.add(usernameLabel);

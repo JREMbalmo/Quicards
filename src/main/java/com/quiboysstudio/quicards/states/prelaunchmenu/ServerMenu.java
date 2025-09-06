@@ -3,8 +3,7 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.components.factories.CustomButtonFactory;
-import com.quiboysstudio.quicards.components.factories.CustomLabelFactory;
+import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;
@@ -78,7 +77,7 @@ public class ServerMenu extends State{
         FrameConfig.header.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50), 0, 0, 0));
         FrameConfig.gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
                 .getScaledInstance(FrameUtil.scale(frame, 721), FrameUtil.scale(frame, 171), Image.SCALE_SMOOTH));
-        FrameConfig.logoLabel = CustomLabelFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
+        FrameConfig.logoLabel = ComponentFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
         FrameConfig.logoLabel.setHorizontalAlignment(JLabel.CENTER);
         FrameConfig.logoLabel.setVerticalAlignment(JLabel.CENTER);
         FrameConfig.logoLabel.setIcon(FrameConfig.gameLogo);
@@ -90,11 +89,11 @@ public class ServerMenu extends State{
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         buttonPanel.setPreferredSize(FrameUtil.scale(frame, 580, 520));
-        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Host Server", FrameConfig.SATOSHI_BOLD, 557, hostServerMenu));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Host Server", FrameConfig.SATOSHI_BOLD, 557, hostServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
-        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, joinServerMenu));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, joinServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
-        buttonPanel.add(CustomButtonFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         
         //add button panel to first layer

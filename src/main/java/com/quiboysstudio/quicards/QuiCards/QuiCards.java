@@ -32,21 +32,26 @@ USE Server;
 
 -- Create serverdetails table
 CREATE TABLE ServerDetails (
-    serverIP VARCHAR(64) PRIMARY KEY,
-    isActive TINYINT(1) UNIQUE
-);
+    ID TINYINT(1) PRIMARY KEY AUTO_INCREMENT,
+    ServerName VARCHAR(128),
+    CurrentHost VARCHAR(128),
+    CONSTRAINT ck_single_row CHECK (ID = 1)
+) AUTO_INCREMENT = 1;
 
--- Create peerservers table
-CREATE TABLE PeerServers (
-    serverIP VARCHAR(64) PRIMARY KEY,
-    isActive TINYINT(1) NOT NULL DEFAULT 0
-);
-
--- Create the users table
+-- Create users table
 CREATE TABLE Users (
     ID INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(32) UNIQUE,
-    password TEXT,
-    seed BIGINT NOT NULL
+    Username VARCHAR(32) UNIQUE NOT NULL,
+    Password TEXT NOT NULL,
+    Seed BIGINT NOT NULL
 ) AUTO_INCREMENT = 100000;
+
+-- Create actions table
+CREATE TABLE Actions (
+    ActionsID INT PRIMARY KEY AUTO_INCREMENT,
+    User VARCHAR(32) NOT NULL,
+    Action VARCHAR(128) NOT NULL,
+    Status TINYINT(1) NOT NULL,
+    FOREIGN KEY (User) REFERENCES Users(Username)
+) AUTO_INCREMENT = 1;
 */
