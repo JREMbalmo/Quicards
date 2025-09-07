@@ -8,6 +8,7 @@ import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -20,16 +21,14 @@ public class JoinServerMenu extends State{
     private boolean initialized = false;
     
     //objects
+    private JLayeredPane layeredPanel;
+    private JPanel firstLayerPanel;
     private JPanel serverInfoPanel;
     private JPanel buttonPanel;
     private JTextField ipField;
     private JTextField portField;
-    private JTextField usernameField;
-    private JTextField passwordField;
     private JLabel ipLabel;
     private JLabel portLabel;
-    private JLabel usernameLabel;
-    private JLabel passwordLabel;
     
     @Override
     public void enter() {
@@ -54,23 +53,12 @@ public class JoinServerMenu extends State{
         //variables
         String ip = String.valueOf(ipField.getText());
         String port = String.valueOf(portField.getText());
-        String username = String.valueOf(usernameField.getText());
-        String password = String.valueOf(passwordField.getText());
             
         System.out.println(String.format(
-                "Connecting to MySQL server hosted at %s with %s as port using %s user with %s as password",
-                ip, port, username, password));
+                "Connecting to MySQL server hosted at %s with %s as port",
+                ip, port));
 
         Server.setServer(ip, port);
-        
-        //check if server has correct setup
-//        if (!Server.checkServer()) {
-//            JOptionPane.showMessageDialog(null, "Server does not have correct setup!");
-//            return;
-//        }
-        
-        //check if server is being hosted
-        
         
         if (Server.connectServer()) {
             //run if connection is successful
@@ -87,44 +75,56 @@ public class JoinServerMenu extends State{
         
         System.out.println("Initializing elements from JoinServerMenu state");
         
+        // initialize layered panel
+        layeredPanel = new JLayeredPane();
+        layeredPanel.setOpaque(false);
+        layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        
+        //initialize first layer
+        firstLayerPanel = new JPanel();
+        firstLayerPanel.setOpaque(false);
+        firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        firstLayerPanel.setLayout(new BorderLayout());
+        
         //main panel;
         serverInfoPanel = new JPanel();
-        serverInfoPanel.setBackground(FrameConfig.BLUE);
+        serverInfoPanel.setOpaque(false);
         serverInfoPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
         serverInfoPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //button panel
         buttonPanel = new JPanel();
-        buttonPanel.setBackground(FrameConfig.BLUE);
+        buttonPanel.setOpaque(false);
         buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
         buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
         
         //text fields
         ipField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         portField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
         ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         portLabel = ComponentFactory.createRoundedLabel("Port",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
-        //add component
+        //add components
         serverInfoPanel.add(ipLabel);
         serverInfoPanel.add(ipField);
         serverInfoPanel.add(portLabel);
         serverInfoPanel.add(portField);
-        serverInfoPanel.add(usernameLabel);
-        serverInfoPanel.add(usernameField);
-        serverInfoPanel.add(passwordLabel);
-        serverInfoPanel.add(passwordField);
         
         //buttons
         buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
-        buttonPanel.add(ComponentFactory.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
+        buttonPanel.add(ComponentFactory.createCustomButton("Host", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
+        
+        //subpanels
+        firstLayerPanel.add(serverInfoPanel, BorderLayout.CENTER);
+        
+        //panel layers
+        layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //create host server menu card
+        cardPanel.add("Host Server Menu", layeredPanel);
         
         initialized = true;
         
@@ -143,7 +143,5 @@ public class JoinServerMenu extends State{
         frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(serverInfoPanel));
         ipField.setText(null);
         portField.setText(null);
-        usernameField.setText(null);
-        passwordField.setText(null);
     }
 }

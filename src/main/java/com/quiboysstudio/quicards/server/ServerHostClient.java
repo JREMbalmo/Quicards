@@ -1,10 +1,11 @@
 package com.quiboysstudio.quicards.server;
 
-import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.states.State;
+//imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -49,6 +50,10 @@ public class ServerHostClient {
     private static JTextField commandField;
     
     public static void setServer(String ip, String port, String username, String password) {
+        if (hosting) {
+            return;
+        }
+        
         url = String.format("jdbc:mysql://%s:%s/?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
             
         ServerHostClient.ip = ip;
@@ -58,6 +63,12 @@ public class ServerHostClient {
     }
     
     public static boolean connectServer() {
+        
+        if (hosting) {
+            JOptionPane.showMessageDialog(null, "Already hosting a server");
+            return false;
+        }
+        
         try {
             //connect to server
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -77,7 +88,10 @@ public class ServerHostClient {
             if (checkHost()) {
                 leaveServer();
                 return false;
-            };
+            }
+            
+            //check account creator user setup
+            checkCreationUser();
             
             initHostedServer();
             runHostedServer();
@@ -88,6 +102,7 @@ public class ServerHostClient {
             return true;
         } catch(Exception e) {
             System.out.println("Failed to connect to server: " + e);
+            JOptionPane.showMessageDialog(null, "Can't connect to server");
             return false;
         }
     }
@@ -96,22 +111,27 @@ public class ServerHostClient {
         //variables
         String query;
         
-        System.out.println("Leaving Server");
-        ip = null;
-        port = null;
-        url = null;
-        username = null;
-        password = null;
-        hosting = false;
-        
         //reset server host
         query = "update ServerDetails set CurrentHost = null;";
         
         try {
             statement.executeUpdate(query);
+            connection.close();
         } catch (Exception e) {
             System.out.println("Failed to reset server host: " + e);
         }
+        
+        ip = null;
+        port = null;
+        url = null;
+        username = null;
+        password = null;
+        result = null;
+        statement = null;
+        connection = null;
+        hosting = false;
+        
+        System.out.println("Stopped Hosting Server");
     }
     
     private static void initHostedServer() {
@@ -119,10 +139,20 @@ public class ServerHostClient {
         serverHostClientFrame = new JFrame("Admin Menu (" + ip + ")");
         serverHostClientFrame.setSize(1280, 720);
         serverHostClientFrame.setResizable(false);
-        serverHostClientFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        serverHostClientFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         serverHostClientFrame.setLayout(new BorderLayout());
         serverHostClientFrame.setLocationRelativeTo(null);
         serverHostClientFrame.setIconImage(new ImageIcon("resources//logos//game_logo_appicon.png").getImage());
+        
+        //custom close operation to ensure proper server disconnection
+        serverHostClientFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                JOptionPane.showMessageDialog(null, "Exiting server " + ip);
+                serverHostClientFrame.dispose();
+                leaveServer();
+            }
+        });
         
         //panels
         
@@ -207,10 +237,6 @@ public class ServerHostClient {
         serverHostClientFrame.setVisible(true);
     }
     
-    private static void exitHostedServer() {
-        leaveServer();
-    }
-    
     private static void checkServer() {
         try {
             //check if Server database exists on server
@@ -231,18 +257,18 @@ public class ServerHostClient {
                 //create ServerDetails table
                 statement.executeUpdate(
                         "CREATE TABLE ServerDetails (" +
-                        "ID TINYINT(1) PRIMARY KEY AUTO_INCREMENT," +
-                        "ServerName VARCHAR(128)," +
+                        "ID TINYINT(1) NOT NULL PRIMARY KEY DEFAULT 1," +
+                        "ServerName VARCHAR(32)," +
                         "CurrentHost VARCHAR(128)," +
                         "CONSTRAINT ck_single_row CHECK (ID = 1)" +
-                        ") AUTO_INCREMENT = 1;"
+                        ");"
                 );
                 
                 //create Users table
                 statement.executeUpdate(
                         "CREATE TABLE Users (" +
                         "ID INT PRIMARY KEY AUTO_INCREMENT," +
-                        "Username VARCHAR(32) UNIQUE NOT NULL," +
+                        "Username VARCHAR(16) UNIQUE NOT NULL," +
                         "Password TEXT NOT NULL," +
                         "Seed BIGINT NOT NULL" +
                         ") AUTO_INCREMENT = 100000;"
@@ -252,12 +278,20 @@ public class ServerHostClient {
                 statement.executeUpdate(
                         "CREATE TABLE Actions (" +
                         "ActionsID INT PRIMARY KEY AUTO_INCREMENT," +
-                        "User VARCHAR(32) NOT NULL," +
+                        "UserID INT NOT NULL," +
                         "Password TEXT NOT NULL," +
                         "Action VARCHAR(128) NOT NULL," +
                         "Status TINYINT(1) NOT NULL," +
-                        "FOREIGN KEY (User) REFERENCES Users(Username)," +
-                        "FOREIGN KEY (Password) REFERENCES Users(Password)" +
+                        "FOREIGN KEY (UserID) REFERENCES Users(ID)" +
+                        ") AUTO_INCREMENT = 1;"
+                );
+                
+                //create AccountCreation table
+                statement.executeUpdate(
+                        "CREATE TABLE AccountCreation (" +
+                        "CreationID INT PRIMARY KEY AUTO_INCREMENT," +
+                        "Username VARCHAR(16) UNIQUE NOT NULL," +
+                        "Password TEXT NOT NULL" +
                         ") AUTO_INCREMENT = 1;"
                 );
             }
@@ -272,6 +306,33 @@ public class ServerHostClient {
     
     private static void exportLogs() {
         JOptionPane.showMessageDialog(null, "Exporting Logs");
+    }
+    
+    private static void checkCreationUser() {
+        String checkUserQuery = "SELECT COUNT(*) AS count " +
+                "FROM mysql.user WHERE user = 'QuiCardsCreator1'";
+        try {
+            // Step 1: check if user exists
+            result = statement.executeQuery(checkUserQuery);
+            if (result.next() && result.getInt("count") == 0) {
+                // Step 2: user doesn't exist -> create it
+                String createUser = "CREATE USER 'QuiCardsCreator1'@'%' IDENTIFIED BY 'QuiC4rds!';";
+                statement.executeUpdate(createUser);
+
+                // Step 3: grant privileges
+                String grantPrivileges = "GRANT INSERT ON Server.AccountCreation TO 'QuiCardsCreator1'@'%'";
+                statement.executeUpdate(grantPrivileges);
+
+                // Always flush privileges to apply immediately
+                statement.executeUpdate("FLUSH PRIVILEGES");
+
+                System.out.println("QuiCardsCreator1 user created and granted privileges.");
+            } else {
+                System.out.println("QuiCardsCreator1 already exists.");
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to check or create QuiCardsAccountCreator: " + e);
+        }
     }
     
     private static boolean checkHost() {
@@ -337,8 +398,8 @@ public class ServerHostClient {
             //check if current host is currently connected
             query = String.format(
                 "SELECT user, host FROM information_schema.PROCESSLIST " +
-                "WHERE user = '%s';",
-                user
+                "WHERE user = '%s' AND host LIKE '%s%%';",
+                user, ip
             );
 
             result = statement.executeQuery(query);

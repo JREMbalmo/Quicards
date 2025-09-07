@@ -8,7 +8,6 @@ public class QuiCards {
         StateManager.run();
     }
 }
-
 /*
 MySQL server setup
 
@@ -32,16 +31,16 @@ USE Server;
 
 -- Create serverdetails table
 CREATE TABLE ServerDetails (
-    ID TINYINT(1) PRIMARY KEY AUTO_INCREMENT,
-    ServerName VARCHAR(128),
+    ID TINYINT(1) NOT NULL PRIMARY KEY DEFAULT 1,
+    ServerName VARCHAR(32),
     CurrentHost VARCHAR(128),
     CONSTRAINT ck_single_row CHECK (ID = 1)
-) AUTO_INCREMENT = 1;
+);
 
 -- Create users table
 CREATE TABLE Users (
     ID INT PRIMARY KEY AUTO_INCREMENT,
-    Username VARCHAR(32) UNIQUE NOT NULL,
+    Username VARCHAR(16) UNIQUE NOT NULL,
     Password TEXT NOT NULL,
     Seed BIGINT NOT NULL
 ) AUTO_INCREMENT = 100000;
@@ -49,9 +48,16 @@ CREATE TABLE Users (
 -- Create actions table
 CREATE TABLE Actions (
     ActionsID INT PRIMARY KEY AUTO_INCREMENT,
-    User VARCHAR(32) NOT NULL,
+    User VARCHAR(16) NOT NULL,
     Action VARCHAR(128) NOT NULL,
     Status TINYINT(1) NOT NULL,
     FOREIGN KEY (User) REFERENCES Users(Username)
+) AUTO_INCREMENT = 1;
+
+-- Create account creation table
+CREATE TABLE AccountCreation (
+    CreationID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(16) UNIQUE NOT NULL,
+    Password TEXT NOT NULL
 ) AUTO_INCREMENT = 1;
 */

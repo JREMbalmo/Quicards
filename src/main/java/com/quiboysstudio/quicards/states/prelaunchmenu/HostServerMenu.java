@@ -77,12 +77,6 @@ public class HostServerMenu extends State{
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
             exit(serverMenu);
-        } else {
-            //run if connection failed
-            JOptionPane.showMessageDialog(null, "Can't connect to server");
-            
-            //reset server details
-            ServerHostClient.leaveServer();
         }
     }
 
