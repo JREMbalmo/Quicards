@@ -3,15 +3,22 @@ package com.quiboysstudio.quicards.server;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 public class ServerHostClient {
     //variables
@@ -28,10 +35,16 @@ public class ServerHostClient {
     private static ResultSet result;
     
     private static JFrame serverHostClientFrame;
-    private static JScrollPane logsPanel;
+    private static JScrollPane logsPane;
+    private static JScrollPane usersPane;
+    private static JPanel tablesPanel;
+    private static JPanel commandPanel;
+    private static JPanel usersPanel;
+    private static JPanel exportPanel;
+    private static JPanel logsPanel;
     private static JTable logsTable;
     private static JTable usersTable;
-    private static JButton printButton;
+    private static JButton exportLogsButton;
     private static JButton runCommandButton;
     private static JTextField commandField;
     
@@ -45,8 +58,6 @@ public class ServerHostClient {
     }
     
     public static boolean connectServer() {
-        
-        //ensure nobody is currently hosting the server
         try {
             //connect to server
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -61,9 +72,8 @@ public class ServerHostClient {
             url = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
             connection = DriverManager.getConnection(url, username, password);
             statement = connection.createStatement();
-            hosting = true;
-            System.out.println("Connected to server!");
             
+            //check if someone is already hosting the server
             if (checkHost()) {
                 leaveServer();
                 return false;
@@ -71,6 +81,9 @@ public class ServerHostClient {
             
             initHostedServer();
             runHostedServer();
+            
+            hosting = true;
+            System.out.println("Connected to server!");
             
             return true;
         } catch(Exception e) {
@@ -102,15 +115,96 @@ public class ServerHostClient {
     }
     
     private static void initHostedServer() {
-        
-    }
-    
-    private static void runHostedServer() {
-        serverHostClientFrame = new JFrame("Host Server");
-        serverHostClientFrame.setSize(1080, 720);
+        //frame
+        serverHostClientFrame = new JFrame("Admin Menu (" + ip + ")");
+        serverHostClientFrame.setSize(1280, 720);
         serverHostClientFrame.setResizable(false);
         serverHostClientFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         serverHostClientFrame.setLayout(new BorderLayout());
+        serverHostClientFrame.setLocationRelativeTo(null);
+        serverHostClientFrame.setIconImage(new ImageIcon("resources//logos//game_logo_appicon.png").getImage());
+        
+        //panels
+        
+        //tables panel
+        tablesPanel = new JPanel();
+        tablesPanel.setPreferredSize(new Dimension(1280,500));
+        
+        //command panel
+        commandPanel = new JPanel();
+        commandPanel.setPreferredSize(new Dimension(1280, 150));
+        
+        //logs panel
+        logsPanel = new JPanel();
+        logsPanel.setPreferredSize(new Dimension (1000, 480));
+        
+        //users panel
+        usersPanel = new JPanel();
+        usersPanel.setPreferredSize(new Dimension (200, 480));
+        
+        //export panel
+        exportPanel = new JPanel();
+        exportPanel.setPreferredSize(new Dimension(250,150));
+        exportPanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 0, 0));
+        
+        //setup tables
+        
+        //logs table
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {},
+                new String[] {"Action ID", "User", "Action", "Status"});
+        logsTable = new JTable(model);
+        logsTable.setPreferredSize(new Dimension(1000, 480));
+        logsPane = new JScrollPane(logsTable);
+        logsPane.setPreferredSize(new Dimension(1000, 480));
+        
+        //users table
+        model = new DefaultTableModel(new Object[][] {}, new String[] {"Active Users"});
+        usersTable = new JTable(model);
+        usersTable.setPreferredSize(new Dimension(200, 480));
+        usersPane = new JScrollPane(usersTable);
+        usersPane.setPreferredSize(new Dimension(200, 480));
+        
+        //command text field
+        commandField = new JTextField();
+        commandField.setBackground(Color.white);
+        commandField.setPreferredSize(new Dimension (1000, 18));
+        
+        //buttons
+        
+        //run command button
+        runCommandButton = new JButton("Run");
+        runCommandButton.setPreferredSize(new Dimension(100, 18));
+        runCommandButton.addActionListener(e -> {
+            runCommand(String.valueOf(commandField.getText()));
+            commandField.setText(null);
+        });
+        
+        //export logs button
+        exportLogsButton = new JButton("Export Logs");
+        exportLogsButton.setPreferredSize(new Dimension(200, 18));
+        exportLogsButton.addActionListener(e -> {
+            exportLogs();
+        });
+        
+        //add components
+        exportPanel.add(exportLogsButton);
+        
+        commandPanel.add(commandField);
+        commandPanel.add(runCommandButton);
+        commandPanel.add(exportPanel);
+        
+        logsPanel.add(logsPane);
+        usersPanel.add(usersPane);
+        
+        tablesPanel.add(logsPanel);
+        tablesPanel.add(usersPanel);
+        
+        serverHostClientFrame.add(tablesPanel, BorderLayout.NORTH);
+        serverHostClientFrame.add(commandPanel, BorderLayout.SOUTH);
+    }
+    
+    private static void runHostedServer() {
+        serverHostClientFrame.setVisible(true);
     }
     
     private static void exitHostedServer() {
@@ -159,16 +253,25 @@ public class ServerHostClient {
                         "CREATE TABLE Actions (" +
                         "ActionsID INT PRIMARY KEY AUTO_INCREMENT," +
                         "User VARCHAR(32) NOT NULL," +
+                        "Password TEXT NOT NULL," +
                         "Action VARCHAR(128) NOT NULL," +
                         "Status TINYINT(1) NOT NULL," +
-                        "FOREIGN KEY (User) REFERENCES Users(Username)" +
+                        "FOREIGN KEY (User) REFERENCES Users(Username)," +
+                        "FOREIGN KEY (Password) REFERENCES Users(Password)" +
                         ") AUTO_INCREMENT = 1;"
                 );
-                
             }
         } catch (Exception e) {
             System.out.println("Failed to check server: " + e);
         }
+    }
+    
+    private static void runCommand(String command) {
+        JOptionPane.showMessageDialog(null, command);
+    }
+    
+    private static void exportLogs() {
+        JOptionPane.showMessageDialog(null, "Exporting Logs");
     }
     
     private static boolean checkHost() {
@@ -234,8 +337,8 @@ public class ServerHostClient {
             //check if current host is currently connected
             query = String.format(
                 "SELECT user, host FROM information_schema.PROCESSLIST " +
-                "WHERE user = '%s' AND host LIKE '%s%%';",
-                user, ip
+                "WHERE user = '%s';",
+                user
             );
 
             result = statement.executeQuery(query);
