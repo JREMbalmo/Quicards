@@ -23,26 +23,27 @@ public class StateManager {
         State.wipState = new WIPState();
         
         //loading screen
-        State.startScreen = new StartScreen();                      //loading screen
+        State.startScreen = new StartScreen();                              //loading screen
         
         //pre-launch page
-        State.serverMenu = new ServerMenu();                        //server menu
-        State.hostServerMenu = new HostServerMenu();                //host server menu
-        State.joinServerMenu = new JoinServerMenu();                //join server menu
-        State.loginMenu = new LoginMenu();                          //login account menu
-        State.registerMenu = new RegisterMenu();                    //register account menu
+        State.serverMenu = new ServerMenu();                                //server menu
+        State.hostServerMenu = new HostServerMenu();                        //host server menu
+        State.joinServerMenu = new JoinServerMenu();                        //join server menu
+        State.accountAuthenticationMenu = new AccountAuthenticationMenu();  //authentication menu
+        State.loginMenu = new LoginMenu();                                  //login account menu
+        State.registerMenu = new RegisterMenu();                            //register account menu
         
         //post-launch page
-        State.mainMenu = new MainMenu();                            // main menu
-        State.inventoryMenu = new InventoryMenu();                  //inventory menu
-        State.settingsMenu = new SettingsMenu();                    //settings menu
+        State.mainMenu = new MainMenu();                                    // main menu
+        State.inventoryMenu = new InventoryMenu();                          //inventory menu
+        State.settingsMenu = new SettingsMenu();                            //settings menu
         
         //store
-        State.storeMenu = new StoreMenu();                          //store
+        State.storeMenu = new StoreMenu();                                  //store
         
         //matchmaking
-        State.createRoomMenu = new CreateRoomMenu();                //create room
-        State.joinRoomMenu = new JoinRoomMenu();                    //join room
+        State.createRoomMenu = new CreateRoomMenu();                        //create room
+        State.joinRoomMenu = new JoinRoomMenu();                            //join room
         
         //setup initial current state after opening app
         State.currentState = State.serverMenu;

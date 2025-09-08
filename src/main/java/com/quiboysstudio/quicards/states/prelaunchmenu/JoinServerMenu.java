@@ -69,7 +69,7 @@ public class JoinServerMenu extends State{
         if (Server.connectServer()) {
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
-            exit(loginMenu);
+            exit(accountAuthenticationMenu);
         } else {
             //run if connection failed
             JOptionPane.showMessageDialog(null, "Can't connect to server");
@@ -120,7 +120,7 @@ public class JoinServerMenu extends State{
         
         //buttons
         buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
-            Server.leaveServer(); exit(serverMenu);}));
+            Server.leaveServer(); exit(previousState);}));
         buttonPanel.add(ComponentFactory.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         

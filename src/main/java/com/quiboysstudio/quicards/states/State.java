@@ -15,8 +15,8 @@ public abstract class State{
     
     //valid states
     public static State startScreen, serverMenu, loginMenu, mainMenu,
-            hostServerMenu, joinServerMenu, registerMenu, exitState, wipState,
-            settingsMenu, storeMenu, inventoryMenu, createRoomMenu, joinRoomMenu;
+            hostServerMenu, joinServerMenu, accountAuthenticationMenu, registerMenu, exitState,
+            wipState, settingsMenu, storeMenu, inventoryMenu, createRoomMenu, joinRoomMenu;
     public static State currentState, previousState;
     
     //main methods

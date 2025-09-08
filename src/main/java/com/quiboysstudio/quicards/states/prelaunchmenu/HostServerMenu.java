@@ -131,7 +131,7 @@ public class HostServerMenu extends State{
         serverInfoPanel.add(passwordField);
         
         //buttons
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, previousState));
         buttonPanel.add(ComponentFactory.createCustomButton("Host", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         
@@ -153,6 +153,7 @@ public class HostServerMenu extends State{
     public void exit(State nextState) {
         System.out.println("Removing elements from HostServerMenu");
         System.out.println("Preparing to transition to next state");
+        
         //cleanup
         ipField.setText(null);
         portField.setText(null);
