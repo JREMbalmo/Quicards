@@ -121,6 +121,7 @@ public class ServerHostClient {
             System.out.println("Failed to reset server host: " + e);
         }
         
+        //reset saved host server details
         ip = null;
         port = null;
         url = null;
@@ -267,7 +268,7 @@ public class ServerHostClient {
                 //create Users table
                 statement.executeUpdate(
                         "CREATE TABLE Users (" +
-                        "ID INT PRIMARY KEY AUTO_INCREMENT," +
+                        "UserID INT PRIMARY KEY AUTO_INCREMENT," +
                         "Username VARCHAR(16) UNIQUE NOT NULL," +
                         "Password TEXT NOT NULL," +
                         "Seed BIGINT NOT NULL" +
@@ -282,7 +283,7 @@ public class ServerHostClient {
                         "Password TEXT NOT NULL," +
                         "Action VARCHAR(128) NOT NULL," +
                         "Status TINYINT(1) NOT NULL," +
-                        "FOREIGN KEY (UserID) REFERENCES Users(ID)" +
+                        "FOREIGN KEY (UserID) REFERENCES Users(UserID)" +
                         ") AUTO_INCREMENT = 1;"
                 );
                 
@@ -300,30 +301,36 @@ public class ServerHostClient {
         }
     }
     
+    //wip
     private static void runCommand(String command) {
         JOptionPane.showMessageDialog(null, command);
     }
     
+    //wip
     private static void exportLogs() {
         JOptionPane.showMessageDialog(null, "Exporting Logs");
     }
     
     private static void checkCreationUser() {
-        String checkUserQuery = "SELECT COUNT(*) AS count " +
-                "FROM mysql.user WHERE user = 'QuiCardsCreator1'";
+        String query;
         try {
-            // Step 1: check if user exists
-            result = statement.executeQuery(checkUserQuery);
+            //check if user creator exists
+            query = "SELECT COUNT(*) AS count " +
+                "FROM mysql.user WHERE user = 'QuiCardsCreator1'";
+            
+            result = statement.executeQuery(query);
             if (result.next() && result.getInt("count") == 0) {
-                // Step 2: user doesn't exist -> create it
-                String createUser = "CREATE USER 'QuiCardsCreator1'@'%' IDENTIFIED BY 'QuiC4rds!';";
-                statement.executeUpdate(createUser);
+                //create user creator if it doesn't exist
+                query = "CREATE USER 'QuiCardsCreator1'@'%' IDENTIFIED BY 'QuiC4rds!';";
+                statement.executeUpdate(query);
 
-                // Step 3: grant privileges
-                String grantPrivileges = "GRANT INSERT ON Server.AccountCreation TO 'QuiCardsCreator1'@'%'";
-                statement.executeUpdate(grantPrivileges);
-
-                // Always flush privileges to apply immediately
+                //grant privileges
+                query = "GRANT INSERT ON Server.AccountCreation TO 'QuiCardsCreator1'@'%'";
+                statement.executeUpdate(query);
+                query = "GRANT SELECT ON Server.ServerDetails TO 'QuiCardsCreator1'@'%'";
+                statement.executeUpdate(query);
+                query = "GRANT PROCESS ON *.* TO 'QuiCardsCreator1'@'%'";
+                statement.executeUpdate(query);
                 statement.executeUpdate("FLUSH PRIVILEGES");
 
                 System.out.println("QuiCardsCreator1 user created and granted privileges.");
@@ -344,58 +351,60 @@ public class ServerHostClient {
             //check if there is already a stored host
             result = statement.executeQuery("SELECT CurrentHost FROM ServerDetails LIMIT 1");
 
-            if (!result.next() || result.getString("CurrentHost") == null) {
-                //use current user as host if no current host
-                query = "SELECT CURRENT_USER;";
+            if (!result.next()) {
+                //if no row then insert user@ip
+                query = "SELECT USER();";
                 result = statement.executeQuery(query);
 
                 if (result.next()) {
-                    String currentUser = result.getString("CURRENT_USER");
-
-                    if (!result.isBeforeFirst()) {
-                        query = String.format(
-                            "INSERT INTO ServerDetails(CurrentHost) VALUES ('%s')",
-                            currentUser
-                        );
-                    } else {
-                        query = String.format(
-                            "UPDATE ServerDetails SET CurrentHost = '%s'",
-                            currentUser
-                        );
-                    }
-
+                    String actualUser = result.getString(1);
+                    query = String.format(
+                        "INSERT INTO ServerDetails(CurrentHost) VALUES ('%s')",
+                        actualUser
+                    );
                     statement.executeUpdate(query);
                 }
+                return false;
+            } else if (result.getString("CurrentHost") == null) {
+                //if row exists but current host is null then update current host
+                query = "SELECT USER();";
+                result = statement.executeQuery(query);
 
+                if (result.next()) {
+                    String actualUser = result.getString(1);
+                    query = String.format(
+                        "UPDATE ServerDetails SET CurrentHost = '%s'",
+                        actualUser
+                    );
+                    statement.executeUpdate(query);
+                }
                 return false;
             }
 
             String hostEntry = result.getString("CurrentHost");
 
-            //get CURRENT_USER
-            query = "SELECT CURRENT_USER;";
+            // get user@ip
+            query = "SELECT USER();";
             result = statement.executeQuery(query);
 
             if (result.next()) {
-                String currentUser = result.getString("CURRENT_USER");
-
-                if (hostEntry.equalsIgnoreCase(currentUser)) {
-                    
+                String actualUser = result.getString(1);
+                if (hostEntry.equalsIgnoreCase(actualUser)) {
+                    //if host matches current connection, refresh stored host
                     query = String.format(
                         "UPDATE ServerDetails SET CurrentHost = '%s'",
-                        currentUser
+                        actualUser
                     );
                     statement.executeUpdate(query);
                     return false;
                 }
             }
 
-            //get user and ip
             String[] parts = hostEntry.split("@");
             user = parts[0].trim();
             ip = parts[1].trim();
 
-            //check if current host is currently connected
+            //check if stored host is currently connected
             query = String.format(
                 "SELECT user, host FROM information_schema.PROCESSLIST " +
                 "WHERE user = '%s' AND host LIKE '%s%%';",

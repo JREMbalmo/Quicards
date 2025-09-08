@@ -44,7 +44,13 @@ public class JoinServerMenu extends State{
         if (running) return;
         running = true;
         
-        frame.add(serverInfoPanel, BorderLayout.CENTER);
+        //add header to first layer
+        firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
+        
+        //add background
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
+        
+        cardLayout.show(cardPanel, "Join Server Menu");
         frame.revalidate();
         frame.repaint();
     }
@@ -113,8 +119,9 @@ public class JoinServerMenu extends State{
         serverInfoPanel.add(portField);
         
         //buttons
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, serverMenu));
-        buttonPanel.add(ComponentFactory.createCustomButton("Host", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
+        buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
+            Server.leaveServer(); exit(serverMenu);}));
+        buttonPanel.add(ComponentFactory.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         
         //subpanels
@@ -124,7 +131,7 @@ public class JoinServerMenu extends State{
         layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
         
         //create host server menu card
-        cardPanel.add("Host Server Menu", layeredPanel);
+        cardPanel.add("Join Server Menu", layeredPanel);
         
         initialized = true;
         
@@ -135,13 +142,13 @@ public class JoinServerMenu extends State{
     public void exit(State nextState) {
         System.out.println("Removing elements from JoinServerMenu");
         System.out.println("Preparing to transition to next state");
+        
+        //cleanup
+        ipField.setText(null);
+        portField.setText(null);
+        
         running = false;
         previousState = currentState;
         currentState = nextState;
-        
-        //cleanup
-        frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(serverInfoPanel));
-        ipField.setText(null);
-        portField.setText(null);
     }
 }

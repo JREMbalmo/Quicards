@@ -8,9 +8,11 @@ import java.sql.Statement;
 
 public class Server {
     //variables
-    private static String database;
-    private static String username;
-    private static String password;
+    private static final String username = "QuiCardsCreator1";
+    private static final String password = "QuiC4rds!";
+    private static String ip;
+    private static String port;
+    private static String url;
     
     //objects
     public static Connection connection;
@@ -18,16 +20,22 @@ public class Server {
     public static ResultSet result;
     
     public static void leaveServer() {
-        database = null;
-        username = null;
-        password = null;
+        
+        ip = null;
+        port = null;
+        url = null;
+        result = null;
+        statement = null;
+        connection = null;
+        
+        System.out.println("Left server");
     }
     
     public static void setServer(String ip, String port) {
-        database = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
+        url = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
         
-        Server.username = "user";
-        Server.password = "userPass";
+        Server.ip = ip;
+        Server.port = port;
     }
     
     public static boolean checkServer() {
@@ -42,20 +50,51 @@ public class Server {
     }
     
     public static boolean isHosted() {
-        try {
-            
-        } catch (Exception e) {
-            
-        }
+        String query;
+        String host;
         
+        try {
+            //get current host of server
+            query = "SELECT CurrentHost from ServerDetails LIMIT 1;";
+            
+            result = statement.executeQuery(query);
+            
+            if (!result.next()) {
+                return false;
+            }
+            
+            //get current host details
+            host = result.getString("CurrentHost");
+            String[] details = host.split("@");
+            
+            //check if current host is currently connected to server
+            query = String.format(
+                "SELECT user, host FROM information_schema.PROCESSLIST " +
+                "WHERE user = '%s' AND host LIKE '%s%%';",
+                details[0].trim(), details[1].trim()
+            );
+
+            result = statement.executeQuery(query);
+            return result.next();
+        } catch (Exception e) {
+            System.out.println("Failed to check if host is online: " + e);
+        }
         return false; //default
     }
     
     public static boolean connectServer() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(database, username, password);
+            connection = DriverManager.getConnection(url, username, password);
             statement = connection.createStatement();
+            
+            //check if host is currently online
+            if (!isHosted()) {
+                connection.close();
+                leaveServer();
+                return false;
+            }
+        
             System.out.println("Connected to server!");
             return true;
         } catch(Exception e) {

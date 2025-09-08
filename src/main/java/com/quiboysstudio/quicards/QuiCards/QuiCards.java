@@ -39,16 +39,18 @@ CREATE TABLE ServerDetails (
 
 -- Create users table
 CREATE TABLE Users (
-    ID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
     Username VARCHAR(16) UNIQUE NOT NULL,
     Password TEXT NOT NULL,
-    Seed BIGINT NOT NULL
+    Seed BIGINT NOT NULL,
+    FOREIGN KEY (Username) REFERENCES AccountCreation(Username),
+    FOREIGN KEY (Password) REFERENCES AccountCreation(Password)
 ) AUTO_INCREMENT = 100000;
 
 -- Create actions table
 CREATE TABLE Actions (
     ActionsID INT PRIMARY KEY AUTO_INCREMENT,
-    User VARCHAR(16) NOT NULL,
+    UserID(16) NOT NULL,
     Action VARCHAR(128) NOT NULL,
     Status TINYINT(1) NOT NULL,
     FOREIGN KEY (User) REFERENCES Users(Username)
