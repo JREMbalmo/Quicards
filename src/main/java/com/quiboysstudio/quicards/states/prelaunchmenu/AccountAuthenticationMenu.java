@@ -4,11 +4,10 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.Box;
-import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -74,12 +73,12 @@ public class AccountAuthenticationMenu extends State{
         buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //actions buttons
-        buttonPanel.add(ComponentFactory.createCustomButton("Login Account", FrameConfig.SATOSHI_BOLD, 577, () -> {showAuthenticationMenu();}));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Login Account", FrameConfig.SATOSHI_BOLD, 577, loginMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         buttonPanel.add(ComponentFactory.createStateChangerButton("Create Account", FrameConfig.SATOSHI_BOLD, 577, registerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         buttonPanel.add(ComponentFactory.createCustomButton("Change Server", FrameConfig.SATOSHI_BOLD, 577,
-                () -> {Server.leaveServer(); exit(serverMenu);}));
+                () -> {AccountCreationServer.leaveServer(); exit(serverMenu);}));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
         
         //subpanels

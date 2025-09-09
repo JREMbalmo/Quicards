@@ -1,17 +1,16 @@
 package com.quiboysstudio.quicards.server;
 
 //imports
-import com.quiboysstudio.quicards.states.State;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
-import javax.swing.JOptionPane;
 
-public class Server {
+public class AccountCreationServer {
     //variables
-    private static String username;
-    private static String password;
+    private static final String username = "QuiCardsCreator1";
+    private static final String password = "QuiC4rds!";
     private static String ip;
     private static String port;
     private static String url;
@@ -23,8 +22,6 @@ public class Server {
     
     public static void leaveServer() {
         
-        username = null;
-        password = null;
         ip = null;
         port = null;
         url = null;
@@ -32,19 +29,15 @@ public class Server {
         statement = null;
         connection = null;
         
-        System.out.println("Left server");
+        System.out.println("Left server as account creator");
     }
     
     public static void setServer(String ip, String port) {
         url = String.format("jdbc:mysql://%s:%s/Server?zeroDateTimeBehavior=CONVERT_TO_NULL", ip, port);
         
-        Server.ip = ip;
-        Server.port = port;
-    }
-    
-    public static void setUser(String username, String password) {
-        Server.username = username;
-        Server.password = password;
+        AccountCreationServer.ip = ip;
+        AccountCreationServer.port = port;
+        Server.setServer(ip, port);
     }
     
     public static boolean checkServer() {
@@ -53,7 +46,7 @@ public class Server {
                     "select SCHEMA_NAME from INFORMATION_SCHEMATA where SCHEMA_NAME = 'Server';");
             return result.next();
         } catch (Exception e) {
-            System.out.println("Failed to check server: " + e);
+            System.out.println("Failed to check creator server: " + e);
         }
         return false; //default
     }
@@ -107,15 +100,30 @@ public class Server {
             System.out.println("Connected to server!");
             return true;
         } catch(Exception e) {
-            System.out.println("Failed to connect to server: " + e);
-            JOptionPane.showMessageDialog(null, "Can't reach server");
-            State.currentState.exit(State.serverMenu);
+            System.out.println("Failed to connect to creator server: " + e);
             return false;
         }
     }
     
-    public static boolean doAction() {
+    public static boolean checkStatus() {
+        return (isHosted() && checkServer());
+    }
+    
+    public static int createUser(String username, String password) {
+        //variables
+        String query;
         
-        return false;
+        try {
+            query = String.format("INSERT INTO AccountCreation(Username, Password) VALUES ('%s', '%s');",
+                    username, password);
+            statement.executeUpdate(query);
+            return 1;
+        } catch (SQLException e) {
+            System.out.println("User already exists: " + e);
+            if (e.getErrorCode() == 1062) return e.getErrorCode();
+        } catch (Exception e) {
+            System.out.println("Failed to insert user details: " + e);
+        }
+        return 0;
     }
 }

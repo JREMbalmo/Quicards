@@ -3,13 +3,13 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
-import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -22,8 +22,9 @@ public class LoginMenu extends State{
     private boolean initialized = false;
     
     //objects
-    private JPanel actionsPanel;
-    private JPanel loginPanel;
+    private JLayeredPane layeredPanel;
+    private JPanel firstLayerPanel;
+    private JPanel loginMenuPanel;
     private JPanel buttonPanel;
     private JTextField usernameField;
     private JTextField passwordField;
@@ -37,31 +38,24 @@ public class LoginMenu extends State{
     
     @Override
     public void update() {
-        showActionsMenu();
+        showMenu();
     }
     
-    private void showActionsMenu() {
-        
+    private void showMenu() {
         if (running) return;
         running = true;
         
-        System.out.println("Showing LoginMenu");
+        //add header to first layer
+        firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
         
-        frame.add(actionsPanel, BorderLayout.CENTER);
+        //add background
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
+        
+        cardLayout.show(cardPanel, "Login Menu");
         frame.revalidate();
         frame.repaint();
     }
-    
-    private void showLoginMenu() {
-        //remove actions panel
-        frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(actionsPanel));
-            
-        //show login panel
-        frame.add(loginPanel);
-        frame.revalidate();
-        frame.repaint();
-    }
-    
+
     private void loginAttempt() {
         //variables
         String username = String.valueOf(usernameField.getText());
@@ -75,14 +69,14 @@ public class LoginMenu extends State{
             long seed;
 
             //check if user actually exists
-            Server.result = Server.statement.executeQuery(
+            AccountCreationServer.result = AccountCreationServer.statement.executeQuery(
                 "select ID, username, password, seed from Users where username = '" + username +"';"
             );
 
             //check if user exists
-            if (Server.result.next()) {
-                serverUsername = Server.result.getString("username");
-                serverPassword = Server.result.getString("password");
+            if (AccountCreationServer.result.next()) {
+                serverUsername = AccountCreationServer.result.getString("username");
+                serverPassword = AccountCreationServer.result.getString("password");
             } else {
                 JOptionPane.showMessageDialog(null, "Username doesn't exist!");
                 passwordField.setText(null);
@@ -92,8 +86,8 @@ public class LoginMenu extends State{
             //check if login info is correct
             if (password.equals(serverPassword)) {
                 JOptionPane.showMessageDialog(null, "Login successful!");
-                ID = Server.result.getInt("ID");
-                seed = Server.result.getLong("seed");
+                ID = AccountCreationServer.result.getInt("ID");
+                seed = AccountCreationServer.result.getLong("seed");
                 User user = new User(ID, serverUsername, serverPassword, seed);
                 exit(mainMenu);
             } else {
@@ -110,53 +104,57 @@ public class LoginMenu extends State{
         
         System.out.println("Initializing elements from LoginMenu state");
         
-        //actions panel
-        actionsPanel = new JPanel();
-        actionsPanel.setPreferredSize(FrameUtil.scale(frame, 580, 520));
-        actionsPanel.setBackground(FrameConfig.BLUE);
-        actionsPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
+        // initialize layered panel
+        layeredPanel = new JLayeredPane();
+        layeredPanel.setOpaque(false);
+        layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         
-        //actions buttons
-        actionsPanel.add(ComponentFactory.createCustomButton("Login Account", FrameConfig.SATOSHI_BOLD, 577, () -> {showLoginMenu();}));
-        actionsPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
-        actionsPanel.add(ComponentFactory.createStateChangerButton("Create Account", FrameConfig.SATOSHI_BOLD, 577, registerMenu));
-        actionsPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
-        actionsPanel.add(ComponentFactory.createCustomButton("Change Server", FrameConfig.SATOSHI_BOLD, 577,
-                () -> {Server.leaveServer(); exit(serverMenu);}));
-        actionsPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100))); //padding
+        //initialize first layer
+        firstLayerPanel = new JPanel();
+        firstLayerPanel.setOpaque(false);
+        firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        firstLayerPanel.setLayout(new BorderLayout());
         
-        //login panel
-        loginPanel = new JPanel();
-        loginPanel.setPreferredSize(FrameUtil.scale(frame, 557, 500));
-        loginPanel.setBackground(FrameConfig.BLUE);
-        loginPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
+        //main panel;
+        loginMenuPanel = new JPanel();
+        loginMenuPanel.setOpaque(false);
+        loginMenuPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
+        loginMenuPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
+        
+        //button panel
+        buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
         
         //text fields
-        usernameField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        passwordField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = ComponentFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = ComponentFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
-        //add components to login panel
-        loginPanel.add(usernameLabel);
-        loginPanel.add(usernameField);
-        loginPanel.add(passwordLabel);
-        loginPanel.add(passwordField);
+        //add components
+        loginMenuPanel.add(usernameLabel);
+        loginMenuPanel.add(usernameField);
+        loginMenuPanel.add(passwordLabel);
+        loginMenuPanel.add(passwordField);
         
-        //login button panel
-        buttonPanel = new JPanel();
-        buttonPanel.setBackground(FrameConfig.BLUE);
-        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
-        buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
-        
-        //login buttons
-        buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {exit(loginMenu);}));
+        //buttons
+        buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
+            AccountCreationServer.leaveServer(); exit(previousState);}));
         buttonPanel.add(ComponentFactory.createCustomButton("Login", FrameConfig.SATOSHI_BOLD, 250, () -> {loginAttempt();}));
+        loginMenuPanel.add(buttonPanel);
         
-        //add button panel to login panel
-        loginPanel.add(buttonPanel);
+        //subpanels
+        firstLayerPanel.add(loginMenuPanel, BorderLayout.CENTER);
+        
+        //panel layers
+        layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //create host server menu card
+        cardPanel.add("Login Menu", layeredPanel);
         
         initialized = true;
         
@@ -171,8 +169,6 @@ public class LoginMenu extends State{
         previousState = currentState;
         currentState = nextState;
         
-        if (actionsPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(actionsPanel));
-        if (loginPanel.getParent() != null) frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(loginPanel));
         usernameField.setText(null);
         passwordField.setText(null);
     }

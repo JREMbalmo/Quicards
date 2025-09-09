@@ -19,8 +19,9 @@ public abstract class State{
             wipState, settingsMenu, storeMenu, inventoryMenu, createRoomMenu, joinRoomMenu;
     public static State currentState, previousState;
     
-    //main methods
-    public void enter() {}
-    public void update() {}
-    public void exit(State nextState) {}
+    //abstract methods
+    public abstract void enter();
+    public abstract void update();
+    public abstract void exit(State nextState);
+    
 }

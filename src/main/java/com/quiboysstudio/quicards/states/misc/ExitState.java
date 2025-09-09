@@ -13,4 +13,12 @@ public class ExitState extends State{
         frame.dispose();
         System.exit(0);
     }
+
+    @Override
+    public void enter() {
+    }
+
+    @Override
+    public void exit(State nextState) {
+    }
 }

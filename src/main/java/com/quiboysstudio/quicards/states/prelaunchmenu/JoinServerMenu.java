@@ -4,7 +4,7 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
-import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -64,11 +64,18 @@ public class JoinServerMenu extends State{
                 "Connecting to MySQL server hosted at %s with %s as port",
                 ip, port));
 
-        Server.setServer(ip, port);
+        AccountCreationServer.setServer(ip, port);
         
-        if (Server.connectServer()) {
+        if (AccountCreationServer.connectServer()) {
             //run if connection is successful
             JOptionPane.showMessageDialog(null, "Connected to server");
+            
+            try {
+            AccountCreationServer.connection.close();
+            } catch (Exception e) {
+                System.out.println("Failed to close connection: " + e);
+            }
+            
             exit(accountAuthenticationMenu);
         } else {
             //run if connection failed
@@ -120,7 +127,7 @@ public class JoinServerMenu extends State{
         
         //buttons
         buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
-            Server.leaveServer(); exit(previousState);}));
+            AccountCreationServer.leaveServer(); exit(previousState);}));
         buttonPanel.add(ComponentFactory.createCustomButton("Join", FrameConfig.SATOSHI_BOLD, 250, () -> {attemptConnectServer();}));
         serverInfoPanel.add(buttonPanel);
         

@@ -1,15 +1,12 @@
 package com.quiboysstudio.quicards.account;
 
-import java.security.SecureRandom;
+import com.quiboysstudio.quicards.server.Server;
 
 public class User {
     //variables
     private static int ID = 0;
     private static String username, password;
     private static long seed;
-    
-    //objects
-    private static final SecureRandom secureRandom = new SecureRandom();
     
     public User(int ID, String username, String password, long seed) {
         this.ID = ID;
@@ -34,14 +31,15 @@ public class User {
         return ID;
     }
     
+    public static void setPassword(String password) {
+        User.password = password;
+    }
+    
     public static void logout() {
         username = null;
         password = null;
         seed = 0;
         ID = 0;
-    }
-        
-    public static long generateSeed() {
-        return secureRandom.nextLong();
+        Server.leaveServer();
     }
 }

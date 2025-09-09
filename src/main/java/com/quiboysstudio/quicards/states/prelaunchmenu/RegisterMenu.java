@@ -3,12 +3,13 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 //imports
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.FrameConfig;
-import com.quiboysstudio.quicards.server.Server;
+import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -21,7 +22,9 @@ public class RegisterMenu extends State{
     private boolean initialized = false;
     
     //objects
-    private JPanel registerPanel;
+    private JLayeredPane layeredPanel;
+    private JPanel firstLayerPanel;
+    private JPanel registerMenuPanel;
     private JPanel buttonPanel;
     private JTextField usernameField;
     private JTextField passwordField;
@@ -37,15 +40,24 @@ public class RegisterMenu extends State{
     
     @Override
     public void update() {
-        showRegisterMenu();
+        showMenu();
     }
     
-    private void showRegisterMenu() {
+    private void showMenu() {
         
         if (running) return;
         running = true;
         
-        frame.add(registerPanel, BorderLayout.CENTER);
+        //connect to server as account creator user
+        AccountCreationServer.connectServer();
+        
+        //add header to first layer
+        firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
+        
+        //add background
+        layeredPanel.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
+        
+        cardLayout.show(cardPanel, "Register Menu");
         frame.revalidate();
         frame.repaint();
     }
@@ -55,8 +67,6 @@ public class RegisterMenu extends State{
         String username = String.valueOf(usernameField.getText()).trim();
         String password = String.valueOf(passwordField.getText()).trim();
         String cPassword = String.valueOf(confirmField.getText()).trim();
-        int id = 0;
-        long seed;
         
         //password confirmation
         if (!password.equals(cPassword)) {
@@ -66,85 +76,131 @@ public class RegisterMenu extends State{
             return;
         }
         
-        //generate seed
-        seed = User.generateSeed();
+        switch (AccountCreationServer.createUser(username, password)) {
+            case 1 -> {
+                JOptionPane.showMessageDialog(null, "Account created successfully!");
+                exit(mainMenu);
+            }
+            case 1062 -> {
+                JOptionPane.showMessageDialog(null, "Username is taken!");
+                clearFields();
+                return;
+            }
+            case 0 -> {
+                JOptionPane.showMessageDialog(null, "Can't register account");
+                clearFields();
+                return;
+            }
+        }
         
         //check if username exists on database
-        try {
-            Server.result = Server.statement.executeQuery(
-                    "select username from Users where username = '" + username + "';"
-            );
+//        try {
+//            AccountCreationServer.result = AccountCreationServer.statement.executeQuery(
+//                    "select Username from Users where username = '" + username + "';"
+//            );
             
-            if (!Server.result.next()) {
-                //insert user details to database if username is unique
-                Server.statement.executeUpdate(
-                        "insert into Users (username, password, seed) values " +
-                        "('" + username + "','" + password + "','" + seed + "');"
-                );
-                Server.result = Server.statement.executeQuery(
-                        "select ID from Users where username = '" + username + "';");
-                
-                if (Server.result.next()) {
-                    id = Server.result.getInt("ID");
-                }
+//            if (!AccountCreationServer.result.next()) {
+//                //insert user details to database if username is unique
+//                AccountCreationServer.statement.executeUpdate(
+//                        "insert into AccountCreation (Username, Password) values " +
+//                        "('" + username + "','" + password + "');"
+//                );
+//                AccountCreationServer.result = AccountCreationServer.statement.executeQuery(
+//                        "select ID from Users where username = '" + username + "';");
+//                
+//                if (AccountCreationServer.result.next()) {
+//                    id = AccountCreationServer.result.getInt("ID");
+//                }
                 
                 //setup user class
-                User user = new User(id, username, password, seed);
-                exit(mainMenu);
-            } else {
-                JOptionPane.showMessageDialog(null, "Username is already taken!");
-                passwordField.setText(null);
-                confirmField.setText(null);
-            }
-        } catch (Exception e) {
-            System.out.println("Failed to search username: " + e);
-        }
+                //User user = new User(id, username, password, seed);
+//                exit(mainMenu);
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Username is already taken!");
+//                passwordField.setText(null);
+//                confirmField.setText(null);
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Failed to search username: " + e);
+//        }
     }
     
     private void init() {
-        //only run once
         if (initialized) return;
         
         System.out.println("Initializing elements from RegisterMenu state");
         
-        //register panel
-        registerPanel = new JPanel();
-        registerPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
-        registerPanel.setBackground(FrameConfig.BLUE);
-        registerPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
+        // initialize layered panel
+        layeredPanel = new JLayeredPane();
+        layeredPanel.setOpaque(false);
+        layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         
-        //text fields
-        usernameField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        passwordField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
-        confirmField = ComponentFactory.createRoundedTextField(350, 50, FrameConfig.WHITE, FrameConfig.BLACK, FrameConfig.SATOSHI);
+        //initialize first layer
+        firstLayerPanel = new JPanel();
+        firstLayerPanel.setOpaque(false);
+        firstLayerPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+        firstLayerPanel.setLayout(new BorderLayout());
         
-        //labels
-        usernameLabel = ComponentFactory.createRoundedLabel("Username", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        passwordLabel = ComponentFactory.createRoundedLabel("Password", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
-        confirmLabel = ComponentFactory.createRoundedLabel("Confirm", 200, 50, FrameConfig.WHITE, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        //main panel;
+        registerMenuPanel = new JPanel();
+        registerMenuPanel.setOpaque(false);
+        registerMenuPanel.setPreferredSize(FrameUtil.scale(frame, 557, 520));
+        registerMenuPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 150),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
         //button panel
         buttonPanel = new JPanel();
-        buttonPanel.setBackground(FrameConfig.BLUE);
-        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
+        buttonPanel.setOpaque(false);
         buttonPanel.setPreferredSize(FrameUtil.scale(frame, 556, 150));
+        buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50),0,0,0));
         
-        //register buttons
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, loginMenu));
-        buttonPanel.add(ComponentFactory.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
+        //text fields
+        usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        confirmField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        
+        //labels
+        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        confirmLabel = ComponentFactory.createRoundedLabel("Confirm",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
         
         //add components
-        registerPanel.add(usernameLabel);
-        registerPanel.add(usernameField);
-        registerPanel.add(passwordLabel);
-        registerPanel.add(passwordField);
-        registerPanel.add(confirmLabel);
-        registerPanel.add(confirmField);
-        registerPanel.add(buttonPanel);
+        registerMenuPanel.add(usernameLabel);
+        registerMenuPanel.add(usernameField);
+        registerMenuPanel.add(passwordLabel);
+        registerMenuPanel.add(passwordField);
+        registerMenuPanel.add(confirmLabel);
+        registerMenuPanel.add(confirmField);
+        
+        //buttons
+        buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
+            try {
+            AccountCreationServer.connection.close();
+            } catch (Exception e) {
+                System.out.println("Failed to close connection: " + e);
+            }
+            exit(previousState);}));
+        buttonPanel.add(ComponentFactory.createCustomButton("Register", FrameConfig.SATOSHI_BOLD, 250, () -> {registerAttempt();}));
+        registerMenuPanel.add(buttonPanel);
+        
+        //subpanels
+        firstLayerPanel.add(registerMenuPanel, BorderLayout.CENTER);
+        
+        //panel layers
+        layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //create host server menu card
+        cardPanel.add("Register Menu", layeredPanel);
         
         initialized = true;
         
         System.out.println("Entering RegisterMenu state");
+    }
+    
+    private void clearFields() {
+        //clean up
+        usernameField.setText(null);
+        passwordField.setText(null);
+        confirmField.setText(null);
     }
     
     @Override
@@ -155,9 +211,6 @@ public class RegisterMenu extends State{
         previousState = currentState;
         currentState = nextState;
         
-        frame.getContentPane().remove(frame.getContentPane().getComponentZOrder(registerPanel));
-        usernameField.setText(null);
-        passwordField.setText(null);
-        confirmField.setText(null);
+        clearFields();
     }
 }
