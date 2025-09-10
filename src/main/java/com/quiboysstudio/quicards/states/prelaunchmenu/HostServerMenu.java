@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
@@ -26,7 +27,7 @@ public class HostServerMenu extends State{
     private JTextField ipField;
     private JTextField portField;
     private JTextField usernameField;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private JLabel ipLabel;
     private JLabel portLabel;
     private JLabel usernameLabel;
@@ -112,7 +113,7 @@ public class HostServerMenu extends State{
         ipField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         portField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = ComponentFactory.createRoundedPasswordField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
         ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);

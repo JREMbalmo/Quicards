@@ -6,6 +6,7 @@ import com.quiboysstudio.quicards.components.CustomLabel;
 import com.quiboysstudio.quicards.components.CustomPanel;
 import com.quiboysstudio.quicards.components.CustomPasswordField;
 import com.quiboysstudio.quicards.components.CustomTextField;
+import com.quiboysstudio.quicards.components.CustomTextLabel;
 import com.quiboysstudio.quicards.components.MenuPanel;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.states.State;
@@ -141,6 +142,10 @@ public class ComponentFactory {
         label.setVerticalAlignment(SwingConstants.CENTER);
 
         return label;
+    }
+    
+    public static JLabel createTextLabel(String text, Font font) {
+        return new CustomTextLabel(text, font);
     }
     
     //PANEL

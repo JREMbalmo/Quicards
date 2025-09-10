@@ -33,17 +33,17 @@ public class FrameConfig extends JFrame{
     public static final Color  DARK_WHITE = new Color(235,235,235);
     
     //transparent colors
-    public static final Color  TRANSPARENT_BLACK = new Color(0,0,0,50);
-    public static final Color  TRANSPARENT_BLUE = new Color(22,33,61,50);
-    public static final Color  TRANSPARENT_ORANGE = new Color(252,163,17,50);
-    public static final Color  TRANSPARENT_GRAY = new Color(229,229,229,50);
-    public static final Color  TRANSPARENT_WHITE = new Color(255,255,255,50);
+    public static final Color  TRANSPARENT_BLACK = new Color(0,0,0,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_BLUE = new Color(22,33,61,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_ORANGE = new Color(252,163,17,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_GRAY = new Color(229,229,229,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_WHITE = new Color(255,255,255,(int)(255 * 0.8));
     
-    public static final Color  TRANSPARENT_DARK_BLACK = new Color(51,51,51,50);
-    public static final Color  TRANSPARENT_DARK_BLUE = new Color(10,17,31,50);
-    public static final Color  TRANSPARENT_DARK_ORANGE = new Color(242,150,2,50);
-    public static final Color  TRANSPARENT_DARK_GRAY = new Color(214,214,214,50);
-    public static final Color  TRANSPARENT_DARK_WHITE = new Color(235,235,235,50);
+    public static final Color  TRANSPARENT_DARK_BLACK = new Color(51,51,51,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_DARK_BLUE = new Color(10,17,31,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_DARK_ORANGE = new Color(242,150,2,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_DARK_GRAY = new Color(214,214,214,(int)(255 * 0.8));
+    public static final Color  TRANSPARENT_DARK_WHITE = new Color(235,235,235,(int)(255 * 0.8));
     
     //header
     public static JPanel header;

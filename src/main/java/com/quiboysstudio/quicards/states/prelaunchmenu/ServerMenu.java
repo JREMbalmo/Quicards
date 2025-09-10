@@ -5,12 +5,9 @@ import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.Logo;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
-import com.quiboysstudio.quicards.managers.ThemeManager;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
-import java.awt.Image;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -96,9 +93,6 @@ public class ServerMenu extends State{
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         buttonPanel.add(ComponentFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
-        buttonPanel.add(ComponentFactory.createToggleButton("Light Mode", "Dark Mode", FrameConfig.SATOSHI_BOLD, 557, () -> {
-            ThemeManager.getInstance().toggleTheme();
-        }));
         
         //add button panel to first layer
         firstLayerPanel.add(buttonPanel, BorderLayout.CENTER);

@@ -9,6 +9,8 @@ import com.quiboysstudio.quicards.states.matchmaking.*;
 import com.quiboysstudio.quicards.states.store.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 public class StateManager {
     //objects
@@ -60,7 +62,14 @@ public class StateManager {
 
     public static void run() {
         //run main loop every 200ms
-        mainLoop.scheduleAtFixedRate(task, 0, 200);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mainLoop.scheduleAtFixedRate(task, 0, 200);
+        });
     }
     
     public static void off() {

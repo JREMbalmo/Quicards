@@ -82,7 +82,7 @@ public class MainMenu extends State{
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 90))); //padding
         buttonPanel.add(ComponentFactory.createStateChangerButton("Inventory", FrameConfig.SATOSHI_BOLD, 557, wipState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 90))); //padding
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Settings", FrameConfig.SATOSHI_BOLD, 557, wipState));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Settings", FrameConfig.SATOSHI_BOLD, 557, settingsMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 90))); //padding
         buttonPanel.add(ComponentFactory.createCustomButton("Log Out", FrameConfig.SATOSHI_BOLD, 557, () -> {
             User.logout(); exit(accountAuthenticationMenu);}));

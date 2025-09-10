@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
@@ -28,7 +29,7 @@ public class LoginMenu extends State{
     private JPanel loginMenuPanel;
     private JPanel buttonPanel;
     private JTextField usernameField;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
     
@@ -104,7 +105,7 @@ public class LoginMenu extends State{
         
         //text fields
         usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        passwordField = ComponentFactory.createRoundedPasswordField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
         usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
