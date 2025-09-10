@@ -30,7 +30,7 @@ public class RegisterMenu extends State{
     private JPanel buttonPanel;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JTextField confirmField;
+    private JPasswordField confirmField;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
     private JLabel confirmLabel;
@@ -178,7 +178,7 @@ public class RegisterMenu extends State{
         //text fields
         usernameField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         passwordField = ComponentFactory.createRoundedPasswordField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
-        confirmField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
+        confirmField = ComponentFactory.createRoundedPasswordField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
         usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
