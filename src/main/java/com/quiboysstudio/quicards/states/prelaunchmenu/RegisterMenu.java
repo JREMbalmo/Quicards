@@ -6,6 +6,7 @@ import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
+import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -62,6 +63,22 @@ public class RegisterMenu extends State{
         frame.repaint();
     }
     
+    private void loginAttempt() {
+        //variables
+        String username = String.valueOf(usernameField.getText()).trim();
+        String password = String.valueOf(passwordField.getText()).trim();
+        
+        try {
+        Thread.sleep(100);
+        } catch (Exception e) {
+            System.out.println("Failed to pause thread: " + e);
+        }
+        
+        User.setupUser(username, password);
+        
+        Server.connectServer();
+    }
+    
     private void registerAttempt() {
         //variables
         String username = String.valueOf(usernameField.getText()).trim();
@@ -79,6 +96,10 @@ public class RegisterMenu extends State{
         switch (AccountCreationServer.createUser(username, password)) {
             case 1 -> {
                 JOptionPane.showMessageDialog(null, "Account created successfully!");
+                while (!User.isActive()) {
+                    //connect to server using newly registered user
+                    loginAttempt();
+                }
                 exit(mainMenu);
             }
             case 1062 -> {

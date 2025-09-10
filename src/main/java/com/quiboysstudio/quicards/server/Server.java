@@ -1,17 +1,17 @@
 package com.quiboysstudio.quicards.server;
 
 //imports
+import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.states.State;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 
 public class Server {
     //variables
-    private static String username;
-    private static String password;
     private static String ip;
     private static String port;
     private static String url;
@@ -23,14 +23,9 @@ public class Server {
     
     public static void leaveServer() {
         
-        username = null;
-        password = null;
         ip = null;
         port = null;
         url = null;
-        result = null;
-        statement = null;
-        connection = null;
         
         System.out.println("Left server");
     }
@@ -42,76 +37,24 @@ public class Server {
         Server.port = port;
     }
     
-    public static void setUser(String username, String password) {
-        Server.username = username;
-        Server.password = password;
-    }
-    
-    public static boolean checkServer() {
-        try {
-            result = statement.executeQuery(
-                    "select SCHEMA_NAME from INFORMATION_SCHEMATA where SCHEMA_NAME = 'Server';");
-            return result.next();
-        } catch (Exception e) {
-            System.out.println("Failed to check server: " + e);
-        }
-        return false; //default
-    }
-    
-    public static boolean isHosted() {
-        String query;
-        String host;
-        
-        try {
-            //get current host of server
-            query = "SELECT CurrentHost from ServerDetails LIMIT 1;";
-            
-            result = statement.executeQuery(query);
-            
-            if (!result.next()) {
-                return false;
-            }
-            
-            //get current host details
-            host = result.getString("CurrentHost");
-            String[] details = host.split("@");
-            
-            //check if current host is currently connected to server
-            query = String.format(
-                "SELECT user, host FROM information_schema.PROCESSLIST " +
-                "WHERE user = '%s' AND host LIKE '%s%%';",
-                details[0].trim(), details[1].trim()
-            );
-
-            result = statement.executeQuery(query);
-            return result.next();
-        } catch (Exception e) {
-            System.out.println("Failed to check if host is online: " + e);
-        }
-        return false; //default
-    }
-    
     public static boolean connectServer() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(url, username, password);
+            connection = DriverManager.getConnection(url, User.getUsername(), User.getPassword());
             statement = connection.createStatement();
-            
-            //check if host is currently online
-            if (!isHosted()) {
-                connection.close();
-                leaveServer();
-                return false;
-            }
         
             System.out.println("Connected to server!");
             return true;
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1045) {
+                JOptionPane.showMessageDialog(null, "Incorrent login information");
+            }
+            else {System.out.println("Failed to validate user login: " + e);}
         } catch(Exception e) {
             System.out.println("Failed to connect to server: " + e);
-            JOptionPane.showMessageDialog(null, "Can't reach server");
             State.currentState.exit(State.serverMenu);
-            return false;
         }
+        return false;
     }
     
     public static boolean doAction() {

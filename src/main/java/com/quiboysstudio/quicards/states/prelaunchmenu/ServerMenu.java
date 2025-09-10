@@ -60,7 +60,7 @@ public class ServerMenu extends State{
 
         System.out.println("initializing elements from server menu");
 
-        // initialize layered panel
+        //initialize layered panel
         layeredPanel = new JLayeredPane();
         layeredPanel.setOpaque(false);
         layeredPanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());

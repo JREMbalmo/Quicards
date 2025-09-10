@@ -4,15 +4,11 @@ import com.quiboysstudio.quicards.server.Server;
 
 public class User {
     //variables
-    private static int ID = 0;
     private static String username, password;
-    private static long seed;
     
-    public User(int ID, String username, String password, long seed) {
-        this.ID = ID;
-        this.username = username;
-        this.password = password;
-        this.seed = seed;
+    public static void setupUser(String username, String password) {
+        User.username = username;
+        User.password = password;
     }
     
     public static String getUsername() {
@@ -23,23 +19,25 @@ public class User {
         return password;
     }
     
-    public static long getSeed() {
-        return seed;
-    }
-    
-    public static int getID() {
-        return ID;
-    }
-    
     public static void setPassword(String password) {
         User.password = password;
     }
     
+    public static boolean isActive() {
+        return (username != null || password != null);
+    }
+    
     public static void logout() {
+        try {
+        Server.connection.close();
+        } catch (Exception e) {
+            System.out.println("Failed to close server connection: " + e);
+        }
+        
         username = null;
         password = null;
-        seed = 0;
-        ID = 0;
-        Server.leaveServer();
+        Server.result = null;
+        Server.statement = null;
+        Server.connection = null;
     }
 }

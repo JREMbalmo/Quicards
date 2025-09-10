@@ -6,6 +6,7 @@ import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
+import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -60,42 +61,16 @@ public class LoginMenu extends State{
         //variables
         String username = String.valueOf(usernameField.getText());
         String password = String.valueOf(passwordField.getText());
+            
+        //setup user credentials
+        User.setupUser(username, password);
 
-        //send queries for login
-        try {
-            //variables
-            int ID;
-            String serverUsername, serverPassword;
-            long seed;
-
-            //check if user actually exists
-            AccountCreationServer.result = AccountCreationServer.statement.executeQuery(
-                "select ID, username, password, seed from Users where username = '" + username +"';"
-            );
-
-            //check if user exists
-            if (AccountCreationServer.result.next()) {
-                serverUsername = AccountCreationServer.result.getString("username");
-                serverPassword = AccountCreationServer.result.getString("password");
-            } else {
-                JOptionPane.showMessageDialog(null, "Username doesn't exist!");
-                passwordField.setText(null);
-                return;
-            }
-
-            //check if login info is correct
-            if (password.equals(serverPassword)) {
-                JOptionPane.showMessageDialog(null, "Login successful!");
-                ID = AccountCreationServer.result.getInt("ID");
-                seed = AccountCreationServer.result.getLong("seed");
-                User user = new User(ID, serverUsername, serverPassword, seed);
-                exit(mainMenu);
-            } else {
-                JOptionPane.showMessageDialog(null, "Incorrect login information!");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Failed to do login: " + e);
+        //check if login info is correct and attempt to connect
+        if (Server.connectServer()) {
+            JOptionPane.showMessageDialog(null, "Login successful!");
+            exit(mainMenu);
+        } else {
+            clearFields();
         }
     }
     
@@ -142,8 +117,7 @@ public class LoginMenu extends State{
         loginMenuPanel.add(passwordField);
         
         //buttons
-        buttonPanel.add(ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 250, () -> {
-            AccountCreationServer.leaveServer(); exit(previousState);}));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, previousState));
         buttonPanel.add(ComponentFactory.createCustomButton("Login", FrameConfig.SATOSHI_BOLD, 250, () -> {loginAttempt();}));
         loginMenuPanel.add(buttonPanel);
         
@@ -161,6 +135,12 @@ public class LoginMenu extends State{
         System.out.println("Entering LoginMenu state");
     }
     
+    private void clearFields() {
+        //reset fields
+        usernameField.setText(null);
+        passwordField.setText(null);
+    }
+    
     @Override
     public void exit(State nextState) {
         System.out.println("Removing elements from LoginMenu");
@@ -169,7 +149,7 @@ public class LoginMenu extends State{
         previousState = currentState;
         currentState = nextState;
         
-        usernameField.setText(null);
-        passwordField.setText(null);
+        //cleanup
+        clearFields();
     }
 }

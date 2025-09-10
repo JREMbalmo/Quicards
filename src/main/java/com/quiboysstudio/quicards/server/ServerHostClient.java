@@ -1,6 +1,7 @@
 package com.quiboysstudio.quicards.server;
 
 //imports
+import com.quiboysstudio.quicards.server.listener.HostListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -34,6 +35,7 @@ public class ServerHostClient {
     private static Connection connection;
     private static Statement statement;
     private static ResultSet result;
+    private static HostListener listener;
     
     private static JFrame serverHostClientFrame;
     private static JScrollPane logsPane;
@@ -93,6 +95,7 @@ public class ServerHostClient {
             //check account creator user setup
             checkCreationUser();
             
+            //start server
             initHostedServer();
             runHostedServer();
             
@@ -131,6 +134,9 @@ public class ServerHostClient {
         statement = null;
         connection = null;
         hosting = false;
+        
+        //stop host thread if active
+        if (listener.isRunning()) listener.stop();
         
         System.out.println("Stopped Hosting Server");
     }
@@ -217,6 +223,9 @@ public class ServerHostClient {
             exportLogs();
         });
         
+        //listener
+        listener = new HostListener(result, statement);
+        
         //add components
         exportPanel.add(exportLogsButton);
         
@@ -236,6 +245,7 @@ public class ServerHostClient {
     
     private static void runHostedServer() {
         serverHostClientFrame.setVisible(true);
+        listener.start();
     }
     
     private static void checkServer() {
@@ -271,7 +281,9 @@ public class ServerHostClient {
                         "UserID INT PRIMARY KEY AUTO_INCREMENT," +
                         "Username VARCHAR(16) UNIQUE NOT NULL," +
                         "Password TEXT NOT NULL," +
-                        "Seed BIGINT NOT NULL" +
+                        "Seed BIGINT NOT NULL," +
+                        "Money INT NOT NULL DEFAULT 10000," +
+                        "Rolls INT NOT NULL DEFAULT 0" +
                         ") AUTO_INCREMENT = 100000;"
                 );
                 
@@ -282,7 +294,8 @@ public class ServerHostClient {
                         "UserID INT NOT NULL," +
                         "Password TEXT NOT NULL," +
                         "Action VARCHAR(128) NOT NULL," +
-                        "Status TINYINT(1) NOT NULL," +
+                        "Processed TINYINT(1) NOT NULL DEFAULT 0," +
+                        "Valid TINYINT(1) NOT NULL," +
                         "FOREIGN KEY (UserID) REFERENCES Users(UserID)" +
                         ") AUTO_INCREMENT = 1;"
                 );
@@ -292,7 +305,8 @@ public class ServerHostClient {
                         "CREATE TABLE AccountCreation (" +
                         "CreationID INT PRIMARY KEY AUTO_INCREMENT," +
                         "Username VARCHAR(16) UNIQUE NOT NULL," +
-                        "Password TEXT NOT NULL" +
+                        "Password TEXT NOT NULL," +
+                        "Processed TINYINT(1) NOT NULL DEFAULT 0" +
                         ") AUTO_INCREMENT = 1;"
                 );
             }

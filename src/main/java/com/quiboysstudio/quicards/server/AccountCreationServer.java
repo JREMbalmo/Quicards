@@ -29,6 +29,8 @@ public class AccountCreationServer {
         statement = null;
         connection = null;
         
+        Server.leaveServer();
+        
         System.out.println("Left server as account creator");
     }
     
