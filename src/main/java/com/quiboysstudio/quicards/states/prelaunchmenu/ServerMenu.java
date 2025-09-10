@@ -2,8 +2,10 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
+import com.quiboysstudio.quicards.components.Logo;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
+import com.quiboysstudio.quicards.managers.ThemeManager;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Image;
@@ -75,8 +77,7 @@ public class ServerMenu extends State{
         FrameConfig.header = new JPanel();
         FrameConfig.header.setOpaque(false);
         FrameConfig.header.setBorder(new EmptyBorder(FrameUtil.scale(frame, 50), 0, 0, 0));
-        FrameConfig.gameLogo = new ImageIcon(new ImageIcon("resources//logos//game_logo_orange_text.png").getImage()
-                .getScaledInstance(FrameUtil.scale(frame, 721), FrameUtil.scale(frame, 171), Image.SCALE_SMOOTH));
+        FrameConfig.gameLogo = new Logo(721, 171);
         FrameConfig.logoLabel = ComponentFactory.createRoundedLabel(null, 921, 228, FrameConfig.BLACK, 200, FrameConfig.SATOSHI, FrameConfig.WHITE);
         FrameConfig.logoLabel.setHorizontalAlignment(JLabel.CENTER);
         FrameConfig.logoLabel.setVerticalAlignment(JLabel.CENTER);
@@ -95,6 +96,9 @@ public class ServerMenu extends State{
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         buttonPanel.add(ComponentFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
+        buttonPanel.add(ComponentFactory.createToggleButton("Light Mode", "Dark Mode", FrameConfig.SATOSHI_BOLD, 557, () -> {
+            ThemeManager.getInstance().toggleTheme();
+        }));
         
         //add button panel to first layer
         firstLayerPanel.add(buttonPanel, BorderLayout.CENTER);

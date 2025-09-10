@@ -2,24 +2,25 @@ package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.states.State;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class CustomTextField extends JTextField {
+public class CustomPasswordField extends JPasswordField {
     private int roundness = 50;
     private Color borderColor;
 
-    public CustomTextField(Color borderColor) {
+    public CustomPasswordField(Color borderColor) {
         setOpaque(false);
-        setBackground(Color.WHITE); //input area always white
-        setForeground(Color.BLACK); //user text stays readable
+        setBackground(Color.WHITE); // input area always white
+        setForeground(Color.BLACK); // user text stays readable
         this.borderColor = borderColor;
         setBorder(BorderFactory.createEmptyBorder(
                 FrameUtil.scale(State.frame, 5),
                 FrameUtil.scale(State.frame, 10),
                 FrameUtil.scale(State.frame, 5),
                 FrameUtil.scale(State.frame, 10)
-        )); //padding
+        )); // padding
     }
 
     @Override
@@ -35,6 +36,7 @@ public class CustomTextField extends JTextField {
         int w = getWidth() - (borderSize * 2 - 1);
         int h = getHeight() - (borderSize * 2 - 1);
 
+        // Fill background white inside the border
         g2.setColor(getBackground());
         g2.fillRoundRect(x, y, w, h, arc, arc);
 

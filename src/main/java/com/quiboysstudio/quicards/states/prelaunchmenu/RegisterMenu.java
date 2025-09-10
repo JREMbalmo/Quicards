@@ -180,9 +180,9 @@ public class RegisterMenu extends State{
         confirmField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        confirmLabel = ComponentFactory.createRoundedLabel("Confirm",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        confirmLabel = ComponentFactory.createRoundedLabel("Confirm",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
         
         //add components
         registerMenuPanel.add(usernameLabel);

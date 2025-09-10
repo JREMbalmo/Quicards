@@ -20,6 +20,12 @@ public class FrameConfig extends JFrame{
     public static final Color  GRAY = new Color(229,229,229);
     public static final Color  WHITE = new Color(255,255,255);
     
+    //themes
+    public static final Color DARK_TOP = new Color(150, 150, 150, (int)(255 * 0.8));
+    public static final Color DARK_BOTTOM = new Color(30, 30, 30, (int)(255 * 0.8));
+    public static final Color LIGHT_TOP = new Color(240, 240, 240, (int) (255 * 0.8));
+    public static final Color LIGHT_BOTTOM = new Color(120, 120, 120, (int) (255 * 0.8));
+    
     public static final Color  DARK_BLACK = new Color(51,51,51);
     public static final Color  DARK_BLUE = new Color(10,17,31);
     public static final Color  DARK_ORANGE = new Color(242,150,2);

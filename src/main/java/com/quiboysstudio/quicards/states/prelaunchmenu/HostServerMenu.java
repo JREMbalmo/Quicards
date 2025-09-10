@@ -115,10 +115,10 @@ public class HostServerMenu extends State{
         passwordField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        portLabel = ComponentFactory.createRoundedLabel("Port",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        portLabel = ComponentFactory.createRoundedLabel("Port",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        usernameLabel = ComponentFactory.createRoundedLabel("Username",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        passwordLabel = ComponentFactory.createRoundedLabel("Password",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
         
         //add components
         serverInfoPanel.add(ipLabel);

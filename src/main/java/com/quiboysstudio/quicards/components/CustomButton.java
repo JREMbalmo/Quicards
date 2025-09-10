@@ -2,22 +2,23 @@ package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.states.State;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.managers.ThemeManager;
+import com.quiboysstudio.quicards.managers.listeners.ThemeChangeListener;
 import javax.swing.*;
 import java.awt.*;
 
-public class CustomButton extends JButton{
-    //custom button subclass for rounded corners and custom hover states
+public class CustomButton extends JButton implements ThemeChangeListener {
+
+    //vairables
     static int roundness = 80;
-    boolean hovering = false;
+    private boolean hovering = false;
     private boolean pressed = false;
 
-    // Default gradient colors
-    private static final Color TOP_COLOR = new Color(150, 150, 150, (int)(255 * 0.8));
-    private static final Color BOTTOM_COLOR = new Color(30, 30, 30, (int)(255 * 0.8));
-
-    // Alt gradient colors (darker)
-    private static final Color ALT_TOP_COLOR = FrameUtil.getAltColor(new Color(150, 150, 150, (int)(255 * 0.8)));
-    private static final Color ALT_BOTTOM_COLOR = FrameUtil.getAltColor(new Color(30, 30, 30, (int)(255 * 0.8)));
+    //colors
+    private Color topColor;
+    private Color bottomColor;
+    private Color altTopColor;
+    private Color altBottomColor;
 
     public CustomButton(String text) {
         super(text);
@@ -26,7 +27,35 @@ public class CustomButton extends JButton{
         setOpaque(false);
         setFocusPainted(false);
 
-        setForeground(Color.WHITE);
+        //apply current theme
+        applyTheme(ThemeManager.getInstance().isDarkMode());
+
+        ThemeManager.getInstance().addListener(this);
+    }
+
+    @Override
+    public void onThemeChanged(boolean darkMode) {
+        applyTheme(darkMode);
+    }
+
+    private void applyTheme(boolean darkMode) {
+        //pull base colors from FrameConfig
+        if (darkMode) {
+            topColor = FrameConfig.DARK_TOP;
+            bottomColor = FrameConfig.DARK_BOTTOM;
+        } else {
+            topColor = FrameConfig.LIGHT_TOP;
+            bottomColor = FrameConfig.LIGHT_BOTTOM;
+        }
+
+        //compute darker versions for pressed state
+        altTopColor = FrameUtil.getAltColor(topColor);
+        altBottomColor = FrameUtil.getAltColor(bottomColor);
+
+        //update text color
+        setForeground(darkMode ? FrameConfig.WHITE : FrameConfig.BLACK);
+
+        repaint();
     }
 
     public void setPressed(boolean pressed) {
@@ -34,54 +63,60 @@ public class CustomButton extends JButton{
         repaint();
     }
 
+    public void setHovering(boolean status) {
+        hovering = status;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        try {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int arc = FrameUtil.scale(State.frame, roundness);
-        int borderSize = FrameUtil.scale(State.frame, 3);
+            int arc = FrameUtil.scale(State.frame, roundness);
+            int borderSize = FrameUtil.scale(State.frame, 3);
 
-        int x = borderSize;
-        int y = borderSize;
-        int w = getWidth() - (borderSize * 2 - 1);
-        int h = getHeight() - (borderSize * 2 - 1);
+            int x = borderSize;
+            int y = borderSize;
+            int w = Math.max(0, getWidth() - (borderSize * 2 - 1));
+            int h = Math.max(0, getHeight() - (borderSize * 2 - 1));
 
-        //Decide gradient based on pressed state
-        Color top = pressed ? ALT_TOP_COLOR : TOP_COLOR;
-        Color bottom = pressed ? ALT_BOTTOM_COLOR : BOTTOM_COLOR;
+            //use alt colors if pressed, else normal theme colors
+            Color top = pressed ? altTopColor : topColor;
+            Color bottom = pressed ? altBottomColor : bottomColor;
 
-        GradientPaint gradient = new GradientPaint(0, 0, top, 0, getHeight(), bottom);
-        g2.setPaint(gradient);
-        g2.fillRoundRect(x, y, w, h, arc, arc);
+            GradientPaint gradient = new GradientPaint(0, 0, top, 0, getHeight(), bottom);
+            g2.setPaint(gradient);
+            g2.fillRoundRect(x, y, w, h, arc, arc);
 
-        super.paintComponent(g2);
-        g2.dispose();
+            super.paintComponent(g2);
+        } finally {
+            g2.dispose();
+        }
     }
 
     @Override
     protected void paintBorder(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        try {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int arc = FrameUtil.scale(State.frame, roundness);
-        int borderSize = FrameUtil.scale(State.frame, 3);
+            int arc = FrameUtil.scale(State.frame, roundness);
+            int borderSize = FrameUtil.scale(State.frame, 3);
 
-        g2.setStroke(new BasicStroke(borderSize));
-        g2.setColor(hovering ? Color.WHITE : Color.BLACK);
+            g2.setStroke(new BasicStroke(borderSize));
+            g2.setColor(hovering ? Color.WHITE : Color.BLACK);
 
-        g2.drawRoundRect(
-            borderSize / 2,
-            borderSize / 2,
-            getWidth() - borderSize,
-            getHeight() - borderSize,
-            arc, arc
-        );
-
-        g2.dispose();
-    }
-    
-    public void setHovering(boolean status) {
-        hovering = status;
+            g2.drawRoundRect(
+                borderSize / 2,
+                borderSize / 2,
+                getWidth() - borderSize,
+                getHeight() - borderSize,
+                arc, arc
+            );
+        } finally {
+            g2.dispose();
+        }
     }
 }

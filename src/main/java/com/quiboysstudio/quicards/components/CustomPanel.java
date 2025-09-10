@@ -1,6 +1,8 @@
 package com.quiboysstudio.quicards.components;
 
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.managers.ThemeManager;
+import com.quiboysstudio.quicards.managers.listeners.ThemeChangeListener;
 import com.quiboysstudio.quicards.states.State;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -10,17 +12,30 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
 
-public class CustomPanel extends JPanel {
+public class CustomPanel extends JPanel implements ThemeChangeListener {
     private int roundness = 50;
     private final Color borderColor;
 
-    // Default gradient colors (same as CustomButton)
-    private static final Color TOP_COLOR = new Color(150, 150, 150, (int)(255 * 0.8));
-    private static final Color BOTTOM_COLOR = new Color(30, 30, 30, (int)(255 * 0.8));
+    private Color topColor;
+    private Color bottomColor;
 
     public CustomPanel(Color borderColor) {
         this.borderColor = borderColor;
-        setOpaque(false); // we handle custom painting
+        setOpaque(false);
+
+        updateColors(ThemeManager.getInstance().isDarkMode());
+
+        ThemeManager.getInstance().addListener(this);
+    }
+
+    private void updateColors(boolean darkMode) {
+        if (darkMode) {
+            topColor = FrameConfig.DARK_TOP;
+            bottomColor = FrameConfig.DARK_BOTTOM;
+        } else {
+            topColor = FrameConfig.LIGHT_TOP;
+            bottomColor = FrameConfig.LIGHT_BOTTOM;
+        }
     }
 
     @Override
@@ -37,7 +52,7 @@ public class CustomPanel extends JPanel {
         int h = getHeight() - (borderSize * 2 - 1);
 
         // Gradient background
-        GradientPaint gradient = new GradientPaint(0, 0, TOP_COLOR, 0, getHeight(), BOTTOM_COLOR);
+        GradientPaint gradient = new GradientPaint(0, 0, topColor, 0, getHeight(), bottomColor);
         g2.setPaint(gradient);
         g2.fillRoundRect(x, y, w, h, arc, arc);
 
@@ -64,5 +79,11 @@ public class CustomPanel extends JPanel {
         );
 
         g2.dispose();
+    }
+
+    @Override
+    public void onThemeChanged(boolean darkMode) {
+        updateColors(darkMode);
+        repaint();
     }
 }

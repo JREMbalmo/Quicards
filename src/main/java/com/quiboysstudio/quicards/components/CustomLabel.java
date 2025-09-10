@@ -1,35 +1,56 @@
 package com.quiboysstudio.quicards.components;
 
+//imports
 import com.quiboysstudio.quicards.states.State;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.managers.ThemeManager;
+import com.quiboysstudio.quicards.managers.listeners.ThemeChangeListener;
 import javax.swing.*;
 import java.awt.*;
 
-public class CustomLabel extends JLabel {
+public class CustomLabel extends JLabel implements ThemeChangeListener {
     private int roundness = 50; //default
     private Color borderColor;
 
-    // Default gradient colors
-    private static final Color TOP_COLOR = new Color(150, 150, 150, (int)(255 * 0.8));
-    private static final Color BOTTOM_COLOR = new Color(30, 30, 30, (int)(255 * 0.8));
+    //current gradient colors
+    private Color topColor;
+    private Color bottomColor;
 
     public CustomLabel(String text, Color color, int roundness) {
         super(text, SwingConstants.CENTER);
         setOpaque(false);
-        setForeground(Color.WHITE); // keep text visible
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        borderColor = color;
+        this.borderColor = color;
         this.roundness = roundness;
+
+        updateColors(ThemeManager.getInstance().isDarkMode());
+
+        ThemeManager.getInstance().addListener(this);
     }
     
     public CustomLabel(String text, Color color) {
         super(text, SwingConstants.CENTER);
         setOpaque(false);
-        setForeground(Color.WHITE); // keep text visible
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        borderColor = color;
+        this.borderColor = color;
+
+        updateColors(ThemeManager.getInstance().isDarkMode());
+
+        ThemeManager.getInstance().addListener(this);
     }
-    
+
+    private void updateColors(boolean darkMode) {
+        if (darkMode) {
+            topColor = FrameConfig.DARK_TOP;
+            bottomColor = FrameConfig.DARK_BOTTOM;
+            setForeground(FrameConfig.WHITE);
+        } else {
+            topColor = FrameConfig.LIGHT_TOP;
+            bottomColor = FrameConfig.LIGHT_BOTTOM;
+            setForeground(FrameConfig.BLACK);
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -43,8 +64,7 @@ public class CustomLabel extends JLabel {
         int w = getWidth() - (borderSize * 2 - 1);
         int h = getHeight() - (borderSize * 2 - 1);
 
-        // Gradient background
-        GradientPaint gradient = new GradientPaint(0, 0, TOP_COLOR, 0, getHeight(), BOTTOM_COLOR);
+        GradientPaint gradient = new GradientPaint(0, 0, topColor, 0, getHeight(), bottomColor);
         g2.setPaint(gradient);
         g2.fillRoundRect(x, y, w, h, arc, arc);
 
@@ -71,5 +91,11 @@ public class CustomLabel extends JLabel {
         );
 
         g2.dispose();
+    }
+
+    @Override
+    public void onThemeChanged(boolean darkMode) {
+        updateColors(darkMode);
+        repaint();
     }
 }

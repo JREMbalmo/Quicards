@@ -116,8 +116,8 @@ public class JoinServerMenu extends State{
         portField = ComponentFactory.createRoundedTextField(350,50,FrameConfig.WHITE,FrameConfig.BLACK,FrameConfig.SATOSHI);
         
         //labels
-        ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
-        portLabel = ComponentFactory.createRoundedLabel("Port",200,50,FrameConfig.WHITE,FrameConfig.SATOSHI_BOLD,FrameConfig.WHITE);
+        ipLabel = ComponentFactory.createRoundedLabel("IP",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
+        portLabel = ComponentFactory.createRoundedLabel("Port",200,50,FrameConfig.BLACK,FrameConfig.SATOSHI_BOLD);
         
         //add components
         serverInfoPanel.add(ipLabel);
