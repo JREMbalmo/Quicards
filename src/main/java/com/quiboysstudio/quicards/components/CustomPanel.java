@@ -19,9 +19,10 @@ public class CustomPanel extends JPanel implements ThemeChangeListener {
     private Color topColor;
     private Color bottomColor;
 
-    public CustomPanel(Color borderColor) {
+    public CustomPanel(int width, int height, Color borderColor) {
         this.borderColor = borderColor;
         setOpaque(false);
+        setPreferredSize(FrameUtil.scale(State.frame, width, height));
 
         updateColors(ThemeManager.getInstance().isDarkMode());
 

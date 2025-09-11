@@ -6,6 +6,8 @@ import com.quiboysstudio.quicards.managers.ThemeManager;
 import com.quiboysstudio.quicards.managers.listeners.ThemeChangeListener;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CustomButton extends JButton implements ThemeChangeListener {
 
@@ -20,7 +22,7 @@ public class CustomButton extends JButton implements ThemeChangeListener {
     private Color altTopColor;
     private Color altBottomColor;
 
-    public CustomButton(String text) {
+    public CustomButton(String text, Font font, int width, Runnable action) {
         super(text);
         setContentAreaFilled(false);
         setBorderPainted(false);
@@ -31,6 +33,92 @@ public class CustomButton extends JButton implements ThemeChangeListener {
         applyTheme(ThemeManager.getInstance().isDarkMode());
 
         ThemeManager.getInstance().addListener(this);
+        
+        setPreferredSize(FrameUtil.scale(State.frame, width, 78));
+        setFont(font);
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setHovering(true);
+                repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setHovering(false);
+                repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                setPressed(true);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                setPressed(false);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (action != null) {
+                    action.run();
+                }
+            }
+        });
+    }
+    
+    public CustomButton(String defaultText, String altText, Font font, int width, Runnable action) {
+        super(defaultText);
+        setContentAreaFilled(false);
+        setBorderPainted(false);
+        setOpaque(false);
+        setFocusPainted(false);
+
+        //apply current theme
+        applyTheme(ThemeManager.getInstance().isDarkMode());
+
+        ThemeManager.getInstance().addListener(this);
+        
+        setPreferredSize(FrameUtil.scale(State.frame, width, 78));
+        setFont(font);
+
+        final boolean[] toggled = {false};
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setHovering(true);
+                repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setHovering(false);
+                repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                setPressed(true);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                setPressed(false);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                toggled[0] = !toggled[0];
+                setText(toggled[0] ? altText : defaultText);
+
+                if (action != null) {
+                    action.run();
+                }
+            }
+        });
     }
 
     @Override

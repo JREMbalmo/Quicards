@@ -91,7 +91,7 @@ public class ServerMenu extends State{
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         buttonPanel.add(ComponentFactory.createStateChangerButton("Join Server", FrameConfig.SATOSHI_BOLD, 557, joinServerMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, exitState));
+        buttonPanel.add(ComponentFactory.createStateChangerButton("Exit App", FrameConfig.SATOSHI_BOLD, 557, mainMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 100)));
         
         //add button panel to first layer

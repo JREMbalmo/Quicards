@@ -16,23 +16,34 @@ public class CustomLabel extends JLabel implements ThemeChangeListener {
     private Color topColor;
     private Color bottomColor;
 
-    public CustomLabel(String text, Color color, int roundness) {
+    public CustomLabel(String text, int width, int height,
+            Color borderColor, int roundness, Font font, Color fontColor) {
         super(text, SwingConstants.CENTER);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        this.borderColor = color;
+        this.borderColor = borderColor;
         this.roundness = roundness;
+        setFont(font);
+        setForeground(fontColor);
+        setPreferredSize(FrameUtil.scale(State.frame, width, height));
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setVerticalAlignment(SwingConstants.CENTER);
 
         updateColors(ThemeManager.getInstance().isDarkMode());
 
         ThemeManager.getInstance().addListener(this);
     }
     
-    public CustomLabel(String text, Color color) {
+    public CustomLabel(String text, int width, int height,
+            Color borderColor, Font font) {
         super(text, SwingConstants.CENTER);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        this.borderColor = color;
+        this.borderColor = borderColor;
+        setFont(font);
+        setPreferredSize(FrameUtil.scale(State.frame, width, height));
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setVerticalAlignment(SwingConstants.CENTER);
 
         updateColors(ThemeManager.getInstance().isDarkMode());
 

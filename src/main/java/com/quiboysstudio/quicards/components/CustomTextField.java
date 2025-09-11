@@ -9,11 +9,18 @@ public class CustomTextField extends JTextField {
     private int roundness = 50;
     private Color borderColor;
 
-    public CustomTextField(Color borderColor) {
+    public CustomTextField(int width, int height,
+            Color backgroundColor, Color borderColor, Font font) {
         setOpaque(false);
         setBackground(Color.WHITE); //input area always white
         setForeground(Color.BLACK); //user text stays readable
+        setBackground(backgroundColor);
+        setFont(font);
+        setForeground(Color.BLACK);
+        setCaretColor(Color.BLACK);
+        setPreferredSize(FrameUtil.scale(State.frame, width, height));
         this.borderColor = borderColor;
+        
         setBorder(BorderFactory.createEmptyBorder(
                 FrameUtil.scale(State.frame, 5),
                 FrameUtil.scale(State.frame, 10),
