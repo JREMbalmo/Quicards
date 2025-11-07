@@ -1,0 +1,23 @@
+Bandit,Common,BasicATK,7,14
+Goblin,Common,BasicATK,8,12
+Mage,Common,SplitATK,5,10
+Mysterious Egg,Common,BasicDEF,4,20
+Skeleton,Common,BasicDEF,5,19
+Slime,Common,SplitDEF,3,22
+Thief,Common,BasicATK,8,13
+Warrior,Common,BasicDEF,6,18
+Elite Knight,Rare,BasicDEF,7,30
+Giant Slime,Rare,SplitDEF,5,38
+Giant,Rare,BasicDEF,6,32
+Mysterious Lizard,Rare,BasicATK,9,22
+Skeleton Mage,Rare,BasicATK,9,20
+Sorcerer,Rare,SplitATK,8,18
+Archmage,Epic,SplitATK,14,30
+Dragon Knight,Epic,BasicDEF,12,50
+Skeleton Archmage,Epic,BasicATK,16,35
+Treeant,Epic,SplitDEF,10,60
+Wyrmling,Epic,SplitATK,15,32
+Dragon,Legendary,SplitATK,24,55
+Grand Cross,Legendary,SplitDEF,20,90
+Lich,Legendary,BasicATK,28,60
+Sorcerer Supreme,Legendary,BasicATK,27,65

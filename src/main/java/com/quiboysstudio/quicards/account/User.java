@@ -6,10 +6,36 @@ public class User {
     //variables
     private static String username, password;
     private static int userID = -1; // NEW: Added UserID
+    private static int money = 0;
+    
+    public static void updateMoney() {
+        try {
+            Server.result = Server.statement.executeQuery("SELECT Money from Users where UserID = " + User.getUserID());
+            if (Server.result.next()) {
+                money = Server.result.getInt("Money");
+            }
+        }   catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void setupUser(String username, String password) {
         User.username = username;
         User.password = password;
+    }
+    
+    public static void setupID() {
+        try {
+            Server.result = Server.statement.executeQuery("SELECT UserID from Users where Username = '" + username + "';");
+            
+            if (Server.result.next()) {
+                userID = Server.result.getInt("UserID");
+                System.out.println("updated user id");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("failed to setup user id: " + e);
+        }
     }
     
     // NEW: Setter for UserID (to be called on login)
@@ -28,6 +54,10 @@ public class User {
     
     public static String getPassword() {
         return password;
+    }
+    
+    public static int getMoney() {
+        return money;
     }
     
     public static void setPassword(String password) {

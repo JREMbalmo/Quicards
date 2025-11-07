@@ -3,7 +3,6 @@ package com.quiboysstudio.quicards.states.prelaunchmenu;
 //imports
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
-import com.quiboysstudio.quicards.server.AccountCreationServer;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.server.Server;
@@ -69,6 +68,8 @@ public class LoginMenu extends State{
         //check if login info is correct and attempt to connect
         if (Server.connectServer()) {
             JOptionPane.showMessageDialog(null, "Login successful!");
+            User.setupID();
+            User.updateMoney();
             exit(mainMenu);
         } else {
             clearFields();

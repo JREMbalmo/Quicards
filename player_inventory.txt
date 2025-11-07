@@ -198,3 +198,63 @@ Epic - Dragon Knight.png#1b82d5ca-26e8-44c0-9161-6d896eba11dd
 Common - Mage.png#3c0ff915-7883-430e-8926-3364a08a195e
 Epic - Skeleton Archmage.png#752979bb-b2ef-4d3d-805e-e7c498538382
 Rare - Giant.png#55a85870-9c00-4402-9593-2bbb6b3d0960
+Epic - Skeleton Archmage.png#c5e2fc84-da91-4424-92c8-e75ce84122c9
+Rare - Sorcerer.png#d686779c-0ef4-4aef-a49f-9261b5ae3dfa
+Common - Mysterious Egg.png#f6119c77-f2e7-4a62-9660-8762fc8b551c
+Epic - Archmage.png#1d0d8d2a-523f-4670-a342-a21a978d0ebd
+Epic - Skeleton Archmage.png#3c8a834f-23e5-49f3-84ce-ab16eb206fa5
+Rare - Skeleton Mage.png#38b8b24c-2f87-4636-a795-efd52636bdd8
+Rare - Mysterious Lizard.png#8112f9df-7d70-49bb-b65f-e96f9f94a2e5
+Rare - Giant.png#936f27b5-154e-4096-b2a9-fbf685f2001c
+Epic - Dragon Knight.png#c0b42822-fbf9-4b76-9d70-f54f5c1d0935
+Rare - Giant.png#dd50144d-39eb-44cd-b858-c186efe20252
+Rare - Giant.png#7d97f1d3-a034-4cc4-ae5c-bdb4e4a489dd
+Rare - Giant.png#13e79070-3e01-4706-a32a-2004336c26a0
+Legendary - Sorcerer Supreme.png#5a562bc4-6f79-4bbc-9d4f-87735d128260
+Legendary - Lich.png#38676d19-5030-47a6-8040-80de0c747b10
+Common - Thief.png#559a0636-5af2-4ccb-8079-056ae77771c9
+Common - Slime.png#f860df7a-b2d0-4ab4-9f7e-bee39fc6075f
+Common - Bandit.png#0a7bc5f7-11c6-470a-9f87-c90cc28b0b6c
+Legendary - Lich.png#d00e2739-8ca9-49fd-8ddc-aabf325f13d2
+Epic - Archmage.png#f98ee741-c7a1-4744-a197-e7a36602ed73
+Rare - Skeleton Mage.png#51ca1d4a-1785-44a2-ad8a-31935b13f493
+Common - Bandit.png#6335fd53-1941-4830-97e1-4cb2eccaf5ca
+Legendary - Sorcerer Supreme.png#d761d385-a014-49f6-bf15-696c67b326f4
+Epic - Archmage.png#c46d5751-fa99-4396-a587-393f343eb4f1
+Epic - Dragon Knight.png#1a0337df-fb29-4f77-b988-804806789a42
+Rare - Giant Slime.png#44b10f2d-a6d8-42f3-ab38-25e1e1453b03
+Rare - Skeleton Mage.png#3582b627-24be-4006-b57b-aa8a81fbe82b
+Rare - Elite Knight.png#2bb49608-7308-46bb-9a3d-3c60cae6dc16
+Rare - Sorcerer.png#266c7642-e365-494d-87ef-62f2eb264a0f
+Common - Skeleton.png#1dd19e57-ba12-4312-890e-a730dc075b4d
+Epic - Treeant.png#aab2cc2b-1ee7-4b32-a309-7a3c69a0e86f
+Legendary - Lich.png#171835b1-130a-4ef6-a5d3-7ca4f973288f
+Epic - Dragon Knight.png#cfb5be54-c380-49a3-9c4c-5737e249e39a
+Legendary - Knight Grand Cross.png#882357d6-0e9d-4343-a6b6-aa7270acd5f8
+Epic - Archmage.png#aee40722-b670-4598-8d25-bab3df0299b0
+Legendary - Lich.png#50a9dbb3-7239-46fb-8faf-6d2ac5400ee4
+Rare - Skeleton Mage.png#0e6cda94-49de-48f4-9971-6f9f304c97e5
+Epic - Treeant.png#836b412b-151b-45ed-980a-43a6b94f49eb
+Epic - Dragon Knight.png#397109f5-34ad-4e1a-801b-d23ef6db1797
+Epic - Wyrmling.png#ce0a557d-d54a-4b63-aca6-1c2f5ff05bd0
+Epic - Skeleton Archmage.png#e694ea0e-a26f-4d20-b8a9-374705a9309d
+Legendary - Dragon.png#cf34a67c-4719-4e0a-9f27-5a69980c6b3b
+Epic - Dragon Knight.png#7049380d-70f1-4138-ab7f-ec5b22fee208
+Common - Skeleton.png#3a2111c4-1021-49ee-a1f2-b71fc591345b
+Common - Goblin.png#d64dcd50-42e9-4f2a-9bad-37e41c09195d
+Legendary - Lich.png#c692d7ad-792e-41ef-99f0-3fb1e33961e0
+Common - Mage.png#81a2e981-8f88-4922-ba35-1ccb6e703a81
+Common - Slime.png#927e3f52-8b39-46d7-8d4b-b922df131dba
+Common - Mysterious Egg.png#7797950c-9bcf-47e7-8e42-86649c8fa674
+Common - Skeleton.png#3f182ea4-8d58-4d2c-b552-3bd4bdb7dc4f
+Legendary - Dragon.png#a1ddae14-1d4f-4272-b834-89d567bd5b88
+Epic - Archmage.png#8a47e71b-69c7-4cb0-80c8-e82dc04c123e
+Common - Bandit.png#9cc6137b-e2f9-4427-ace5-490f582a7930
+Legendary - Knight Grand Cross.png#6cf37ef3-0845-4eae-adb8-5ad9ad83ccb7
+Epic - Wyrmling.png#fd89b8ba-1986-4968-bbd2-77727db9590d
+Rare - Sorcerer.png#db988354-8758-4dc3-abb2-114d1d0f6536
+Common - Bandit.png#2b666ea9-2c93-4c5f-9e7f-2e77e4931671
+Common - Mage.png#d389fd8c-3331-43c6-91ac-3cdccfc01f9a
+Legendary - Dragon.png#371c6c07-e200-45a3-a035-d6887cfd9141
+Common - Bandit.png#ae471452-d4af-4afa-8aa8-0c0646d16a10
+Rare - Mysterious Lizard.png#f4306607-9317-403c-8ce9-0c96b712461e

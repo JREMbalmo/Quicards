@@ -7,10 +7,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -282,7 +286,7 @@ public class ServerHostClient {
                         "Username VARCHAR(16) UNIQUE NOT NULL," +
                         "Password TEXT NOT NULL," +
                         "Seed BIGINT NOT NULL," +
-                        "Money INT NOT NULL DEFAULT 10000," +
+                        "Money INT NOT NULL DEFAULT 5000," +
                         "Rolls INT NOT NULL DEFAULT 0" +
                         ") AUTO_INCREMENT = 100000;"
                 );
@@ -326,21 +330,53 @@ public class ServerHostClient {
                 statement.executeUpdate(
                         """
                         CREATE TABLE Strategies(
-                        StrategyID INT PRIMARY KEY,
+                        StrategyID INT PRIMARY KEY AUTO_INCREMENT,
                         Name TEXT NOT NULL
-                        )
+                        ) AUTO_INCREMENT = 1;
                         """
                 );
+                
+                //create rarity table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE Rarity(
+                        RarityID INT PRIMARY KEY AUTO_INCREMENT,
+                        Name TEXT NOT NULL
+                        ) AUTO_INCREMENT = 1;
+                        """
+                );                
                 
                 //create cards table
                 statement.executeUpdate(
                         """
                         CREATE TABLE Cards(
-                        CardID INT PRIMARY KEY,
-                        Name TEXT NOT NULL,
+                        CardID INT PRIMARY KEY AUTO_INCREMENT,
+                        Name TEXT NOT NULL
+                        ) AUTO_INCREMENT = 1;
+                        """
+                );
+                
+                //create card rarity table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE CardRarity(
+                        CardID INT NOT NULL,
+                        RarityID INT NOT NULL,
+                        FOREIGN KEY (CardID) REFERENCES Cards(CardID),
+                        FOREIGN KEY (RarityID) REFERENCES Rarity(RarityID)
+                        );
+                        """
+                );                
+                
+                //create card stats table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE CardStats(
+                        CardID INT NOT NULL,
                         Attack INT NOT NULL,
                         Health INT NOT NULL,
                         StrategyID INT NOT NULL,
+                        FOREIGN KEY (CardID) REFERENCES Cards(CardID),
                         FOREIGN KEY (StrategyID) REFERENCES Strategies(StrategyID)
                         );
                         """
@@ -365,10 +401,20 @@ public class ServerHostClient {
                         CREATE TABLE Packs(
                         PackID INT PRIMARY KEY AUTO_INCREMENT,
                         Name TEXT NOT NULL,
-                        CardID INT NOT NULL,
-                        Price INT NOT NULL,
-                        FOREIGN KEY (CardID) REFERENCES Cards(CardID)
+                        Price INT NOT NULL
                         ) AUTO_INCREMENT = 1;
+                        """
+                );
+                
+                //create pack contents table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE PackContents(
+                        PackID INT NOT NULL,
+                        CardID INT NOT NULL,
+                        FOREIGN KEY (CardID) REFERENCES Cards(CardID),
+                        FOREIGN KEY (PackID) REFERENCES Packs(PackID)
+                        );
                         """
                 );
                 
@@ -379,22 +425,20 @@ public class ServerHostClient {
                         DeckID INT PRIMARY KEY AUTO_INCREMENT,
                         UserID INT NOT NULL,
                         Name TEXT NOT NULL,
-                        CardID INT NOT NULL,
                         FOREIGN KEY (UserID) REFERENCES Users(UserID)
                         ) AUTO_INCREMENT = 1;
                         """
                 );
                 
-                //create deck contents
+                //create deck contents table
                 statement.executeUpdate(
                         """
                         CREATE TABLE DeckContents(
-                        DeckContentID INT PRIMARY KEY AUTO_INCREMENT,
                         DeckID INT NOT NULL,
                         CardID INT NOT NULL,
                         FOREIGN KEY (DeckID) REFERENCES Decks(DeckID),
                         FOREIGN KEY (CardID) REFERENCES Cards(CardID)
-                        ) AUTO_INCREMENT = 1;
+                        );
                         """
                 );
                 
@@ -453,6 +497,222 @@ public class ServerHostClient {
                         );
                         """
                 );
+                
+                //insert strategies
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Strategies(Name) Values("BasicATK");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Strategies(Name) Values("BasicDEF");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Strategies(Name) Values("SplitATK");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Strategies(Name) Values("SplitDEF");
+                        """
+                );
+                
+                //insert rarities
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Rarity(Name) Values("Common");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Rarity(Name) Values("Rare");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Rarity(Name) Values("Epic");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Rarity(Name) Values("Legendary");
+                        """
+                );
+                
+                //add card packs
+        try {
+
+            File cardsDir = new File("resources/cards");
+            File[] packFolders = cardsDir.listFiles(File::isDirectory);
+
+            if (packFolders == null) {
+                System.out.println("No pack folders found.");
+                return;
+            }
+
+            for (File packFolder : packFolders) {
+
+                String packName = packFolder.getName();
+                System.out.println("Processing pack: " + packName);
+
+                File infoFile = new File(packFolder, "info.txt");
+                File priceFile = new File(packFolder, "price.txt");
+
+                if (!infoFile.exists() || !priceFile.exists()) {
+                    System.out.println("Missing info.txt or price.txt in " + packName);
+                    continue;
+                }
+
+                // ✅ Step 1 — Extract Pack Price
+                int packPrice = Integer.parseInt(Files.readString(priceFile.toPath()).trim());
+
+                // ✅ Step 2 — Insert Pack into Packs table
+                String insertPackSQL =
+                        "INSERT INTO Packs (Name, Price) VALUES ('" + packName + "', " + packPrice + ")";
+                statement.executeUpdate(insertPackSQL, Statement.RETURN_GENERATED_KEYS);
+
+                ResultSet rsPackID = statement.getGeneratedKeys();
+                int packID = (rsPackID.next()) ? rsPackID.getInt(1) : -1;
+
+                if (packID == -1) {
+                    System.out.println("Failed to insert pack: " + packName);
+                    continue;
+                }
+
+                // Store IDs of cards from this pack to insert into PackContents later
+                List<Integer> cardIDs = new ArrayList<>();
+
+                // ✅ Step 3 — Read info.txt and insert all card details
+                List<String> lines = Files.readAllLines(infoFile.toPath());
+
+                for (String line : lines) {
+                    if (line.trim().isEmpty()) continue;
+
+                    String[] data = line.split(",");
+                    if (data.length != 5) {
+                        System.out.println("Invalid card format in " + infoFile);
+                        continue;
+                    }
+
+                    String name = data[0].trim();
+                    String rarity = data[1].trim();
+                    String strategy = data[2].trim();
+                    int atk = Integer.parseInt(data[3].trim());
+                    int hp = Integer.parseInt(data[4].trim());
+
+                    // ✅ Insert Card Name
+                    String insertCardSQL =
+                            "INSERT INTO Cards (Name) VALUES ('" + name + "')";
+                    statement.executeUpdate(insertCardSQL, Statement.RETURN_GENERATED_KEYS);
+
+                    ResultSet rsCardID = statement.getGeneratedKeys();
+                    int cardID = (rsCardID.next()) ? rsCardID.getInt(1) : -1;
+
+                    if (cardID == -1) continue;
+
+                    cardIDs.add(cardID);
+
+                    // ✅ Insert Rarity
+                    // Here we assume your Rarity table already contains the rarity names mapping to IDs  
+                    String rarityIDSQL = "SELECT RarityID FROM Rarity WHERE Name = '" + rarity + "'";
+                    ResultSet rsRarityID = statement.executeQuery(rarityIDSQL);
+
+                    int rarityID = (rsRarityID.next()) ? rsRarityID.getInt("RarityID") : 1;
+
+                    String insertCardRaritySQL =
+                            "INSERT INTO CardRarity (CardID, RarityID) VALUES (" + cardID + ", " + rarityID + ")";
+                    statement.executeUpdate(insertCardRaritySQL);
+
+                    // ✅ Insert Strategy
+                    String strategyIDSQL = "SELECT StrategyID FROM Strategies WHERE Name = '" + strategy + "'";
+                    ResultSet rsStrategyID = statement.executeQuery(strategyIDSQL);
+
+                    int strategyID = (rsStrategyID.next()) ? rsStrategyID.getInt("StrategyID") : 1;
+
+                    // ✅ Insert Stats
+                    String insertStatsSQL =
+                            "INSERT INTO CardStats (CardID, Attack, Health, StrategyID) VALUES (" +
+                                    cardID + ", " + atk + ", " + hp + ", " + strategyID + ")";
+                    statement.executeUpdate(insertStatsSQL);
+                }
+
+                // ✅ Step 4 — Insert Pack Contents
+                for (Integer cid : cardIDs) {
+                    String insertContentsSQL =
+                            "INSERT INTO PackContents (PackID, CardID) VALUES (" + packID + ", " + cid + ")";
+                    statement.executeUpdate(insertContentsSQL);
+                }
+
+                System.out.println("Pack '" + packName + "' imported successfully.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//                Files.list(Paths.get("resources/cards")).filter(Files::isDirectory).forEach(packDir -> {
+//                try {
+//                // 1. Read pack name
+//                String packName = packDir.getFileName().toString();
+//
+//                // 2. Read pack price
+//                int price = Integer.parseInt(
+//                Files.readString(packDir.resolve("price.txt")).trim()
+//                );
+//
+//                // 3. Insert into Packs table
+//                statement.executeUpdate("INSERT INTO Packs(Name, Price) VALUES ('" + packName + "', " + price + ")");
+//
+//                // 4. Retrieve generated PackID
+//                ResultSet rsPack = statement.executeQuery("SELECT PackID FROM Packs ORDER BY PackID DESC LIMIT 1");
+//                rsPack.next();
+//                int packID = rsPack.getInt(1);
+//
+//                // 5. Read cards from info.txt
+//                List<Integer> cardIds = new ArrayList<>();
+//                List<String> lines = Files.readAllLines(packDir.resolve("info.txt"));
+//
+//                for (String line : lines) {
+//                if (line.isBlank()) continue;
+//                String[] data = line.split(",");
+//                String name = data[0];
+//                String rarity = data[1];
+//                String strategy = data[2];
+//                int atk = Integer.parseInt(data[3]);
+//                int hp = Integer.parseInt(data[4]);
+//
+//                // Find strategy ID
+//                ResultSet rsStrat = statement.executeQuery(
+//                "SELECT StrategyID FROM Strategies WHERE Name='" + strategy + "' LIMIT 1"
+//                );
+//                rsStrat.next();
+//                int stratID = rsStrat.getInt(1);
+//
+//                // Insert card
+//                statement.executeUpdate(
+//                "INSERT INTO Cards(Name, Rarity, Attack, Health, StrategyID) VALUES ('" + name + "', '" + rarity + "', " + atk + ", " + hp + ", " + stratID + ")"
+//                );
+//
+//                // Retrieve CardID
+//                ResultSet rsCard = statement.executeQuery("SELECT CardID FROM Cards ORDER BY CardID DESC LIMIT 1");
+//                rsCard.next();
+//                cardIds.add(rsCard.getInt(1));
+//                }
+//
+//                // 6. Insert into PackContents
+//                for (int cardID : cardIds) {
+//                statement.executeUpdate(
+//                "INSERT INTO PackContents(PackID, CardID) VALUES (" + packID + ", " + cardID + ")"
+//                );
+//                }
+//
+//                } catch (Exception e) {
+//                e.printStackTrace();
+//                }
+//                });
+                
             }
         } catch (Exception e) {
             System.out.println("Failed to check server: " + e);

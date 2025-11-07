@@ -5,8 +5,12 @@ import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
+import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
+import static com.quiboysstudio.quicards.states.State.frame;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -20,6 +24,7 @@ public class MainMenu extends State{
     
     //objects
     private JPanel buttonPanel;
+    private JPanel infoPanel;
     private JLayeredPane layeredPanel;
     private JPanel firstLayerPanel;
     
@@ -72,6 +77,19 @@ public class MainMenu extends State{
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 10),FrameUtil.scale(frame, 650),0,FrameUtil.scale(frame, 650)));
         
+        //infoPanel
+        infoPanel = new JPanel();
+        infoPanel.setSize(FrameUtil.scale(frame, 1920, 300));
+        infoPanel.setOpaque(false);
+        infoPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        infoPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 25), 0, 0, FrameUtil.scale(frame, 25)));
+        
+        //add money label
+        infoPanel.add(ComponentFactory.createRoundedLabel("$ " + User.getMoney(), 200, 78, FrameConfig.BLACK, 78, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE));
+        
+        //add username label
+        infoPanel.add(ComponentFactory.createRoundedLabel(String.valueOf(User.getUsername()), 200, 78, FrameConfig.BLACK, 78, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE));
+        
         //buttons
         buttonPanel.add(ComponentFactory.createStateChangerButton("Join Room", FrameConfig.SATOSHI_BOLD, 557, joinRoomMenu));
         buttonPanel.add(Box.createVerticalStrut(FrameUtil.scale(frame, 90))); //padding
@@ -96,6 +114,9 @@ public class MainMenu extends State{
         
         //add firstlayerpanel to layeredpanel
         layeredPanel.add(firstLayerPanel, Integer.valueOf(1));
+        
+        //add infopanel to layeredpanel
+        layeredPanel.add(infoPanel, Integer.valueOf(2));
         
         //create main menu card
         cardPanel.add("Main Menu", layeredPanel);

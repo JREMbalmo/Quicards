@@ -8,6 +8,7 @@ public class QuiCards {
         StateManager.run();
     }
 }
+
 /*
 MySQL server setup
 

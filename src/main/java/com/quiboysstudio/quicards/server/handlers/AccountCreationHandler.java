@@ -85,6 +85,12 @@ public class AccountCreationHandler {
                         username
                         )
                 );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.Users TO '%s'@'%%';",
+                        username
+                        )
+                );
                 
                 //update process status on AccountCreation table
                 statement.executeUpdate(

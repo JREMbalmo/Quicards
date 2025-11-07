@@ -78,6 +78,9 @@ public class RegisterMenu extends State{
         User.setupUser(username, password);
         
         Server.connectServer();
+        
+        User.setupID();
+        User.updateMoney();
     }
     
     private void registerAttempt() {
