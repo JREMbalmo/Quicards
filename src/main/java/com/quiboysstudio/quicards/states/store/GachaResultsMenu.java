@@ -10,10 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-// REMOVED: java.awt.Image (no longer needed here)
 import javax.swing.BoxLayout; 
 import javax.swing.Box;
-// REMOVED: javax.swing.ImageIcon (no longer needed here)
 import javax.swing.Icon; // NEW IMPORT
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,7 +27,16 @@ public class GachaResultsMenu extends State {
     private boolean running = false;
     private boolean initialized = false;
     private String[] pulledCardFileNames;
-    private boolean animationPlayed = false; // Track if animation has been shown
+    private boolean animationPlayed = false;
+    
+    public GachaResultsMenu(String[] pulledCardFileNames) {
+        this.pulledCardFileNames = pulledCardFileNames;
+    }   
+    
+    
+    public GachaResultsMenu() {
+        this.pulledCardFileNames = new String[0]; // Default for StateManager
+    }
 
     //objects
     private JLayeredPane layeredPane;
@@ -42,13 +49,12 @@ public class GachaResultsMenu extends State {
     
     // For animation
     private JLabel[] cardLabels;
+    private JLabel[] nameLabels; // NEW: Store name labels for reveal
     private Icon[] frontIcons;
-
-    public GachaResultsMenu(String[] cardFileNames) {
-        this.pulledCardFileNames = cardFileNames;
-    }
     
-    public GachaResultsMenu() {};
+    // Animation constants
+    private static final int CARD_REVEAL_DELAY = 200;
+    private static final int FLIP_DURATION = 600;
 
     @Override
     public void enter() {
@@ -84,7 +90,6 @@ public class GachaResultsMenu extends State {
         
         System.out.println("Initializing elements from GachaResultsMenu state");
         
-        // Reset animation flag when reinitializing
         animationPlayed = false;
         
         layeredPane = new JLayeredPane();
@@ -123,11 +128,11 @@ public class GachaResultsMenu extends State {
         // Initialize arrays for animation
         if (this.pulledCardFileNames != null && this.pulledCardFileNames.length > 0) {
             cardLabels = new JLabel[this.pulledCardFileNames.length];
+            nameLabels = new JLabel[this.pulledCardFileNames.length]; // NEW
             frontIcons = new Icon[this.pulledCardFileNames.length];
             
             // Populate the rows
             for (int i = 0; i < this.pulledCardFileNames.length; i++) {
-                // Create card item and store references for animation
                 JPanel cardItem = createPackCardItemWithAnimation(this.pulledCardFileNames[i], i);
                 
                 if (i < 5) {
@@ -159,7 +164,7 @@ public class GachaResultsMenu extends State {
         
         System.out.println("Entering GachaResultsMenu state");
     }
-
+    
     private JPanel createRowPanel() {
         JPanel rowPanel = new JPanel();
         rowPanel.setOpaque(false);
@@ -167,24 +172,25 @@ public class GachaResultsMenu extends State {
         return rowPanel;
     }
 
+    /**
+     * NEW: Creates card item with animation support and hidden name
+     */
     private JPanel createPackCardItemWithAnimation(String cardFileName, int index) {
         JPanel card = new JPanel();
         card.setOpaque(false);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setPreferredSize(new Dimension(FrameUtil.scale(frame, 200), FrameUtil.scale(frame, 320)));
         
-        // ---- IMAGE DIMENSIONS ----
         int imgWidth = FrameUtil.scale(frame, 180);
         int imgHeight = FrameUtil.scale(frame, 260);
 
-        // ---- CARD BACK (shown initially) ----
+        // Card back (shown initially)
         Icon cardBackIcon = CardFlipAnimation.createCardBackIcon(imgWidth, imgHeight);
         
-        // ---- CARD FRONT (for animation reveal) ----
+        // Card front (for animation reveal)
         String imagePath = "resources/cards/Fantasy Card Pack/" + cardFileName;
         Icon frontIcon = new CardImageProxy(imagePath, imgWidth, imgHeight);
         
-        // Store the front icon for later animation
         frontIcons[index] = frontIcon;
         
         // Create JLabel with card back initially
@@ -193,23 +199,21 @@ public class GachaResultsMenu extends State {
         imageLabel.setMaximumSize(new Dimension(imgWidth, imgHeight));
         imageLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         
-        // Store reference to label for animation
         cardLabels[index] = imageLabel;
         
-        // ---- NAME PARSING ----
-        String cardName;
-        try {
-            String displayName = cardFileName.substring(0, cardFileName.lastIndexOf('.'));
-            String[] parts = displayName.split(" - ");
-            cardName = parts.length > 1 ? parts[1] : displayName;
-        } catch (Exception e) {
-            cardName = "Error";
-        }
+        // Parse card name
+        String cardName = parseCardName(cardFileName);
         
-        JLabel nameLabel = ComponentFactory.createTextLabel(cardName, FrameConfig.SATOSHI_BOLD);
+        // Create name label (initially showing ??? and transparent)
+        JLabel nameLabel = ComponentFactory.createTextLabel("???", FrameConfig.SATOSHI_BOLD);
         nameLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        nameLabel.setForeground(new Color(255, 255, 255, 0)); // Fully transparent
         
-        // ---- ADDING COMPONENTS ----
+        // Store name label and card data for reveal
+        nameLabels[index] = nameLabel;
+        nameLabel.putClientProperty("cardFileName", cardFileName);
+        nameLabel.putClientProperty("cardName", cardName);
+        
         card.add(imageLabel);
         card.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 10))));
         card.add(nameLabel);
@@ -217,21 +221,113 @@ public class GachaResultsMenu extends State {
         return card;
     }
     
+    /**
+     * NEW: Starts the sequential card reveal animation
+     */
     private void startFlipAnimation() {
-        if (cardLabels == null || frontIcons == null) return;
+        if (cardLabels == null || frontIcons == null || nameLabels == null) return;
         
-        int imgWidth = FrameUtil.scale(frame, 180);
-        int imgHeight = FrameUtil.scale(frame, 260);
-        Icon cardBackIcon = CardFlipAnimation.createCardBackIcon(imgWidth, imgHeight);
+        for (int i = 0; i < cardLabels.length; i++) {
+            final int index = i;
+            
+            // Schedule each card's reveal with a delay
+            Timer delayTimer = new Timer(CARD_REVEAL_DELAY * i, e -> {
+                revealCard(index);
+                ((Timer) e.getSource()).stop();
+            });
+            delayTimer.setRepeats(false);
+            delayTimer.start();
+        }
+    }
+    
+    /**
+     * NEW: Reveals a single card with flip animation
+     */
+    private void revealCard(int index) {
+        JLabel imageLabel = cardLabels[index];
+        Icon backIcon = imageLabel.getIcon();
+        Icon frontIcon = frontIcons[index];
+        JLabel nameLabel = nameLabels[index];
         
-        // Animate all cards with 200ms stagger between each
-        CardFlipAnimation.animateFlipSequence(
-            cardLabels,
-            cardBackIcon,
-            frontIcons,
-            200, // Stagger delay in ms
-            () -> System.out.println("All cards revealed!")
-        );
+        // Animate flip
+        CardFlipAnimation.animateFlip(imageLabel, backIcon, frontIcon, () -> {
+            // After flip completes, reveal the name with color
+            String cardFileName = (String) nameLabel.getClientProperty("cardFileName");
+            String cardName = (String) nameLabel.getClientProperty("cardName");
+            revealCardName(nameLabel, cardName, cardFileName);
+        });
+    }
+    
+    
+    /**
+     * NEW: Reveals card name with fade-in and rarity color
+     */
+    private void revealCardName(JLabel nameLabel, String cardName, String cardFileName) {
+        Color rarityColor = getRarityColor(cardFileName);
+        
+        nameLabel.setText(cardName);
+        
+        // Animate fade-in
+        Timer fadeTimer = new Timer(20, null);
+        final int[] alpha = {0};
+        
+        fadeTimer.addActionListener(e -> {
+            alpha[0] += 15;
+            if (alpha[0] >= 255) {
+                alpha[0] = 255;
+                fadeTimer.stop();
+            }
+            
+            nameLabel.setForeground(new Color(
+                rarityColor.getRed(),
+                rarityColor.getGreen(),
+                rarityColor.getBlue(),
+                alpha[0]
+            ));
+            nameLabel.repaint();
+        });
+        
+        fadeTimer.start();
+    }
+    
+    /**
+     * NEW: Determines rarity color based on card filename
+     */
+    private Color getRarityColor(String cardFileName) {
+        String rarity = "Common";
+        
+        if (cardFileName.contains(" - ")) {
+            rarity = cardFileName.split(" - ")[0].trim();
+        }
+        
+        switch (rarity.toLowerCase()) {
+            case "common":
+                return new Color(200, 200, 200);
+            case "uncommon":
+                return new Color(30, 255, 0);
+            case "rare":
+                return new Color(0, 112, 221);
+            case "epic":
+                return new Color(163, 53, 238);
+            case "legendary":
+                return new Color(255, 128, 0);
+            default:
+                return Color.WHITE;
+        }
+    }
+    
+    /**
+     * Helper method to parse card name from filename
+     */
+    private String parseCardName(String cardFileName) {
+        try {
+            String displayName = cardFileName.substring(0, cardFileName.lastIndexOf('.'));
+            String[] parts = displayName.split(" - ");
+            return parts.length > 1 ? parts[1] : displayName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error";
+        }
     }
     
     @Override
@@ -240,7 +336,6 @@ public class GachaResultsMenu extends State {
         System.out.println("Preparing to transition to next state");
         running = false;
         
-        // Reset animation state for next time
         animationPlayed = false;
         
         previousState = currentState;
