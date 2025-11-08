@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards.states.prelaunchmenu;
+package com.quiboysstudio.quicards.states.store;
 
 //SYNC STORE MENU TO DATABASE
 
@@ -7,6 +7,7 @@ import com.quiboysstudio.quicards.components.CustomScrollPane;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
+import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import com.quiboysstudio.quicards.states.store.GachaResultsMenu;
 import com.quiboysstudio.quicards.states.store.PackContentsMenu;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class StoreMenu extends State{
@@ -202,7 +205,7 @@ public class StoreMenu extends State{
             card.add(priceLabel);
             
             JButton buyButton = ComponentFactory.createCustomButton("Buy Pack", FrameConfig.SATOSHI_BOLD, 250, () -> {
-                handlePurchase(packName, price); 
+                handlePurchase(packName); 
             });
             buyButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
             
@@ -223,17 +226,80 @@ public class StoreMenu extends State{
         return card;
     }
     
-    private void handlePurchase(String packName, int price) {
-        if (playerCurrency >= price) {
-            System.out.println("Purchasing: " + packName + " for " + price + " $");
+    private void handlePurchase(String packName) {
+        System.out.println("Purchasing: " + packName);
+        
+        //variables
+        int requestID = 0;
+        
+        //objects
+        TimerTask task = new TimerTask(){
+            @Override
+            public void run() {}
+        };
+        Timer timer = new Timer();
+        
+        try {
+            //request to gacha from server
+            Server.statement.executeUpdate(
+                String.format("INSERT INTO Request(UserID, Password, ActionID) VALUES(%d, '%s', %d);", User.getUserID(), User.getPassword(), 1)
+            );
             
-            playerCurrency -= price;
-            updateCurrencyDisplay();
+            //get request id
+            Server.result = Server.statement.executeQuery(
+                    String.format("""
+                    SELECT RequestID, Valid 
+                    FROM Request 
+                    WHERE UserID = %d 
+                    ORDER BY RequestID DESC;
+                    """, User.getUserID())
+            );   
+            if (Server.result.next()) {
+                requestID = Server.result.getInt("RequestID");
+            }
             
-            openCardPack(packName);
-        } else {
-            System.out.println("Not enough currency to purchase: " + packName);
+            //wait for results
+            ArrayList<Integer> gachaResults = new ArrayList<>();
+            
+            while (true) {
+                //delay
+                timer.schedule(task, 1000);
+
+                //check request results
+                Server.result = Server.statement.executeQuery(
+                        String.format("""
+                        SELECT *
+                        FROM Result
+                        WHERE RequestID = %d;
+                        """, requestID)
+                );
+                
+                //check if results are valid
+                if (Server.result.next()) {
+                    //abort if invalid/illegal request
+                    if (Server.result.getInt("Valid") == 0) {
+                        System.out.println("Request Denied");
+                        return;
+                    }
+                    
+                    //store cards obtained from gacha
+                    do {
+                        gachaResults.add(Server.result.getInt("NumResult"));
+                    } while (Server.result.next());
+                    System.out.println("obtained result cards");
+                    
+                    openCardPack(gachaResults);
+                    
+                } else {
+                    System.out.println("Waiting for results");
+                }
+            }
+        
+        } catch (Exception e) {
+            System.out.println("failed to purchase pack: " + e);
         }
+            
+        updateCurrencyDisplay();
     }
     
     /**
@@ -264,34 +330,52 @@ public class StoreMenu extends State{
         contentsState.update();
     }
     
-    private void openCardPack(String packName) {
-        System.out.println("Opened pack: " + packName);
-        
-        String[] pulledCardFileNames = new String[10];
-        String[] pulledCardUniqueIDs = new String[10]; // For saving
-        
-        if (cardImages == null || cardImages.isEmpty()) {
-            System.err.println("No card images loaded. Filling with dummies.");
-            for (int i = 0; i < 10; i++) {
-                pulledCardFileNames[i] = "Error - No Cards.png"; 
-                pulledCardUniqueIDs[i] = "Error - No Cards.png#" + UUID.randomUUID().toString();
-            }
-        } else {
-            for (int i = 0; i < 10; i++) {
-                File randomCardFile = cardImages.get(random.nextInt(cardImages.size()));
-                String fileName = randomCardFile.getName();
+    private void openCardPack(ArrayList<Integer> pulledCardIDs) {
+        System.out.println("Opening card pack with provided card IDs...");
+
+        String[] pulledCardFileNames = new String[pulledCardIDs.size()];
+        String[] pulledCardUniqueIDs = new String[pulledCardIDs.size()];
+
+        try {
+
+            for (int i = 0; i < pulledCardIDs.size(); i++) {
+
+                int cardID = pulledCardIDs.get(i);
+
+                // ✅ 1. Query MySQL to get the card name
+                String cardQuery = "SELECT Name FROM Cards WHERE CardID = " + cardID;
+                Server.result = Server.statement.executeQuery(cardQuery);
+
+                if (!Server.result.next()) {
+                    System.err.println("Card not found for ID: " + cardID);
+                    pulledCardFileNames[i] = "Error - Missing Card.png";
+                    pulledCardUniqueIDs[i] = "Error - Missing Card.png";
+                    continue;
+                }
+
+                String cardName = Server.result.getString("Name");
+
+                // ✅ 2. Build the PNG filename (new format)
+                String fileName = cardName + ".png";
                 pulledCardFileNames[i] = fileName;
-                // Create unique ID
-                pulledCardUniqueIDs[i] = fileName + "#" + UUID.randomUUID().toString();
+
+                // ✅ 3. The unique ID is now simply the cardID
+                // (server/database controls uniqueness)
+                pulledCardUniqueIDs[i] = cardID + "";
+
+                System.out.println("Pulled card: " + fileName + " (CardID " + cardID + ")");
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
-        
-        // Save the UNIQUE IDs to the inventory file
+
+        // ✅ 4. Save pulled cards (IDs only)
         saveCardsToInventory(pulledCardUniqueIDs);
-        
-        // Pass the simple FILENAMES to the results screen for display
+
+        // ✅ 5. Display results
         GachaResultsMenu resultsState = new GachaResultsMenu(pulledCardFileNames);
-        
         exit(resultsState);
         resultsState.enter();
         resultsState.update();
@@ -301,24 +385,34 @@ public class StoreMenu extends State{
      * NEW: Appends an array of card filenames to the player's inventory file.
      */
     private void saveCardsToInventory(String[] uniqueCardIDs) {
-        // use true flag to append to file
-        try (FileWriter fw = new FileWriter("player_inventory.txt", true);
-             BufferedWriter bw = new BufferedWriter(fw)) {
-            
-            for (String uniqueID : uniqueCardIDs) {
-                bw.write(uniqueID);
-                bw.newLine(); // Write each card on a new line
+
+        int userID = User.getUserID();  // ✅ get logged-in user ID
+
+        try {
+
+            for (String cardIDString : uniqueCardIDs) {
+
+                int cardID = Integer.parseInt(cardIDString);
+
+                // ✅ Insert into OwnedCards table
+                String sql = "INSERT INTO OwnedCards (UserID, CardID) VALUES (" 
+                             + userID + ", " + cardID + ")";
+
+                Server.statement.executeUpdate(sql);
             }
-            System.out.println("Saved 10 cards to player_inventory.txt");
-            
-        } catch (IOException e) {
-            System.err.println("Error writing to inventory file: " + e.getMessage());
+
+            System.out.println("Saved " + uniqueCardIDs.length + " cards to OwnedCards table (UserID = " + userID + ")");
+
+        } catch (Exception e) {
+            System.err.println("Error saving cards to database: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
     private void updateCurrencyDisplay() {
-        currencyLabel.setText(formatCurrency(playerCurrency) + " $");
+        User.updateMoney();
+        playerCurrency = User.getMoney();
+        currencyLabel.setText("$ " + playerCurrency);
         currencyLabel.repaint();
     }
     

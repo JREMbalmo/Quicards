@@ -294,13 +294,35 @@ public class ServerHostClient {
                 //create Actions table
                 statement.executeUpdate(
                         "CREATE TABLE Actions (" +
-                        "ActionsID INT PRIMARY KEY AUTO_INCREMENT," +
+                        "ActionID INT PRIMARY KEY AUTO_INCREMENT," +
+                        "Name VARCHAR(128) NOT NULL" +
+                        ") AUTO_INCREMENT = 1;"
+                );
+                
+                //create Request table
+                statement.executeUpdate(
+                        "CREATE TABLE Request (" +
+                        "RequestID INT PRIMARY KEY AUTO_INCREMENT," +
                         "UserID INT NOT NULL," +
                         "Password TEXT NOT NULL," +
-                        "Action VARCHAR(128) NOT NULL," +
+                        "ActionID INT NOT NULL," +
+                        "Var1 TEXT," +
+                        "Var2 TEXT," +
                         "Processed TINYINT(1) NOT NULL DEFAULT 0," +
+                        "FOREIGN KEY (UserID) REFERENCES Users(UserID)," +
+                        "FOREIGN KEY (ActionID) REFERENCES Actions(ActionID)" +
+                        ") AUTO_INCREMENT = 1;"
+                );
+                
+                //create Result table
+                statement.executeUpdate(
+                        "CREATE TABLE Result (" +
+                        "ResultID INT PRIMARY KEY AUTO_INCREMENT," +
+                        "RequestID INT NOT NULL," +
+                        "TextResult TEXT," +
+                        "NumResult INT," +
                         "Valid TINYINT(1) NOT NULL," +
-                        "FOREIGN KEY (UserID) REFERENCES Users(UserID)" +
+                        "FOREIGN KEY (RequestID) REFERENCES Actions(ActionID)" +
                         ") AUTO_INCREMENT = 1;"
                 );
                 
@@ -312,18 +334,6 @@ public class ServerHostClient {
                         "Password TEXT NOT NULL," +
                         "Processed TINYINT(1) NOT NULL DEFAULT 0" +
                         ") AUTO_INCREMENT = 1;"
-                );
-                
-                //create RollResults table
-                statement.executeUpdate(
-                        """
-                        CREATE TABLE RollResults (
-                        RollID INT PRIMARY KEY AUTO_INCREMENT,
-                        UserID INT NOT NULL,
-                        Result INT NOT NULL,
-                        FOREIGN KEY (UserID) REFERENCES Users(UserID)
-                        ) AUTO_INCREMENT = 1;
-                        """
                 );
                 
                 //create strategy table
@@ -479,14 +489,15 @@ public class ServerHostClient {
                         """
                         CREATE TABLE BoardState(
                         RoomID INT PRIMARY KEY,
-                        P1Health INT DEFAULT 100,
+                        P1Health INT NOT NULL DEFAULT 100,
                         P1LeftCard INT,
                         P1MidCard INT,
-                        P2Health INT DEFAULT 100,
+                        P2Health INT NOT NULL DEFAULT 100,
                         P1RightCard INT,
                         P2LeftCard INT,
                         P2MidCard INT,
                         P2RightCard INT,
+                        Turn TINYINT(1) NOT NULL DEFAULT 0,
                         FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
                         FOREIGN KEY (P1LeftCard) REFERENCES CardStates(StateID),
                         FOREIGN KEY (P1MidCard) REFERENCES CardStates(StateID),
@@ -495,6 +506,58 @@ public class ServerHostClient {
                         FOREIGN KEY (P2MidCard) REFERENCES CardStates(StateID),
                         FOREIGN KEY (P2RightCard) REFERENCES CardStates(StateID)
                         );
+                        """
+                );
+                
+                //insert actions
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("Gacha");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("EndTurn");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("PlaceCard");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("AddCard");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("RemoveCard");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("AddDeck");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("RemoveDeck");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("CreateRoom");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("JoinRoom");
+                        """
+                );
+                statement.executeUpdate(
+                        """
+                        INSERT INTO Actions(Name) Values("RemoveRoom");
                         """
                 );
                 

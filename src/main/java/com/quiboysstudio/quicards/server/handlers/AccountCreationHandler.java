@@ -81,13 +81,25 @@ public class AccountCreationHandler {
                 //grant privileges
                 statement.executeUpdate(
                         String.format(
-                        "GRANT INSERT ON Server.Actions TO '%s'@'%%';",
+                        "GRANT INSERT (UserID, Password, ActionID) ON Server.Request TO '%s'@'%%';",
                         username
                         )
                 );
                 statement.executeUpdate(
                         String.format(
                         "GRANT SELECT ON Server.Users TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.Result TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT (RequestID, UserID) ON Server.Request TO '%s'@'%%';",
                         username
                         )
                 );

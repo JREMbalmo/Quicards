@@ -258,3 +258,13 @@ Common - Mage.png#d389fd8c-3331-43c6-91ac-3cdccfc01f9a
 Legendary - Dragon.png#371c6c07-e200-45a3-a035-d6887cfd9141
 Common - Bandit.png#ae471452-d4af-4afa-8aa8-0c0646d16a10
 Rare - Mysterious Lizard.png#f4306607-9317-403c-8ce9-0c96b712461e
+Treeant.png#0625a2a4-3878-48f1-aa42-5857a7216285
+Knight Grand Cross.png#571512b4-a8f1-4858-b314-0484f21c642a
+Goblin.png#2540b75a-7075-42e6-84bc-7310357b13c3
+Treeant.png#eeb643fc-d495-4df8-8c8a-6b8ffdb36a85
+Mysterious Lizard.png#2da8f508-48b2-4865-b865-0924e1475da5
+Sorcerer Supreme.png#115a6c62-4d87-4c4c-acfe-a9b565b65b82
+Sorcerer.png#62db807d-3593-4df0-a473-df7160b7541a
+Lich.png#bbc8f420-8125-487c-8a15-d440079c09d6
+SplitATK.Dragon.png#c8a97903-9fbd-43e3-b0cf-9d6def8592c5
+Giant Slime.png#900f27b8-1d7a-427f-bb16-cfd0ed539706

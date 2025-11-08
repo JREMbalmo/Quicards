@@ -1,7 +1,7 @@
 package com.quiboysstudio.quicards.managers;
 
 //imports
-import com.quiboysstudio.quicards.states.prelaunchmenu.StoreMenu;
+import com.quiboysstudio.quicards.states.store.StoreMenu;
 import com.quiboysstudio.quicards.states.misc.*;
 import com.quiboysstudio.quicards.states.postlaunchmenu.*;
 import com.quiboysstudio.quicards.states.prelaunchmenu.*;
