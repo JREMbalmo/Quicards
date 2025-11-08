@@ -33,12 +33,13 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import javax.swing.JOptionPane;
 
 public class StoreMenu extends State{
     //variables
     private boolean running = false;
     private boolean initialized = false;
-    private int playerCurrency = User.getMoney(); 
+    private int playerCurrency = 0; 
     
     //objects
     private JLayeredPane layeredPane;
@@ -111,6 +112,8 @@ public class StoreMenu extends State{
         backButton.setVerticalAlignment(JButton.CENTER);
         backButton.setHorizontalAlignment(JButton.CENTER);
         
+        User.updateMoney();
+        playerCurrency = User.getMoney();
         currencyLabel = ComponentFactory.createTextLabel(formatCurrency(playerCurrency) + " $", FrameConfig.SATOSHI_BOLD);
         
         navigationPanel.add(backButton);
@@ -232,23 +235,16 @@ public class StoreMenu extends State{
         //variables
         int requestID = 0;
         
-        //objects
-        TimerTask task = new TimerTask(){
-            @Override
-            public void run() {}
-        };
-        Timer timer = new Timer();
-        
         try {
             //request to gacha from server
             Server.statement.executeUpdate(
-                String.format("INSERT INTO Request(UserID, Password, ActionID) VALUES(%d, '%s', %d);", User.getUserID(), User.getPassword(), 1)
+                String.format("INSERT INTO Request(UserID, Password, ActionID, Var1) VALUES(%d, '%s', %d, '%s');", User.getUserID(), User.getPassword(), 1, "1")
             );
             
             //get request id
             Server.result = Server.statement.executeQuery(
                     String.format("""
-                    SELECT RequestID, Valid 
+                    SELECT RequestID 
                     FROM Request 
                     WHERE UserID = %d 
                     ORDER BY RequestID DESC;
@@ -262,8 +258,6 @@ public class StoreMenu extends State{
             ArrayList<Integer> gachaResults = new ArrayList<>();
             
             while (true) {
-                //delay
-                timer.schedule(task, 1000);
 
                 //check request results
                 Server.result = Server.statement.executeQuery(
@@ -279,6 +273,7 @@ public class StoreMenu extends State{
                     //abort if invalid/illegal request
                     if (Server.result.getInt("Valid") == 0) {
                         System.out.println("Request Denied");
+                        JOptionPane.showMessageDialog(null, "Insufficient Money");
                         return;
                     }
                     
@@ -289,7 +284,7 @@ public class StoreMenu extends State{
                     System.out.println("obtained result cards");
                     
                     openCardPack(gachaResults);
-                    
+                    break;
                 } else {
                     System.out.println("Waiting for results");
                 }
@@ -370,9 +365,6 @@ public class StoreMenu extends State{
             e.printStackTrace();
             return;
         }
-
-        // ✅ 4. Save pulled cards (IDs only)
-        saveCardsToInventory(pulledCardUniqueIDs);
 
         // ✅ 5. Display results
         GachaResultsMenu resultsState = new GachaResultsMenu(pulledCardFileNames);

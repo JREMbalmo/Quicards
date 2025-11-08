@@ -1,5 +1,6 @@
 package com.quiboysstudio.quicards.server.handlers;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -8,24 +9,36 @@ import java.util.Map;
 import java.util.Random;
 
 public class GachaHandler {
-    private final Random rng = new Random();
-    private Statement statement;
-    private ResultSet result;
 
-    public GachaHandler(ResultSet result, Statement statement) {
+    // RNG
+    private final Random rng = new Random();
+
+    // SQL
+    private ResultSet result;            // main ResultSet for Request table
+    private final Statement mainStatement;  // used ONLY for looping requests + updates
+    private final Statement queryStatement; // used for all internal queries to avoid corruption
+
+    public GachaHandler(ResultSet result, Statement mainStatement, Connection conn) {
         this.result = result;
-        this.statement = statement;
+        this.mainStatement = mainStatement;
+
+        // ✅ second Statement to keep ResultSet stable
+        Statement temp = null;
+        try { temp = conn.createStatement(); } 
+        catch (Exception e) { System.out.println("Failed to create queryStatement: " + e); }
+
+        this.queryStatement = temp;
     }
 
     public void checkActions() {
         processRequests(checkNewRows());
     }
 
-    // ✅ Fetch all unprocessed requests
+    // ✅ Fetch unprocessed requests using mainStatement ONLY
     private ResultSet checkNewRows() {
         try {
-            result = statement.executeQuery(
-                    "SELECT * FROM Request WHERE Processed = 0;"
+            result = mainStatement.executeQuery(
+                "SELECT * FROM Request WHERE Processed = 0;"
             );
         } catch (Exception e) {
             System.out.println("Failed to check Request table: " + e);
@@ -33,7 +46,7 @@ public class GachaHandler {
         return result;
     }
 
-    // ✅ Handle each unprocessed request
+    // ✅ Main request handler
     private void processRequests(ResultSet result) {
 
         try {
@@ -41,15 +54,14 @@ public class GachaHandler {
 
                 int requestID = result.getInt("RequestID");
                 int actionID  = result.getInt("ActionID");
-                int userID    = result.getInt("UserID");
-                String var1   = result.getString("Var1");  // PackID for gacha requests
+                int userID    = result.getInt("UserID"); // <-- We use this for the inventory
+                String var1   = result.getString("Var1");
 
-                // Skip if not a gacha request
-                if (actionID != 1) continue;
+                if (actionID != 1) continue; // not a gacha roll
 
                 int packID = Integer.parseInt(var1);
 
-                // ✅ Step 1: Validate user money and pack price
+                // ✅ Step 1: Validate user funds
                 if (!userCanAfford(userID, packID)) {
                     insertInvalidResult(requestID);
                     markAsProcessed(requestID);
@@ -57,18 +69,25 @@ public class GachaHandler {
                     continue;
                 }
 
-                // ✅ Step 2: Deduct money from user
+                // ✅ Step 2: Deduct money
                 deductMoney(userID, packID);
 
-                // ✅ Step 3: Perform Gacha Logic
+                // ✅ Step 3: Perform Gacha
                 ArrayList<Integer> pulledCards = performGachaRolls(packID);
 
-                // ✅ Step 4: Insert results into Results table
+                // --- MODIFIED SECTION ---
+                // ✅ Step 4: Insert results AND save to inventory
+                System.out.println("Saving " + pulledCards.size() + " cards to inventory for UserID = " + userID);
                 for (Integer cardID : pulledCards) {
-                    insertResult(requestID, cardID);
+                    // 1. Insert into Result table
+                    insertResult(requestID, cardID); 
+                    
+                    // 2. Insert into OwnedCards table (new call)
+                    insertCardToInventory(userID, cardID);
                 }
+                // --- END MODIFIED SECTION ---
 
-                // ✅ Step 5: Mark request as processed
+                // ✅ Step 5: Mark as processed
                 markAsProcessed(requestID);
 
                 System.out.println("Gacha request processed successfully for RequestID=" + requestID);
@@ -79,17 +98,17 @@ public class GachaHandler {
         }
     }
 
-    // ✅ Check user money vs pack price
+    // ✅ Check money using queryStatement
     private boolean userCanAfford(int userID, int packID) {
         try {
-            ResultSet rsUser = statement.executeQuery(
-                    "SELECT Money FROM Users WHERE UserID = " + userID + ";"
+            ResultSet rsUser = queryStatement.executeQuery(
+                "SELECT Money FROM Users WHERE UserID = " + userID + ";"
             );
             rsUser.next();
             int money = rsUser.getInt("Money");
 
-            ResultSet rsPack = statement.executeQuery(
-                    "SELECT Price FROM Packs WHERE PackID = " + packID + ";"
+            ResultSet rsPack = queryStatement.executeQuery(
+                "SELECT Price FROM Packs WHERE PackID = " + packID + ";"
             );
             rsPack.next();
             int price = rsPack.getInt("Price");
@@ -102,18 +121,18 @@ public class GachaHandler {
         return false;
     }
 
-    // ✅ Deduct price from user
+    // ✅ Deducting money using queryStatement
     private void deductMoney(int userID, int packID) {
         try {
-            ResultSet rsPack = statement.executeQuery(
-                    "SELECT Price FROM Packs WHERE PackID = " + packID + ";"
+            ResultSet rsPack = queryStatement.executeQuery(
+                "SELECT Price FROM Packs WHERE PackID = " + packID + ";"
             );
             rsPack.next();
             int price = rsPack.getInt("Price");
 
-            statement.executeUpdate(
-                    "UPDATE Users SET Money = Money - " + price +
-                    " WHERE UserID = " + userID + ";"
+            mainStatement.executeUpdate(
+                "UPDATE Users SET Money = Money - " + price +
+                " WHERE UserID = " + userID + ";"
             );
 
         } catch (Exception e) {
@@ -121,37 +140,33 @@ public class GachaHandler {
         }
     }
 
-    // ✅ Build rarity lists (Common, Rare, Epic, Legendary)
+    // ✅ Build rarity pools with queryStatement
     private Map<String, ArrayList<Integer>> buildRarityPools(int packID) {
-        Map<String, ArrayList<Integer>> pools = new HashMap<>();
 
+        Map<String, ArrayList<Integer>> pools = new HashMap<>();
         pools.put("Common", new ArrayList<>());
         pools.put("Rare", new ArrayList<>());
         pools.put("Epic", new ArrayList<>());
         pools.put("Legendary", new ArrayList<>());
 
+        // ✅ Run ONE query that gets everything
+        String sql = "SELECT P.CardID, R.Name AS RarityName " +
+                     "FROM PackContents P " +
+                     "LEFT JOIN CardRarity CR ON P.CardID = CR.CardID " +
+                     "LEFT JOIN Rarity R ON CR.RarityID = R.RarityID " +
+                     "WHERE P.PackID = " + packID + ";";
+
         try {
-            // Get all CardIDs in the pack
-            ResultSet rs = statement.executeQuery(
-                "SELECT CardID FROM PackContents WHERE PackID = " + packID + ";"
-            );
+            ResultSet rs = queryStatement.executeQuery(sql);
 
             while (rs.next()) {
                 int cardID = rs.getInt("CardID");
+                String rarity = rs.getString("RarityName");
 
-                // Get rarity
-                ResultSet rsRarity = statement.executeQuery(
-                        "SELECT R.Name FROM CardRarity CR " +
-                        "JOIN Rarity R ON CR.RarityID = R.RarityID " +
-                        "WHERE CR.CardID = " + cardID + ";"
-                );
-
-                if (rsRarity.next()) {
-                    String rarity = rsRarity.getString("Name");
+                if (rarity != null && pools.containsKey(rarity)) {
                     pools.get(rarity).add(cardID);
                 }
             }
-
         } catch (Exception e) {
             System.out.println("Failed building rarity pools: " + e);
         }
@@ -159,20 +174,25 @@ public class GachaHandler {
         return pools;
     }
 
-    // ✅ Perform gacha rolls (10 cards per pack)
+    // ✅ Gacha rolls (10 cards)
     private ArrayList<Integer> performGachaRolls(int packID) {
 
         Map<String, ArrayList<Integer>> pools = buildRarityPools(packID);
-
         ArrayList<Integer> results = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
             String rarity = rollRarity();
             ArrayList<Integer> pool = pools.get(rarity);
 
-            if (pool.isEmpty()) {
-                // fallback in case rarity pool empty
+            // Fallback to common if a rarity pool is empty
+            if (pool == null || pool.isEmpty()) {
                 pool = pools.get("Common");
+            }
+            
+            // Final safety check if even common pool is empty
+            if (pool == null || pool.isEmpty()) {
+                 System.out.println("Warning: Common pool is empty! Cannot pull card.");
+                 continue; // Skip this roll
             }
 
             int cardID = pool.get(rng.nextInt(pool.size()));
@@ -182,7 +202,7 @@ public class GachaHandler {
         return results;
     }
 
-    // ✅ RNG Rarity Roll
+    // ✅ RNG rarity roll
     private String rollRarity() {
         int roll = rng.nextInt(100) + 1;
 
@@ -192,35 +212,50 @@ public class GachaHandler {
         return "Common";
     }
 
-    // ✅ Insert valid result
+    // ✅ Insert valid result using mainStatement
     private void insertResult(int requestID, int cardID) {
         try {
-            statement.executeUpdate(
-                    "INSERT INTO Result (RequestID, NumResult, Valid) " +
-                    "VALUES (" + requestID + ", " + cardID + ", 1);"
+            mainStatement.executeUpdate(
+                "INSERT INTO Result (RequestID, NumResult, Valid) VALUES (" +
+                requestID + ", " + cardID + ", 1);"
             );
         } catch (Exception e) {
             System.out.println("Failed inserting result: " + e);
         }
     }
 
-    // ✅ Insert invalid result (user can't afford pack)
+    // --- NEW METHOD ---
+    // ✅ Insert card into user's inventory
+    private void insertCardToInventory(int userID, int cardID) {
+        try {
+            String sql = "INSERT INTO OwnedCards (UserID, CardID) VALUES (" 
+                         + userID + ", " + cardID + ")";
+            
+            mainStatement.executeUpdate(sql);
+
+        } catch (Exception e) {
+            System.err.println("Error saving cardID " + cardID + " to inventory for userID " + userID + ": " + e.getMessage());
+        }
+    }
+    // --- END NEW METHOD ---
+
+    // ✅ Insert invalid result using mainStatement
     private void insertInvalidResult(int requestID) {
         try {
-            statement.executeUpdate(
-                    "INSERT INTO Result (RequestID, Valid) VALUES (" +
-                    requestID + ", 0);"
+            mainStatement.executeUpdate(
+                "INSERT INTO Result (RequestID, Valid) VALUES (" +
+                requestID + ", 0);"
             );
         } catch (Exception e) {
             System.out.println("Failed to insert invalid result: " + e);
         }
     }
 
-    // ✅ Mark request as processed
+    // ✅ Mark request processed using mainStatement
     private void markAsProcessed(int requestID) {
         try {
-            statement.executeUpdate(
-                    "UPDATE Request SET Processed = 1 WHERE RequestID = " + requestID + ";"
+            mainStatement.executeUpdate(
+                "UPDATE Request SET Processed = 1 WHERE RequestID = " + requestID + ";"
             );
         } catch (Exception e) {
             System.out.println("Failed to mark request as processed: " + e);

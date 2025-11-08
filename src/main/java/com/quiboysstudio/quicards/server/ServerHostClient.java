@@ -228,7 +228,7 @@ public class ServerHostClient {
         });
         
         //listener
-        listener = new HostListener(result, statement);
+        listener = new HostListener(result, statement, connection);
         
         //add components
         exportPanel.add(exportLogsButton);

@@ -2,6 +2,7 @@ package com.quiboysstudio.quicards.server.listener;
 
 import com.quiboysstudio.quicards.server.handlers.AccountCreationHandler;
 import com.quiboysstudio.quicards.server.handlers.GachaHandler;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -15,6 +16,7 @@ public class HostListener {
     //sql
     private ResultSet result;
     private Statement statement;
+    private Connection connection;
     
     //handlers
     private AccountCreationHandler accountCreation;
@@ -23,9 +25,10 @@ public class HostListener {
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> taskHandle;
     
-    public HostListener (ResultSet result, Statement statement) {
+    public HostListener (ResultSet result, Statement statement, Connection connection) {
         this.result = result;
         this.statement = statement;
+        this.connection = connection;
         
         //initialize handlers
         initHandlers();
@@ -84,6 +87,6 @@ public class HostListener {
     
     private void initHandlers() {
         accountCreation = new AccountCreationHandler(result, statement);
-        gachaHandler = new GachaHandler(result, statement);
+        gachaHandler = new GachaHandler(result, statement, connection);
     }
 }
