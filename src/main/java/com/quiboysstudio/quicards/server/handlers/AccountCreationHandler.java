@@ -115,6 +115,66 @@ public class AccountCreationHandler {
                         username
                         )
                 );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.PackContents TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.Decks TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT INSERT ON Server.Decks TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT DELETE ON Server.Decks TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.DeckContents TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT INSERT ON Server.DeckContents TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT DELETE ON Server.DeckContents TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.OwnedCards TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.CardStates TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.CardStats TO '%s'@'%%';",
+                        username
+                        )
+                );
                 
                 //update process status on AccountCreation table
                 statement.executeUpdate(
