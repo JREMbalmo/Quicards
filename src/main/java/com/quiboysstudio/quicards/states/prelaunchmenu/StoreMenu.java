@@ -1,13 +1,14 @@
 package com.quiboysstudio.quicards.states.prelaunchmenu;
 
+//SYNC STORE MENU TO DATABASE
+
+import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.CustomScrollPane;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.states.State;
 import com.quiboysstudio.quicards.states.store.GachaResultsMenu;
-import com.quiboysstudio.quicards.states.store.GachaResultsMenu;
-import com.quiboysstudio.quicards.states.store.PackContentsMenu;
 import com.quiboysstudio.quicards.states.store.PackContentsMenu;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -34,7 +35,7 @@ public class StoreMenu extends State{
     //variables
     private boolean running = false;
     private boolean initialized = false;
-    private int playerCurrency = 999999; 
+    private int playerCurrency = User.getMoney(); 
     
     //objects
     private JLayeredPane layeredPane;

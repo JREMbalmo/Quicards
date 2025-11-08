@@ -5,13 +5,12 @@ import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.components.FrameConfig;
 import com.quiboysstudio.quicards.account.User;
 import com.quiboysstudio.quicards.components.factories.ComponentFactory;
-import com.quiboysstudio.quicards.server.Server;
 import com.quiboysstudio.quicards.states.State;
 import static com.quiboysstudio.quicards.states.State.frame;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -25,6 +24,7 @@ public class MainMenu extends State{
     //objects
     private JPanel buttonPanel;
     private JPanel infoPanel;
+    private JLabel moneyLabel;
     private JLayeredPane layeredPanel;
     private JPanel firstLayerPanel;
     
@@ -42,6 +42,10 @@ public class MainMenu extends State{
         
         if (running) return;
         running = true;
+        
+        //update money
+        User.updateMoney();
+        moneyLabel.setText("$ " + User.getMoney());
         
         //add header to first layer
         firstLayerPanel.add(FrameConfig.header, BorderLayout.NORTH);
@@ -85,7 +89,8 @@ public class MainMenu extends State{
         infoPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 25), 0, 0, FrameUtil.scale(frame, 25)));
         
         //add money label
-        infoPanel.add(ComponentFactory.createRoundedLabel("$ " + User.getMoney(), 200, 78, FrameConfig.BLACK, 78, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE));
+        moneyLabel = ComponentFactory.createRoundedLabel("$ " + User.getMoney(), 200, 78, FrameConfig.BLACK, 78, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE);
+        infoPanel.add(moneyLabel);
         
         //add username label
         infoPanel.add(ComponentFactory.createRoundedLabel(String.valueOf(User.getUsername()), 200, 78, FrameConfig.BLACK, 78, FrameConfig.SATOSHI_BOLD, FrameConfig.WHITE));
