@@ -99,7 +99,7 @@ public class AccountCreationHandler {
                 );
                 statement.executeUpdate(
                         String.format(
-                        "GRANT SELECT (RequestID, UserID) ON Server.Request TO '%s'@'%%';",
+                        "GRANT SELECT (RequestID, UserID, Processed) ON Server.Request TO '%s'@'%%';",
                         username
                         )
                 );

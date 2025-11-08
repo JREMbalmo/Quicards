@@ -63,6 +63,7 @@ public class GachaHandler {
 
                 // ✅ Step 1: Validate user funds
                 if (!userCanAfford(userID, packID)) {
+                    System.out.println("inefficient funds detected");
                     insertInvalidResult(requestID);
                     markAsProcessed(requestID);
                     System.out.println("Gacha request invalid for RequestID=" + requestID);
