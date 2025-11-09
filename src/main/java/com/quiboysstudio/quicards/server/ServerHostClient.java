@@ -456,10 +456,12 @@ public class ServerHostClient {
                         """
                         CREATE TABLE Rooms(
                         RoomID INT PRIMARY KEY AUTO_INCREMENT,
+                        Name TEXT NOT NULL,
                         User1 INT NOT NULL,
                         Deck1 INT,
                         User2 INT NOT NULL,
                         Deck2 INT,
+                        Status TINYINT(1) DEFAULT 0,
                         FOREIGN KEY (User1) REFERENCES Users(UserID),
                         FOREIGN KEY (User2) REFERENCES Users(UserID),
                         FOREIGN KEY (Deck1) REFERENCES Decks(DeckID),

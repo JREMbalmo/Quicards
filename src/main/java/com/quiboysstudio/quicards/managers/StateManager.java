@@ -49,6 +49,7 @@ public class StateManager {
         //matchmaking
         State.createRoomMenu = new CreateRoomMenu();                        //create room
         State.joinRoomMenu = new JoinRoomMenu();                            //join room
+        State.waitingRoom = new WaitingRoom();                              //waiting room
         
         //setup initial current state after opening app
         State.currentState = State.serverMenu;
