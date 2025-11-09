@@ -211,7 +211,7 @@ public class InventoryMenu extends State {
     private void loadPlayerInventoryFromDB() {
         ownedCards.clear();
 
-        int userID = getUserID();
+        int userID = User.getUserID();
         if (userID == -1) return;
 
         String query =
@@ -286,7 +286,7 @@ public class InventoryMenu extends State {
      */
     private List<String> loadPlayerDecksFromDB() {
         List<String> deckNames = new ArrayList<>();
-        int userID = getUserID();
+        int userID = User.getUserID();
         if (userID == -1) return deckNames;
 
         String query = "SELECT Name FROM Decks WHERE UserID = ?;";
@@ -344,7 +344,7 @@ public class InventoryMenu extends State {
         JPanel rowPanel = new JPanel();
         rowPanel.setOpaque(false);
         rowPanel.setLayout(new FlowLayout(FlowLayout.LEFT, FrameUtil.scale(frame, 30), FrameUtil.scale(frame, 30)));
-        rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, FrameUtil.scale(frame, 360))); // card height + gaps
+        rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, FrameUtil.scale(frame, 400))); // card height + gaps
         return rowPanel;
     }
 
@@ -381,6 +381,7 @@ public class InventoryMenu extends State {
 
         // Add click listener to update side panel
         card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 selectedCard = entry;
                 updateSidePanelForCard(entry);
@@ -462,6 +463,24 @@ public class InventoryMenu extends State {
         sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 50))));
 
         if (deckName != null) {
+            
+            int searchID = 0;
+            String findDeck = "SELECT DeckID FROM Decks WHERE UserID = ? AND Name = ?";
+            
+            try (PreparedStatement ps = Server.connection.prepareStatement(findDeck)) {
+                ps.setInt(1, User.getUserID());
+                ps.setString(2, deckName);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        searchID = rs.getInt("DeckID");
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Failed to query deck id: " + e);
+                e.printStackTrace();
+            }
+            int deckID = searchID;
+            
             // Large deck image (placeholder)
             JPanel largeImagePanel = ComponentFactory.createRoundedPanel(FrameUtil.scale(frame, 200), FrameUtil.scale(frame, 390), FrameConfig.BLACK);
             largeImagePanel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
@@ -474,7 +493,7 @@ public class InventoryMenu extends State {
             JButton editButton = ComponentFactory.createCustomButton("Edit Deck", FrameConfig.SATOSHI_BOLD, 200, () -> {
                 System.out.println("Editing deck: " + deckName);
                 // Transition to DeckBuilder
-                exit(new DeckBuilderMenu(deckName));
+                exit(new DeckBuilderMenu(deckName, deckID));
                 currentState.enter();
                 currentState.update();
             });
@@ -484,10 +503,6 @@ public class InventoryMenu extends State {
             JButton deleteButton = ComponentFactory.createCustomButton("Delete Deck", FrameConfig.SATOSHI_BOLD, 200, () -> {
                 int choice = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete '" + deckName + "'?", "Delete Deck", JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
-                    
-                    // REMOVED: 1. Delete .txt file (legacy) logic
-                    // File deckFile = new File("decks/" + deckName + ".txt");
-                    // ... (if/else block) ...
 
                     // 1. Delete from database (DeckContents then Decks)
                     deleteDeckFromDatabase(deckName);
@@ -514,47 +529,11 @@ public class InventoryMenu extends State {
     }
 
     /**
-     * Parses a user-facing card name from a DB cardName if needed (keeps old behavior compatible).
-     */
-    private String parseCardName(String cardName) {
-        // CardName from DB assumed to be the display name already.
-        // Keep this method for compatibility with the rest of UI code.
-        try {
-            if (cardName == null) return "Unknown Card";
-            return cardName;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error";
-        }
-    }
-
-    // --- NEW / UPDATED DATABASE METHODS ---
-
-    /**
-     * Gets the UserID from the Users table based on User.getUsername()
-     */
-    private int getUserID() {
-        String username = User.getUsername();
-        if (username == null) return -1;
-
-        String q = "SELECT UserID FROM Users WHERE Username = ?";
-        try (PreparedStatement ps = Server.connection.prepareStatement(q)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("UserID");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1; // Not found or error
-    }
-
-    /**
      * Inserts a new deck into the Decks table (DB).
      * MODIFIED: Returns boolean to indicate success/failure.
      */
     private boolean addDeckToDatabase(String deckName) {
-        int userID = getUserID();
+        int userID = User.getUserID();
         if (userID == -1) {
             System.err.println("Could not create deck: UserID not found.");
             return false; // MODIFIED
@@ -578,7 +557,7 @@ public class InventoryMenu extends State {
      * Deletes a deck and its contents from DeckContents and Decks tables (DB).
      */
     private void deleteDeckFromDatabase(String deckName) {
-        int userID = getUserID();
+        int userID = User.getUserID();
         if (userID == -1) {
             System.err.println("Could not delete deck: UserID not found.");
             return;
@@ -649,6 +628,7 @@ public class InventoryMenu extends State {
         
         // Add click listener to update side panel
         deck.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 updateSidePanelForDeck(deckName);
             }

@@ -439,19 +439,18 @@ public class ServerHostClient {
                         ) AUTO_INCREMENT = 1;
                         """
                 );
-                
                 //create deck contents table
                 statement.executeUpdate(
                         """
-                        CREATE TABLE DeckContents(
-                        DeckID INT NOT NULL,
-                        CardID INT NOT NULL,
-                        FOREIGN KEY (DeckID) REFERENCES Decks(DeckID),
-                        FOREIGN KEY (CardID) REFERENCES Cards(CardID)
+                        CREATE TABLE DeckContents( 
+                        DeckID INT NOT NULL, 
+                        OwnershipID INT NOT NULL, 
+                        FOREIGN KEY (DeckID) REFERENCES Decks(DeckID), 
+                        FOREIGN KEY (OwnershipID) REFERENCES OwnedCards(OwnershipID), 
+                        PRIMARY KEY (DeckID, OwnershipID)
                         );
                         """
                 );
-                
                 //create rooms table
                 statement.executeUpdate(
                         """
