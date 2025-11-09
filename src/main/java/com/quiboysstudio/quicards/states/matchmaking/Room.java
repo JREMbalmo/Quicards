@@ -22,6 +22,8 @@ public class Room extends JFrame {
     private String tableName;
     private List<String> deckCards;  // the full deck
     private final Random random = new Random();
+    private CardAnimationSystem animationSystem;
+    private JPanel animationLayer;
 
     public Room(String selectedDeck) {
         setTitle("Card Room - " + selectedDeck);
@@ -61,14 +63,29 @@ public class Room extends JFrame {
         mainPanel.setOpaque(false);
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         setContentPane(mainPanel);
+        
+        // === Create animation layer (overlay for card animations) ===
+        animationLayer = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (animationSystem != null) {
+                    animationSystem.paintAnimations((Graphics2D) g);
+                }
+            }
+        };
+        animationLayer.setOpaque(false);
+        animationLayer.setLayout(null);
+        
+        animationSystem = new CardAnimationSystem(animationLayer);
 
         // === Load deck and shuffle ===
         deckCards = loadDeckCards(selectedDeck);
         Collections.shuffle(deckCards);
 
-        // === Draw 5 cards for each hand ===
-        List<String> playerHand = drawCards(5);
-        List<String> opponentHand = drawCards(5);
+        // === Prepare cards to draw (don't add to hand yet) ===
+        List<String> playerHand = new ArrayList<>();
+        List<String> opponentHand = new ArrayList<>();
 
         // === Create both player areas ===
         topPlayerArea = new PlayerArea(true);
@@ -129,6 +146,129 @@ public class Room extends JFrame {
         mainPanel.add(topContainer, BorderLayout.NORTH);
         mainPanel.add(playArea, BorderLayout.CENTER);
         mainPanel.add(bottomContainer, BorderLayout.SOUTH);
+        
+        // === Add animation layer on top ===
+        setGlassPane(animationLayer);
+        animationLayer.setVisible(true);
+        
+        // === Start card draw animation after UI is visible ===
+        SwingUtilities.invokeLater(() -> {
+            // Wait a moment for UI to settle
+            Timer delayTimer = new Timer(500, e -> {
+                ((Timer)e.getSource()).stop();
+                animateInitialCardDraw(playerHand, opponentHand);
+            });
+            delayTimer.setRepeats(false);
+            delayTimer.start();
+        });
+    }
+
+    /**
+     * Animates the initial card draw from deck to both hands.
+     */
+    private void animateInitialCardDraw(List<String> playerHand, List<String> opponentHand) {
+        // Get deck positions in screen coordinates
+        Point bottomDeckPos = getDeckScreenPosition(bottomPlayerArea);
+        Point topDeckPos = getDeckScreenPosition(topPlayerArea);
+        
+        int cardWidth = 120;
+        int cardSpacing = 40;
+        int handCenterY = getHeight() - 130; // Bottom hand Y position
+        int topHandCenterY = 100; // Top hand Y position
+        
+        // Animate player (bottom) cards
+        for (int i = 0; i < 5; i++) {
+            if (deckCards.isEmpty()) break;
+            
+            String cardName = deckCards.remove(0);
+            
+            // Calculate end position in hand
+            int totalWidth = (5 - 1) * cardSpacing + cardWidth;
+            int startX = (getWidth() - totalWidth) / 2;
+            int endX = startX + i * cardSpacing;
+            int endY = handCenterY;
+            
+            int delay = i * 150; // Stagger animations
+            final String finalCardName = cardName;  // ← ADD THIS LINE
+
+            animationSystem.animateCardDraw(
+                cardName,
+                bottomDeckPos.x,
+                bottomDeckPos.y,
+                endX,
+                endY,
+                delay,
+                () -> {
+                    // When animation completes, add THIS card to hand
+                    playerHand.add(finalCardName);  // ← ADD THIS LINE
+                    HandPanel hand = (HandPanel) bottomHandPanel;
+                    hand.setCards(new ArrayList<>(playerHand));
+
+                    // Update deck count
+                    bottomPlayerArea.updateDeckCount(deckCards.size());
+                }
+            );
+        }
+        
+        // Animate opponent (top) cards
+        for (int i = 0; i < 5; i++) {
+            if (deckCards.isEmpty()) break;
+            
+            String cardName = deckCards.remove(0);
+            
+            // Calculate end position in hand
+            int totalWidth = (5 - 1) * cardSpacing + cardWidth;
+            int startX = (getWidth() - totalWidth) / 2;
+            int endX = startX + i * cardSpacing;
+            int endY = topHandCenterY;
+            
+            int delay = i * 150; // Stagger animations
+            final String finalCardName = cardName;
+            animationSystem.animateCardDraw(
+                cardName,
+                topDeckPos.x,
+                topDeckPos.y,
+                endX,
+                endY,
+                delay,
+                () -> {
+                    // When animation completes, add THIS card to hand
+                    opponentHand.add(finalCardName);  // ← ADD THIS LINE
+                    HandPanel hand = (HandPanel) topHandPanel;
+                    hand.setCards(new ArrayList<>(opponentHand));
+
+                    // Update deck count
+                    topPlayerArea.updateDeckCount(deckCards.size());
+                }
+            );
+        }
+    }
+    
+    /**
+     * Gets the screen position of the deck slot (centered on the top card of the stack).
+     */
+    private Point getDeckScreenPosition(PlayerArea playerArea) {
+        CardSlot deckSlot = playerArea.getDeckSlot();
+        Point slotPos = deckSlot.getLocationOnScreen();
+        Point framePos = this.getLocationOnScreen();
+        
+        // Convert to frame-relative coordinates
+        int x = slotPos.x - framePos.x;
+        int y = slotPos.y - framePos.y;
+        
+        // Adjust to center of the card stack (accounting for stack offset)
+        int cardWidth = (int)(deckSlot.getWidth() * 0.7);
+        int cardHeight = (int)(deckSlot.getHeight() * 0.85);
+        int offsetX = (deckSlot.getWidth() - cardWidth) / 2;
+        int offsetY = (deckSlot.getHeight() - cardHeight) / 2;
+        
+        // Position at top card of stack (last card drawn)
+        int stackOffset = 4 * 2; // 5 cards with 2px offset each
+        
+        x += offsetX + stackOffset;
+        y += offsetY - stackOffset;
+        
+        return new Point(x, y);
     }
 
     /**
