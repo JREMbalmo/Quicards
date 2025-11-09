@@ -266,11 +266,10 @@ public class DeckBuilderMenu extends State {
     /**
      * Fills the panel with *available* cards (owned - in_deck).
      */
-    private void populateCards() { // Renamed from populateBuilder
+    private void populateCards() {
         loadOwnedCardsFromDatabase();
         loadDeckContentsFromDatabase();
 
-        // <-- CHANGED: Filter by OwnershipID instead of CardID
         List<Integer> cardsInDeckOwnershipIDs = cardsInDeck.stream()
                 .map(Card::getOwnershipID)
                 .collect(Collectors.toList());
