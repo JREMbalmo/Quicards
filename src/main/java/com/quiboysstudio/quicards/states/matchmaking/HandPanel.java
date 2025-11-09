@@ -3,8 +3,11 @@ package com.quiboysstudio.quicards.states.matchmaking;
 import com.quiboysstudio.quicards.proxies.CardImageProxy;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.util.List;
+
+
 
 public class HandPanel extends JPanel {
     private final boolean isPlayerHand;
@@ -14,6 +17,7 @@ public class HandPanel extends JPanel {
     private float hoverTarget = 40f;       // how far card pops up
     private Timer animTimer;
     private int selectedCardIndex = -1;
+    private java.util.Map<String, Icon> cardIconCache = new java.util.HashMap<>();  // Cache for proxies
 
     public HandPanel(boolean isPlayerHand, List<String> cardImageNames) {
         this.isPlayerHand = isPlayerHand;
@@ -76,6 +80,7 @@ public class HandPanel extends JPanel {
         this.cardImageNames = names;
         hoverOffsets = (names != null) ? new float[names.size()] : null;
         hoveredIndex = -1;
+        cardIconCache.clear();  // Clear cache when cards change
         repaint();
     }
 
@@ -165,23 +170,23 @@ public class HandPanel extends JPanel {
     }
 
     private Icon loadCardIcon(String fileName, int w, int h) {
-        try {
-            File file = new File("resources/cards/Fantasy Card Pack/" + fileName);
-            if (!file.exists()) {
-                System.err.println("⚠ Missing card image: " + file.getAbsolutePath());
-                return null;
-            }
-            Image img = ImageIO.read(file);
-            if (img == null) {
-                System.err.println("⚠ Failed to read image: " + file.getAbsolutePath());
-                return null;
-            }
-            Image scaled = img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
-            return new ImageIcon(scaled);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        // Check cache first
+        if (cardIconCache.containsKey(fileName)) {
+            return cardIconCache.get(fileName);
+        }
+        
+        File file = new File("resources/cards/Fantasy Card Pack/" + fileName);
+        if (!file.exists()) {
+            System.err.println("⚠ Missing card image: " + file.getAbsolutePath());
             return null;
         }
+        
+        System.out.println("Creating proxy for: " + fileName);
+        
+        // Create proxy only once and cache it
+        Icon proxy = new CardImageProxy(file.getAbsolutePath(), w, h);
+        cardIconCache.put(fileName, proxy);
+        return proxy;
     }
     
     public String getSelectedCard() {
@@ -198,6 +203,7 @@ public class HandPanel extends JPanel {
         if (cardImageNames.remove(cardName)) {
             hoverOffsets = new float[cardImageNames.size()];
             selectedCardIndex = -1;
+            cardIconCache.remove(cardName);  // Remove from cache too
             repaint();
         }
     }
@@ -206,4 +212,3 @@ public class HandPanel extends JPanel {
         selectedCardIndex = -1;
         repaint();
     }
-}
