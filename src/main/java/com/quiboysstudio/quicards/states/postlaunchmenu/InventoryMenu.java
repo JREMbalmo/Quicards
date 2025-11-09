@@ -6,22 +6,16 @@ import com.quiboysstudio.quicards.components.factories.ComponentFactory;
 import com.quiboysstudio.quicards.components.utilities.FrameUtil;
 import com.quiboysstudio.quicards.proxies.CardImageProxy;
 import com.quiboysstudio.quicards.states.State;
-import com.quiboysstudio.quicards.account.User; // NEW IMPORT
-import com.quiboysstudio.quicards.server.Server; // NEW IMPORT
+import com.quiboysstudio.quicards.account.User;
+import com.quiboysstudio.quicards.server.Server;
 import java.awt.BorderLayout;
 import java.awt.Component; // For alignment
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image; // For scaling
-import java.io.BufferedReader; // For reading file
-import java.io.File; // For file handling
-import java.io.FileReader; // For reading file
-import java.io.IOException; // For error handling
-import java.sql.PreparedStatement; // NEW IMPORT
-import java.sql.ResultSet; // NEW IMPORT
-import java.sql.SQLException; // NEW IMPORT
-import java.util.ArrayList; // To store card names
-import java.util.List; // To store card names
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon; // For proxy
@@ -33,14 +27,6 @@ import javax.swing.JOptionPane; // For Create Deck prompt
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-// --- END IMPORTS ---
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +35,7 @@ import java.util.List;
  * - Option A: Uses DB (OwnedCards + Cards + PackContents + Packs) for card inventory
  * - Deck creation/deletion updates DB: Decks and DeckContents
  *
- * Note: This class follows the structure of your legacy class but replaces the
- * text-file-based inventory with DB queries and uses Pack.Name as the folder name.
+ * Note: This class is now fully database-driven for deck management.
  */
 public class InventoryMenu extends State {
     // variables
@@ -209,7 +194,7 @@ public class InventoryMenu extends State {
                 break;
             case "Decks":
                 contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-                populateDecks(); // DB-driven + legacy file support
+                populateDecks(); // DB-driven
                 break;
         }
 
@@ -297,8 +282,7 @@ public class InventoryMenu extends State {
     }
 
     /**
-     * Helper to load deck names from the Decks table (DB-driven) but still keep the 'decks' folder for
-     * backward compatibility with the .txt files (we keep both).
+     * Helper to load deck names from the Decks table (DB-driven).
      */
     private List<String> loadPlayerDecksFromDB() {
         List<String> deckNames = new ArrayList<>();
@@ -318,10 +302,10 @@ public class InventoryMenu extends State {
             System.err.println("Failed to load decks from DB: " + e);
             e.printStackTrace();
         }
-
-        // Also ensure folder presence as before for legacy .txt usage
-        File deckDir = new File("decks");
-        if (!deckDir.exists()) deckDir.mkdir();
+        
+        // REMOVED: Legacy file/folder creation logic
+        // File deckDir = new File("decks");
+        // if (!deckDir.exists()) deckDir.mkdir();
 
         return deckNames;
     }
@@ -459,24 +443,17 @@ public class InventoryMenu extends State {
             String newDeckName = JOptionPane.showInputDialog(frame, "Enter deck name:", "Create Deck", JOptionPane.PLAIN_MESSAGE);
             if (newDeckName != null && !newDeckName.trim().isEmpty()) {
 
-                // 1. Create the .txt file (legacy)
-                File deckFolder = new File("decks");
-                if (!deckFolder.exists()) deckFolder.mkdir();
-                File newFile = new File("decks/" + newDeckName + ".txt");
-                try {
-                    if (newFile.createNewFile()) {
-                        System.out.println("Deck file created: " + newDeckName);
-
-                        // 2. Add to database
-                        addDeckToDatabase(newDeckName);
-
-                        // 3. Refresh UI
-                        loadCategoryContent("Decks");
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "A deck with this name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                // REMOVED: All legacy file creation logic (File, File.mkdir(), newFile.createNewFile(), try/catch IOException)
+                
+                // 1. Add to database
+                if (addDeckToDatabase(newDeckName)) {
+                    System.out.println("Deck added to database: " + newDeckName);
+                    // 2. Refresh UI
+                    loadCategoryContent("Decks");
+                } else {
+                    // This assumes the failure was a duplicate name, mimicking the old file-based check.
+                    // A UNIQUE constraint in your DB on (UserID, Name) will cause addDeckToDatabase to fail and return false.
+                    JOptionPane.showMessageDialog(frame, "A deck with this name already exists or a database error occurred.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -507,19 +484,15 @@ public class InventoryMenu extends State {
             JButton deleteButton = ComponentFactory.createCustomButton("Delete Deck", FrameConfig.SATOSHI_BOLD, 200, () -> {
                 int choice = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete '" + deckName + "'?", "Delete Deck", JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
-                    // 1. Delete .txt file (legacy)
-                    File deckFile = new File("decks/" + deckName + ".txt");
-                    if (deckFile.exists() && deckFile.delete()) {
-                        System.out.println("Deleted deck file: " + deckName);
-                    } else {
-                        // If it doesn't exist, that's fine — continue with DB deletion
-                        System.out.println("Deck file not found (or could not be deleted): " + deckName);
-                    }
+                    
+                    // REMOVED: 1. Delete .txt file (legacy) logic
+                    // File deckFile = new File("decks/" + deckName + ".txt");
+                    // ... (if/else block) ...
 
-                    // 2. Delete from database (DeckContents then Decks)
+                    // 1. Delete from database (DeckContents then Decks)
                     deleteDeckFromDatabase(deckName);
 
-                    // 3. Refresh UI
+                    // 2. Refresh UI
                     loadCategoryContent("Decks");
                 }
             });
@@ -578,12 +551,13 @@ public class InventoryMenu extends State {
 
     /**
      * Inserts a new deck into the Decks table (DB).
+     * MODIFIED: Returns boolean to indicate success/failure.
      */
-    private void addDeckToDatabase(String deckName) {
+    private boolean addDeckToDatabase(String deckName) {
         int userID = getUserID();
         if (userID == -1) {
             System.err.println("Could not create deck: UserID not found.");
-            return;
+            return false; // MODIFIED
         }
 
         String insert = "INSERT INTO Decks (UserID, Name) VALUES (?, ?)";
@@ -592,9 +566,11 @@ public class InventoryMenu extends State {
             ps.setString(2, deckName);
             ps.executeUpdate();
             System.out.println("Added deck to database: " + deckName);
+            return true; // MODIFIED
         } catch (SQLException e) {
             System.err.println("Failed to add deck to database: " + e);
             e.printStackTrace();
+            return false; // MODIFIED (e.g., if a UNIQUE constraint is violated)
         }
     }
 
