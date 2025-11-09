@@ -8,13 +8,18 @@ import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 public class JoinRoomMenu extends State {
@@ -120,11 +125,35 @@ public class JoinRoomMenu extends State {
         sidePanel.setPreferredSize(new Dimension(FrameUtil.scale(frame, 280), frame.getHeight()));
         sidePanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 30), FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 30)));
         
-        // Join button
-        joinButton = ComponentFactory.createCustomButton("Join Room", FrameConfig.SATOSHI_BOLD, 200,
-            () -> {
+     // Join button
+    joinButton = ComponentFactory.createCustomButton("Join Room", FrameConfig.SATOSHI_BOLD, 200,
+        () -> {
             if (selectedRoom != null) {
-                System.out.println("Joining room: " + selectedRoom);
+                // Ask player to select a deck
+                List<String> deckNames = loadPlayerDecks();
+                if (deckNames.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "You need to create a deck first!", "No Decks", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                String selectedDeck = (String) JOptionPane.showInputDialog(
+                    frame,
+                    "Select your deck:",
+                    "Choose Deck",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    deckNames.toArray(),
+                    deckNames.get(0)
+                );
+
+                if (selectedDeck != null) {
+                    System.out.println("Joining room: " + selectedRoom + " with deck: " + selectedDeck);
+
+                    SwingUtilities.invokeLater(() -> {
+                        Room room = new Room(selectedDeck); // Pass deck name
+                        room.setVisible(true);
+                    });
+                }
             }
         });
         
@@ -162,6 +191,20 @@ public class JoinRoomMenu extends State {
         initialized = true;
         
         System.out.println("Entering JoinRoomMenu state");
+    }
+    
+    private List<String> loadPlayerDecks() {
+        List<String> deckNames = new ArrayList<>();
+        File deckDir = new File("decks");
+        if (!deckDir.exists()) return deckNames;
+
+        File[] files = deckDir.listFiles((dir, name) -> name.endsWith(".txt"));
+        if (files != null) {
+            for (File file : files) {
+                deckNames.add(file.getName().replace(".txt", ""));
+            }
+        }
+        return deckNames;
     }
     
     private void populateRooms() {
