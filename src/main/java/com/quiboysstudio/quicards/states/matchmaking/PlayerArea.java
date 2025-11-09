@@ -10,7 +10,7 @@ public class PlayerArea extends JPanel {
     private final Map<String, CardSlot> cardSlots = new HashMap<>();
     private final JLabel deckCountLabel;
 
-    public PlayerArea(boolean isTopPlayer) {
+        public PlayerArea(boolean isTopPlayer) {
         setOpaque(false);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -29,7 +29,7 @@ public class PlayerArea extends JPanel {
         cardsPanel.setOpaque(false);
 
         // Create all slots
-        CardSlot deckSlot = new CardSlot("", borderColor);
+        CardSlot deckSlot = new CardSlot("Deck", borderColor);
         CardSlot discardSlot = new CardSlot("Discard", borderColor);
 
         // Add deck count label overlay
@@ -42,9 +42,9 @@ public class PlayerArea extends JPanel {
         cardSlots.put("Deck", deckSlot);
         cardSlots.put("Discard", discardSlot);
 
-        // Create 3 field slots
+        // Create 3 field slots - IMPORTANT: Give them identifying names!
         for (int i = 1; i <= 3; i++) {
-            cardSlots.put("Field " + i, new CardSlot("", borderColor));
+            cardSlots.put("Field " + i, new CardSlot("Field " + i, borderColor));
         }
 
         // === Middle field area ===
@@ -79,5 +79,9 @@ public class PlayerArea extends JPanel {
 
     public CardSlot getDeckSlot() {
         return cardSlots.get("Deck");
+    }
+    
+    public Map<String, CardSlot> getCardSlots() {
+        return cardSlots;
     }
 }
