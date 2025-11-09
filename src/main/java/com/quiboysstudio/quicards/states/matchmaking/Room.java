@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Random;
 import javax.swing.border.EmptyBorder;
 
+
 public class Room extends JFrame {
 
     private PlayerArea topPlayerArea;
@@ -44,16 +45,16 @@ public class Room extends JFrame {
 
         String tablePath = "resources/tables/" + tableName;
 
-        // Force reload to avoid caching issue
-        ImageIcon rawIcon = new ImageIcon(new ImageIcon(tablePath).getImage());
-        Image bgImage = rawIcon.getImage().getScaledInstance(1920, 1080, Image.SCALE_SMOOTH);
+        // === Use CardImageProxy for lazy loading of the background ===
+        CardImageProxy bgImageProxy = new CardImageProxy(tablePath, 1920, 1080);
 
-        // === Create main panel that paints the background ===
+        // === Create main panel that paints the background using the proxy ===
         JPanel mainPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                // Use the proxy to paint the background image
+                bgImageProxy.paintIcon(this, g, 0, 0);
             }
         };
         
