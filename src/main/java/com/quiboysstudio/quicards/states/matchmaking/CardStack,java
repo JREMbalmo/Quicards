@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
+//Composite Pattern
 class CardStack implements CardComponent {
     private final List<CardComponent> cards = new ArrayList<>();
     private final StackRenderStrategy renderStrategy;
