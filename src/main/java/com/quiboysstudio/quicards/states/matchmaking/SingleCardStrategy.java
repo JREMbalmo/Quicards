@@ -3,10 +3,7 @@ package com.quiboysstudio.quicards.states.matchmaking;
 import java.awt.Graphics2D;
 import java.util.List;
 
-/**
- *
- * @author Andrew
- */
+//Composite Pattern
 class SingleCardStrategy implements StackRenderStrategy {
     @Override
     public void render(Graphics2D g2d, List<CardComponent> cards, int x, int y, int width, int height) {
