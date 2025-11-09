@@ -9,12 +9,21 @@ import com.quiboysstudio.quicards.states.State;
 
 // --- IMPORTS ---
 import com.quiboysstudio.quicards.account.User; // NEW IMPORT
+import com.quiboysstudio.quicards.prototype.Card;
+import com.quiboysstudio.quicards.prototype.CardRegistry;
 import com.quiboysstudio.quicards.server.Server; // NEW IMPORT
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component; // For alignment
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image; // For scaling
+import java.awt.RenderingHints;
 import java.io.BufferedReader; // For reading file
 import java.io.File; // For file handling
 import java.io.FileReader; // For reading file
@@ -23,7 +32,9 @@ import java.sql.PreparedStatement; // NEW IMPORT
 import java.sql.ResultSet; // NEW IMPORT
 import java.sql.SQLException; // NEW IMPORT
 import java.util.ArrayList; // To store card names
+import java.util.LinkedHashMap;
 import java.util.List; // To store card names
+import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon; // For proxy
@@ -236,26 +247,32 @@ public class InventoryMenu extends State {
      */
     private void populateCards() {
         loadPlayerInventory(); // Load/refresh the card list
-        
+
         if (ownedCardFileNames.isEmpty()) {
             contentPanel.add(ComponentFactory.createTextLabel("No cards in inventory. Go to the Store!", FrameConfig.SATOSHI_BOLD));
             updateSidePanelForCard(null); // Clear side panel
         } else {
+            // Group cards by base filename
+            Map<String, List<String>> groupedCards = groupCardsByBaseName();
+            List<String> uniqueCardNames = new ArrayList<>(groupedCards.keySet());
+
             // Gacha-style row population
             JPanel currentRowPanel = createRowPanel();
             contentPanel.add(currentRowPanel);
 
-            for (int i = 0; i < ownedCardFileNames.size(); i++) {
+            for (int i = 0; i < uniqueCardNames.size(); i++) {
                 if (i > 0 && i % 5 == 0) {
                     currentRowPanel = createRowPanel();
                     contentPanel.add(currentRowPanel);
                 }
-                JPanel cardItem = createCardItem(ownedCardFileNames.get(i));
+                String baseCardName = uniqueCardNames.get(i);
+                int count = groupedCards.get(baseCardName).size();
+                JPanel cardItem = createCardItemWithCount(baseCardName, count);
                 currentRowPanel.add(cardItem);
             }
-            
+
             // Initially show first card in side panel
-            selectedItem = ownedCardFileNames.get(0);
+            selectedItem = uniqueCardNames.get(0);
             updateSidePanelForCard(selectedItem);
         }
     }
@@ -366,6 +383,110 @@ public class InventoryMenu extends State {
         return card;
     }
     
+    private JPanel createCardItemWithCount(String baseCardFileName, int count) {
+        // Add this debug line at the start
+        System.out.println("Creating card: " + baseCardFileName + " with count: " + count);
+
+        JPanel card = new JPanel();
+        card.setOpaque(false);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(FrameUtil.scale(frame, 200), FrameUtil.scale(frame, 320))); 
+        card.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        String imagePath = "resources/cards/Fantasy Card Pack/" + baseCardFileName;
+        String cardName = parseCardName(baseCardFileName);
+
+        // Card image container with counter badge
+        JPanel imageContainer = new JPanel();
+        imageContainer.setOpaque(false);
+        imageContainer.setLayout(null); // Absolute positioning for badge
+        int imgWidth = FrameUtil.scale(frame, 180);
+        int imgHeight = FrameUtil.scale(frame, 260);
+        imageContainer.setPreferredSize(new Dimension(imgWidth, imgHeight));
+        imageContainer.setMaximumSize(new Dimension(imgWidth, imgHeight));
+        imageContainer.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+
+        // Card image (using Proxy)
+        Icon proxyIcon = new CardImageProxy(imagePath, imgWidth, imgHeight);
+        JLabel imageLabel = new JLabel(proxyIcon);
+        imageLabel.setBounds(0, 0, imgWidth, imgHeight);
+        imageContainer.add(imageLabel);
+
+        // Counter badge (only show if count > 1)
+        if (count > 1) {
+            System.out.println("Adding badge for card: " + baseCardFileName); // Debug
+            JPanel badge = createCounterBadge(count);
+            int badgeSize = FrameUtil.scale(frame, 40);
+            badge.setBounds(imgWidth - badgeSize - 5, 5, badgeSize, badgeSize);
+            imageContainer.add(badge);
+            imageContainer.setComponentZOrder(badge, 0); // Make sure badge is on top
+        }
+
+        // Card name label
+        JLabel nameLabel = ComponentFactory.createTextLabel(cardName, FrameConfig.SATOSHI_BOLD);
+        nameLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+
+        card.add(imageContainer);
+        card.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 10))));
+        card.add(nameLabel);
+
+        // Add click listener to update side panel
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                selectedItem = baseCardFileName;
+                updateSidePanelForCard(baseCardFileName);
+            }
+        });
+
+        return card;
+    }
+
+/**
+ * NEW: Creates a circular counter badge.
+ */
+    private JPanel createCounterBadge(int count) {
+        int badgeSize = FrameUtil.scale(frame, 40);
+
+        JPanel badge = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Draw circle background
+                g2d.setColor(new Color(255, 100, 100)); // Red badge
+                g2d.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+
+                // Draw white border
+                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(2));
+                g2d.drawOval(1, 1, getWidth() - 3, getHeight() - 3);
+
+                // Draw count text
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, FrameUtil.scale(frame, 18)));
+                FontMetrics fm = g2d.getFontMetrics();
+                String text = String.valueOf(count);
+                int textWidth = fm.stringWidth(text);
+                int textHeight = fm.getAscent();
+                g2d.drawString(text, (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 2);
+
+                g2d.dispose();
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(badgeSize, badgeSize);
+            }
+        };
+
+        badge.setOpaque(false);
+        badge.setSize(badgeSize, badgeSize);
+
+        return badge;
+    }
+    
     /**
      * Creates a placeholder deck item.
      */
@@ -403,22 +524,23 @@ public class InventoryMenu extends State {
      * MODIFIED: Displays the selected card's scaled image and name from a unique ID.
      */
     private void updateSidePanelForCard(String uniqueCardID) {
-        sidePanel.removeAll();
+    sidePanel.removeAll();
+    
+    if (uniqueCardID == null) {
+        JLabel emptyLabel = ComponentFactory.createTextLabel("Select a card", FrameConfig.SATOSHI_BOLD);
+        emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidePanel.add(Box.createVerticalGlue());
+        sidePanel.add(emptyLabel);
+        sidePanel.add(Box.createVerticalGlue());
+    } else {
+        // Get card clone using Prototype pattern
+        Card card = getCardFromPrototype(uniqueCardID);
         
-        if (uniqueCardID == null) {
-            JLabel emptyLabel = ComponentFactory.createTextLabel("Select a card", FrameConfig.SATOSHI_BOLD);
-            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            sidePanel.add(Box.createVerticalGlue());
-            sidePanel.add(emptyLabel);
-            sidePanel.add(Box.createVerticalGlue());
+        if (card == null) {
+            sidePanel.add(ComponentFactory.createTextLabel("Card not found", FrameConfig.SATOSHI_BOLD));
         } else {
-            // Parse filename from unique ID
-            String cardFileName = uniqueCardID.split("#")[0];
-            String imagePath = "resources/cards/Fantasy Card Pack/" + cardFileName;
-            String cardName = parseCardName(cardFileName);
-            
             // --- Large Image ---
-            ImageIcon cardIcon = new ImageIcon(imagePath);
+            ImageIcon cardIcon = new ImageIcon(card.getImagePath());
             int targetWidth = FrameUtil.scale(frame, 260);
             int originalWidth = cardIcon.getIconWidth();
             int originalHeight = cardIcon.getIconHeight();
@@ -427,20 +549,47 @@ public class InventoryMenu extends State {
             JLabel largeImageLabel = new JLabel(new ImageIcon(scaledImage));
             largeImageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             
-            // --- Name Label ---
-            JLabel nameLabel = ComponentFactory.createTextLabel(cardName, FrameConfig.SATOSHI_BOLD);
+            // --- Card Info Panel ---
+            JPanel infoPanel = new JPanel();
+            infoPanel.setOpaque(false);
+            infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+            infoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            // Name
+            JLabel nameLabel = ComponentFactory.createTextLabel(card.getName(), FrameConfig.SATOSHI_BOLD);
             nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            // Rarity
+            JLabel rarityLabel = ComponentFactory.createTextLabel("Rarity: " + card.getRarity(), FrameConfig.SATOSHI_BOLD);
+            rarityLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            // Attack
+            JLabel attackLabel = ComponentFactory.createTextLabel("ATK: " + card.getAttack(), FrameConfig.SATOSHI_BOLD);
+            attackLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            // Defense
+            JLabel defenseLabel = ComponentFactory.createTextLabel("DEF: " + card.getDefense(), FrameConfig.SATOSHI_BOLD);
+            defenseLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            infoPanel.add(nameLabel);
+            infoPanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 10))));
+            infoPanel.add(rarityLabel);
+            infoPanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 5))));
+            infoPanel.add(attackLabel);
+            infoPanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 5))));
+            infoPanel.add(defenseLabel);
 
             sidePanel.add(Box.createVerticalGlue());
             sidePanel.add(largeImageLabel);
             sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 20))));
-            sidePanel.add(nameLabel);
+            sidePanel.add(infoPanel);
             sidePanel.add(Box.createVerticalGlue());
         }
-        
-        sidePanel.revalidate();
-        sidePanel.repaint();
     }
+    
+    sidePanel.revalidate();
+    sidePanel.repaint();
+}
     
     /**
      * MODIFIED: Side panel for decks, now includes "Create Deck" and "Delete Deck" DB logic.
@@ -620,6 +769,26 @@ public class InventoryMenu extends State {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    private Card getCardFromPrototype(String uniqueCardID) {
+        String cardFileName = uniqueCardID.split("#")[0];
+        return CardRegistry.getInstance().getCard(cardFileName);
+    }
+    
+    private Map<String, List<String>> groupCardsByBaseName() {
+        Map<String, List<String>> grouped = new LinkedHashMap<>();
+
+        for (String uniqueCardID : ownedCardFileNames) {
+            String baseFileName = uniqueCardID.split("#")[0];
+
+            if (!grouped.containsKey(baseFileName)) {
+                grouped.put(baseFileName, new ArrayList<>());
+            }
+            grouped.get(baseFileName).add(uniqueCardID);
+        }
+
+        return grouped;
     }
     
     // --- END NEW DATABASE METHODS ---
