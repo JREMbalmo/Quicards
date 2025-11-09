@@ -1,5 +1,6 @@
-package com.quiboysstudio.quicards.states.matchmaking;
+package com.quiboysstudio.quicards.states.matchmaking.utils;
 
+import com.quiboysstudio.quicards.components.UIConfig;
 import com.quiboysstudio.quicards.proxies.CardImageProxy;
 import javax.swing.*;
 import java.awt.*;

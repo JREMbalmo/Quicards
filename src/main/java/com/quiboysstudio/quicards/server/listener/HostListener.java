@@ -2,6 +2,7 @@ package com.quiboysstudio.quicards.server.listener;
 
 import com.quiboysstudio.quicards.server.handlers.AccountCreationHandler;
 import com.quiboysstudio.quicards.server.handlers.GachaHandler;
+import com.quiboysstudio.quicards.server.handlers.MatchmakingHandler;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -21,6 +22,7 @@ public class HostListener {
     //handlers
     private AccountCreationHandler accountCreation;
     private GachaHandler gachaHandler;
+    private MatchmakingHandler matchMakingHandler;
     
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> taskHandle;
@@ -83,10 +85,14 @@ public class HostListener {
         
         //check for gacha requests
         gachaHandler.checkActions();
+        
+        //check for matchmaking
+        matchMakingHandler.checkActions();
     }
     
     private void initHandlers() {
         accountCreation = new AccountCreationHandler(result, statement);
         gachaHandler = new GachaHandler(result, statement, connection);
+        matchMakingHandler = new MatchmakingHandler(result, statement, connection);
     }
 }

@@ -1,5 +1,6 @@
-package com.quiboysstudio.quicards.states.matchmaking;
+package com.quiboysstudio.quicards.states.matchmaking.utils;
 
+import com.quiboysstudio.quicards.components.UIConfig;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

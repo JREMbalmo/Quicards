@@ -1,4 +1,4 @@
-package com.quiboysstudio.quicards.states.matchmaking;
+package com.quiboysstudio.quicards.components;
 
 import java.awt.*;
 

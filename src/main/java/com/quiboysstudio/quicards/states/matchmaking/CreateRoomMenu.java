@@ -10,6 +10,7 @@ import com.quiboysstudio.quicards.server.Server;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import java.awt.BorderLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -29,6 +30,8 @@ public class CreateRoomMenu extends State{
     private JPanel buttonPanel;
     private JTextField nameField;
     private JLabel nameLabel;
+    private JButton backButton;
+    private JButton createButton;
     
     @Override
     public void enter() {
@@ -94,13 +97,15 @@ public class CreateRoomMenu extends State{
         creationMenuPanel.add(nameField);
         
         //buttons
-        buttonPanel.add(ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, previousState));
-        buttonPanel.add(ComponentFactory.createCustomButton("Create Room", FrameConfig.SATOSHI_BOLD, 250, () -> {
+        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, previousState);
+        createButton = ComponentFactory.createCustomButton("Create Room", FrameConfig.SATOSHI_BOLD, 250, () -> {
                     // Call the new method to handle room creation
                     createRoom();
-                ;}
-            )
-        );
+                }
+            );
+        buttonPanel.add(backButton);
+        buttonPanel.add(createButton);
+        
         creationMenuPanel.add(buttonPanel);
         
         //subpanels
@@ -123,6 +128,10 @@ public class CreateRoomMenu extends State{
      */
     private void createRoom() {
         String roomName = nameField.getText();
+        
+        //disable buttons
+        backButton.setEnabled(false);
+        createButton.setEnabled(false);
 
         // Validate input
         if (roomName == null || roomName.trim().isEmpty()) {
@@ -140,8 +149,8 @@ public class CreateRoomMenu extends State{
                 int actionID = 8; // ActionID for creating a room
 
                 // 1. Insert the request into the Request table
-                String insertSql = "INSERT INTO Request (UserID, Password, ActionID, Var1, Var2, Processed) VALUES ("
-                                 + userID + ", '" + password + "', " + actionID + ", '" + roomName + "', NULL, 0)";
+                String insertSql = "INSERT INTO Request (UserID, Password, ActionID, Var1) VALUES ("
+                                 + userID + ", '" + password + "', " + actionID + ", '" + roomName + "')";
 
                 Server.statement.executeUpdate(insertSql);
 
@@ -161,7 +170,7 @@ public class CreateRoomMenu extends State{
                 // 3. Poll the Result table
                 int attempts = 0;
                 boolean resultFound = false;
-                int maxAttempts = 30; // Poll for 30 seconds (30 attempts * 1s)
+                int maxAttempts = 10;
 
                 while (!resultFound && attempts < maxAttempts) {
                     // System.out.println("Polling for RequestID: " + requestID + ", Attempt: " + (attempts + 1));
@@ -177,7 +186,7 @@ public class CreateRoomMenu extends State{
                         if (valid == 1) {
                             // SUCCESS
                             JOptionPane.showMessageDialog(frame, "Room created successfully!");
-                            // You can add your logic here to proceed to the room
+                            exit(waitingRoom);
                         } else {
                             // FAILED (Valid == 0)
                             JOptionPane.showMessageDialog(frame, "Room creation failed");
@@ -192,21 +201,34 @@ public class CreateRoomMenu extends State{
                 if (!resultFound) {
                     // Polling timed out
                     JOptionPane.showMessageDialog(frame, "Room creation request timed out. Please try again.", "Timeout", JOptionPane.ERROR_MESSAGE);
+                    
+                    //re enable buttons
+                    backButton.setEnabled(true);
+                    createButton.setEnabled(true);
                 }
 
             } catch (SQLException e) {
                 // Handle database errors
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(frame, "Database Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                //re enable buttons
+                backButton.setEnabled(true);
+                createButton.setEnabled(true);
             } catch (InterruptedException e) {
                 // Handle thread interruption
                 Thread.currentThread().interrupt();
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(frame, "Room creation was interrupted.", "Error", JOptionPane.ERROR_MESSAGE);
+                //re enable buttons
+                backButton.setEnabled(true);
+                createButton.setEnabled(true);
             } catch (Exception e) {
                 // Handle other unexpected errors (e.g., if User class or connection is null)
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(frame, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                //re enable buttons
+                backButton.setEnabled(true);
+                createButton.setEnabled(true);
             }
         }).start();
     }

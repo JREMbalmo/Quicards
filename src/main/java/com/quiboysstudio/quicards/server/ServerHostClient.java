@@ -456,20 +456,23 @@ public class ServerHostClient {
                         """
                         CREATE TABLE Rooms(
                         RoomID INT PRIMARY KEY AUTO_INCREMENT,
-                        Name TEXT NOT NULL,
-                        User1 INT NOT NULL,
-                        Deck1 INT,
-                        User2 INT NOT NULL,
-                        Deck2 INT,
-                        Status TINYINT(1) DEFAULT 0,
-                        FOREIGN KEY (User1) REFERENCES Users(UserID),
-                        FOREIGN KEY (User2) REFERENCES Users(UserID),
-                        FOREIGN KEY (Deck1) REFERENCES Decks(DeckID),
-                        FOREIGN KEY (Deck2) REFERENCES Decks(DeckID)
+                        Finished TINYINT(1) DEFAULT 0
                         ) AUTO_INCREMENT = 1;
                         """
                 );
-                
+                //create players in room table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE PlayersInRoom(
+                        RoomID INT NOT NULL,
+                        UserID INT NOT NULL,
+                        DeckID INT,
+                        Status TINYINT(1) DEFAULT 0,
+                        FOREIGN KEY (UserID) REFERENCES Users(UserID),
+                        FOREIGN KEY (DeckID) REFERENCES Decks(DeckID)
+                        ) AUTO_INCREMENT = 1;
+                        """
+                );
                 //create card state
                 statement.executeUpdate(
                         """
@@ -490,22 +493,28 @@ public class ServerHostClient {
                         """
                         CREATE TABLE BoardState(
                         RoomID INT PRIMARY KEY,
-                        P1Health INT NOT NULL DEFAULT 100,
-                        P1LeftCard INT,
-                        P1MidCard INT,
-                        P2Health INT NOT NULL DEFAULT 100,
-                        P1RightCard INT,
-                        P2LeftCard INT,
-                        P2MidCard INT,
-                        P2RightCard INT,
-                        Turn TINYINT(1) NOT NULL DEFAULT 0,
+                        UserID INT NOT NULL,
+                        Health INT NOT NULL DEFAULT 100,
+                        LeftCard INT,
+                        MidCard INT,
+                        RightCard INT,
+                        FirstTurn TINYINT(1),
+                        FOREIGN KEY (UserID) REFERENCES Users(UserID),
                         FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
-                        FOREIGN KEY (P1LeftCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (P1MidCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (P1RightCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (P2LeftCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (P2MidCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (P2RightCard) REFERENCES CardStates(StateID)
+                        FOREIGN KEY (LeftCard) REFERENCES CardStates(StateID),
+                        FOREIGN KEY (MidCard) REFERENCES CardStates(StateID),
+                        FOREIGN KEY (RightCard) REFERENCES CardStates(StateID)
+                        );
+                        """
+                );
+                
+                //create board turn table
+                statement.executeUpdate(
+                        """
+                        CREATE TABLE BoardTurn(
+                        RoomID INT PRIMARY KEY,
+                        Turn INT NOT NULL DEFAULT 1,
+                        FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID)
                         );
                         """
                 );

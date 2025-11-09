@@ -99,6 +99,18 @@ public class AccountCreationHandler {
                 );
                 statement.executeUpdate(
                         String.format(
+                        "GRANT SELECT ON Server.Rooms TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.PlayersInRoom TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
                         "GRANT SELECT (RequestID, UserID, Processed) ON Server.Request TO '%s'@'%%';",
                         username
                         )

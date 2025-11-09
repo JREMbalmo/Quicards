@@ -1,5 +1,9 @@
-package com.quiboysstudio.quicards.states.matchmaking;
+package com.quiboysstudio.quicards.states.matchmaking.utils;
 
+import com.quiboysstudio.quicards.states.matchmaking.utils.CardAnimationSystem;
+import com.quiboysstudio.quicards.states.matchmaking.utils.CardSlot;
+import com.quiboysstudio.quicards.states.matchmaking.utils.HandPanel;
+import com.quiboysstudio.quicards.states.matchmaking.utils.PlayerArea;
 import com.quiboysstudio.quicards.proxies.CardImageProxy;
 import javax.swing.*;
 import java.awt.*;

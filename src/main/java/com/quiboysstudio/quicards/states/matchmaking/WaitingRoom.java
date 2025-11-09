@@ -14,7 +14,6 @@ import java.awt.Component; // For alignment
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.File; // For file handling
-import java.io.IOException; // For error handling
 import java.sql.PreparedStatement; // For safe queries
 import java.sql.ResultSet; // For getting results
 import java.sql.SQLException; // For errors
@@ -86,7 +85,7 @@ public class WaitingRoom extends State {
     private void init() {
         if (initialized) return;
         
-        System.out.println("Initializing elements from CreateRoomMenu state");
+        System.out.println("Initializing elements from WaitingRoom state");
         
         layeredPane = new JLayeredPane();
         layeredPane.setOpaque(false);
@@ -106,7 +105,7 @@ public class WaitingRoom extends State {
         navigationPanel.setOpaque(false);
         navigationPanel.setLayout(new FlowLayout(FlowLayout.LEFT, FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 20)));
         
-        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 150, previousState);
+        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 150, mainMenu);
         backButton.setVerticalAlignment(JButton.CENTER);
         backButton.setHorizontalAlignment(JButton.CENTER);
         
@@ -128,6 +127,8 @@ public class WaitingRoom extends State {
         
         contentPanel = new JPanel();
         contentPanel.setOpaque(false);
+        // Set layout to stack rows vertically
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); 
         contentPanel.setBorder(new EmptyBorder(FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 30), FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 50)));
         
         scrollPane = new CustomScrollPane(contentPanel);
@@ -144,7 +145,7 @@ public class WaitingRoom extends State {
         
         initialized = true;
         
-        System.out.println("Entering CreateRoomMenu state");
+        System.out.println("Entering WaitingRoom state");
     }
     
     /**
@@ -249,7 +250,7 @@ public class WaitingRoom extends State {
      */
 private void updateSidePanel(String deckName) {
         sidePanel.removeAll();
-        sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 300))));
+        sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 50))));
         
         if (deckName == null) {
             // Show placeholder text if no deck is selected
@@ -361,7 +362,7 @@ private void updateSidePanel(String deckName) {
     
     @Override
     public void exit(State nextState) {
-        System.out.println("Removing elements from CreateRoomMenu");
+        System.out.println("Removing elements from WaitingRoom");
         System.out.println("Preparing to transition to next state");
         running = false;
         previousState = currentState;
