@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.HashMap;
 import java.util.Map;
 
+//Composite Pattern
 public class CardSlot extends JLabel {
     private final String slotName;
     private final Color borderColor;
