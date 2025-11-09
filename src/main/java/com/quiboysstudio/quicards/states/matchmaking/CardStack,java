@@ -1,0 +1,68 @@
+package com.quiboysstudio.quicards.states.matchmaking;
+
+import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
+
+class CardStack implements CardComponent {
+    private final List<CardComponent> cards = new ArrayList<>();
+    private final StackRenderStrategy renderStrategy;
+    private final String stackName;
+    
+    public CardStack(String stackName, StackRenderStrategy renderStrategy) {
+        this.stackName = stackName;
+        this.renderStrategy = renderStrategy;
+    }
+    
+    public void addCard(CardComponent card) {
+        cards.add(card);
+    }
+    
+    public void removeCard(CardComponent card) {
+        cards.remove(card);
+    }
+    
+    public CardComponent removeTopCard() {
+        if (!cards.isEmpty()) {
+            return cards.remove(cards.size() - 1);
+        }
+        return null;
+    }
+    
+    public void clear() {
+        cards.clear();
+    }
+    
+    public int size() {
+        return cards.size();
+    }
+    
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
+    
+    public CardComponent getTopCard() {
+        return cards.isEmpty() ? null : cards.get(cards.size() - 1);
+    }
+    
+    public List<CardComponent> getCards() {
+        return new ArrayList<>(cards);
+    }
+    
+    @Override
+    public void render(Graphics2D g2d, int x, int y, int width, int height) {
+        if (!cards.isEmpty()) {
+            renderStrategy.render(g2d, cards, x, y, width, height);
+        }
+    }
+    
+    @Override
+    public int getDepth() {
+        return cards.size();
+    }
+    
+    @Override
+    public String getDisplayName() {
+        return stackName + " (" + size() + " cards)";
+    }
+}
