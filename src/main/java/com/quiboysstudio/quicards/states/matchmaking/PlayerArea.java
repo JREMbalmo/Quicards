@@ -5,16 +5,17 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class PlayerArea extends JPanel {
     private final HealthCircle healthCircle;
     private final Map<String, CardSlot> cardSlots = new HashMap<>();
     private final JLabel deckCountLabel;
 
-        public PlayerArea(boolean isTopPlayer) {
+    public PlayerArea(boolean isTopPlayer) {
         setOpaque(false);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-
+        
         healthCircle = new HealthCircle();
         Color borderColor = isTopPlayer ? Color.GRAY : UIConfig.ORANGE;
 
