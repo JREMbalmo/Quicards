@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.io.File;
 import javax.swing.Icon;
 
-
+//Composite Pattern
 class SingleCard implements CardComponent {
     private final String fileName;
     private final CardType cardType;
