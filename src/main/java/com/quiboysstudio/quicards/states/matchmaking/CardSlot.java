@@ -11,6 +11,27 @@ public class CardSlot extends JLabel {
     private boolean isHovered = false;
     private float glowAlpha = 0.0f;
     private final Timer hoverTimer;
+    private Consumer<CardSlot> onSlotClicked;
+    private String deployedCardName;
+
+    public void setOnSlotClicked(Consumer<CardSlot> listener) {
+        this.onSlotClicked = listener;
+        System.out.println("Listener set for slot: " + slotName);
+    }
+
+    public boolean isFieldSlot() {
+        return slotName.startsWith("Field");
+    }
+
+    public void setDeployedCard(String cardName) {
+        System.out.println("setDeployedCard() called on slot '" + slotName + "' with card: " + cardName);
+        this.deployedCardName = cardName;
+        repaint();
+    }
+
+    public String getDeployedCard() {
+        return deployedCardName;
+    }
 
     public CardSlot(String name, Color border) {
         this.slotName = name;
@@ -29,10 +50,12 @@ public class CardSlot extends JLabel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(
-                    CardSlot.this,
-                    "You clicked on: " + (slotName.isEmpty() ? "Field Slot" : slotName)
-                );
+                System.out.println("CardSlot '" + slotName + "' clicked!");
+                if (onSlotClicked != null) {
+                    onSlotClicked.accept(CardSlot.this);
+                } else {
+                    System.out.println("WARNING: No click listener set for slot: " + slotName);
+                }
             }
 
             @Override
@@ -73,8 +96,19 @@ public class CardSlot extends JLabel {
             }
         }
 
-        // Text
-        if (!slotName.isEmpty()) {
+        // Draw deployed card
+        if (deployedCardName != null) {
+            System.out.println("Painting card '" + deployedCardName + "' in slot '" + slotName + "'");
+            Icon icon = loadCardIcon(deployedCardName, width, height);
+            if (icon != null) {
+                icon.paintIcon(this, g2d, 0, 0);
+            } else {
+                System.out.println("WARNING: Failed to load icon for: " + deployedCardName);
+            }
+        }
+
+        // Text (only show if no card deployed)
+        if (!slotName.isEmpty() && deployedCardName == null) {
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("Arial", Font.BOLD, 14));
             FontMetrics fm = g2d.getFontMetrics();
@@ -85,4 +119,26 @@ public class CardSlot extends JLabel {
         g2d.dispose();
     }
 
+    private Icon loadCardIcon(String fileName, int w, int h) {
+        try {
+            File file = new File("resources/cards/Fantasy Card Pack/" + fileName);
+            if (!file.exists()) {
+                System.err.println("Card file not found: " + file.getAbsolutePath());
+                return null;
+            }
+            Image img = ImageIO.read(file);
+            if (img == null) {
+                System.err.println("Failed to read image: " + file.getAbsolutePath());
+                return null;
+            }
+            return new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_SMOOTH));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+    public boolean hasCard() {
+        return deployedCardName != null;
+    }
 }
