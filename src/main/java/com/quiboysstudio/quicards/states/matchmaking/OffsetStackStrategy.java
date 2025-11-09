@@ -3,6 +3,7 @@ package com.quiboysstudio.quicards.states.matchmaking;
 import java.awt.Graphics2D;
 import java.util.List;
 
+//Composite Pattern
 class OffsetStackStrategy implements StackRenderStrategy {
     private final int offsetX;
     private final int offsetY;
