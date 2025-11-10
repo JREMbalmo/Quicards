@@ -492,19 +492,20 @@ public class ServerHostClient {
                 //create board state table
                 statement.executeUpdate(
                         """
-                        CREATE TABLE BoardState(
-                        RoomID INT PRIMARY KEY,
-                        UserID INT NOT NULL,
-                        Health INT NOT NULL DEFAULT 100,
-                        LeftCard INT,
-                        MidCard INT,
-                        RightCard INT,
-                        FirstTurn TINYINT(1),
-                        FOREIGN KEY (UserID) REFERENCES Users(UserID),
-                        FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
-                        FOREIGN KEY (LeftCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (MidCard) REFERENCES CardStates(StateID),
-                        FOREIGN KEY (RightCard) REFERENCES CardStates(StateID)
+                            CREATE TABLE BoardState(
+                            RoomID INT NOT NULL,
+                            UserID INT NOT NULL,
+                            Health INT NOT NULL DEFAULT 100,
+                            LeftCard INT,
+                            MidCard INT,
+                            RightCard INT,
+                            FirstTurn TINYINT(1),
+                            FOREIGN KEY (UserID) REFERENCES Users(UserID),
+                            FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
+                            FOREIGN KEY (LeftCard) REFERENCES CardStates(StateID),
+                            FOREIGN KEY (MidCard) REFERENCES CardStates(StateID),
+                            FOREIGN KEY (RightCard) REFERENCES CardStates(StateID),
+                            PRIMARY KEY (RoomID, UserID)
                         );
                         """
                 );
@@ -513,7 +514,7 @@ public class ServerHostClient {
                 statement.executeUpdate(
                         """
                         CREATE TABLE BoardTurn(
-                        RoomID INT PRIMARY KEY,
+                        RoomID INT,
                         Turn INT NOT NULL DEFAULT 1,
                         FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID)
                         );

@@ -17,7 +17,7 @@ public abstract class State{
     public static State startScreen, serverMenu, loginMenu, mainMenu,
             hostServerMenu, joinServerMenu, accountAuthenticationMenu, registerMenu, exitState,
             wipState, settingsMenu, storeMenu, inventoryMenu, createRoomMenu, joinRoomMenu,
-            gachaResultsMenu, packContentsMenu, waitingRoom;
+            gachaResultsMenu, packContentsMenu, waitingRoom, room;
     public static State currentState, previousState;
     
     //abstract methods

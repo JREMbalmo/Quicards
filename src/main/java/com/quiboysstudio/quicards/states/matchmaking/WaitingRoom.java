@@ -62,6 +62,12 @@ public class WaitingRoom extends State {
     
     // Stores the current room
     private static int currentRoomID = -1;
+    
+    // --- NEW FIELDS for polling ---
+    private State roomState; // Will hold the 'Room' state
+    private volatile boolean isWaitingForOpponent = false;
+    private volatile boolean isPolling = false;
+    // --- END NEW FIELDS ---
 
     /**
      * IMPORTANT: This method must be called from the previous state
@@ -85,12 +91,57 @@ public class WaitingRoom extends State {
             } else {
                 exit(mainMenu); // Fallback
             }
+            return; // <-- NEW: Added return
         }
+        
+        // Reset polling state every time we enter
+        isWaitingForOpponent = false;
+        isPolling = false;
     }
 
     @Override
     public void update() {
         showMenu();
+        
+        // --- NEW: Check if we should be polling for game start ---
+        if (running && isWaitingForOpponent && !isPolling) {
+            pollForGameStart();
+        }
+    }
+    
+    /**
+     * NEW: Polls the BoardTurn table to see if the game has started.
+     */
+    private void pollForGameStart() {
+        isPolling = true; // Mark as "poll in progress"
+        
+        new Thread(() -> {
+            try {
+                String sql = "SELECT Turn FROM BoardTurn WHERE RoomID = ?";
+                try (PreparedStatement ps = Server.connection.prepareStatement(sql)) {
+                    ps.setInt(1, currentRoomID);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            // --- GAME HAS STARTED! ---
+                            SwingUtilities.invokeLater(() -> {
+                                System.out.println("WaitingRoom: Game start detected for Room " + currentRoomID);
+                                isWaitingForOpponent = false; // Stop polling
+                                Room.setRoomID(currentRoomID); // Set ID for the next state
+                                exit(roomState); // Transition to game
+                            });
+                        }
+                        // If no row, do nothing and wait for the next poll
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                // In a real app, you might want to stop polling on error
+                // isWaitingForOpponent = false; 
+            } finally {
+                // Allow the update() loop to trigger another poll
+                isPolling = false; 
+            }
+        }).start();
     }
     
     private void showMenu() {
@@ -119,10 +170,14 @@ public class WaitingRoom extends State {
     private void init() {
         if (initialized) return;
         
+        // --- NEW: Initialize the room state ---
+        roomState = State.room; 
+        
         System.out.println("Initializing elements from WaitingRoom state");
         
         layeredPane = new JLayeredPane();
         layeredPane.setOpaque(false);
+// ... (rest of init() is identical to your existing WaitingRoom) ...
         layeredPane.setBounds(0, 0, frame.getWidth(), frame.getHeight());
         
         firstLayerPanel = new JPanel();
@@ -192,21 +247,30 @@ public class WaitingRoom extends State {
         Map<String, Integer> deckMap = new HashMap<>();
         int userID = User.getUserID();
         
-        String query = "SELECT DeckID, Name FROM Decks WHERE UserID = " + userID;
+        // Use a PreparedStatement for safety and clarity
+        String query = "SELECT DeckID, Name FROM Decks WHERE UserID = ?";
         
-        // Using Statement here as UserID is internal and less of an injection risk
-        // Swapping to PreparedStatement is safer if you have time.
-        try {
-            Server.result = Server.statement.executeQuery(query);
+        // --- MODIFIED SECTION ---
+        // Use try-with-resources to ensure Statement and ResultSet are closed
+        // This creates a *local* statement and resultset, not using Server.statement
+        try (PreparedStatement ps = Server.connection.prepareStatement(query)) {
             
-            while (Server.result.next()) {
-                deckMap.put(Server.result.getString("Name"), Server.result.getInt("DeckID"));
-            }
+            ps.setInt(1, userID); // Set the UserID parameter
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    deckMap.put(rs.getString("Name"), rs.getInt("DeckID"));
+                }
+            } // rs is automatically closed here
             
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Error loading decks: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            // A popup in an update loop will freeze the game.
+            // Log the error to the console instead.
+            System.err.println("Error loading decks: " + e.getMessage());
+            // JOptionPane.showMessageDialog(frame, "Error loading decks: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
+        // --- END MODIFIED SECTION ---
         return deckMap;
     }
     
@@ -214,6 +278,7 @@ public class WaitingRoom extends State {
      * Populates the contentPanel with 5-deck rows from the database.
      */
     private void populateDecks() {
+// ... (this method is identical to your existing WaitingRoom) ...
         contentPanel.removeAll(); // Clear old decks
         Map<String, Integer> deckMap = loadPlayerDecks();
         
@@ -252,6 +317,7 @@ public class WaitingRoom extends State {
      * Helper method to create an invisible row panel.
      */
     private JPanel createRowPanel() {
+// ... (this method is identical to your existing WaitingRoom) ...
         JPanel rowPanel = new JPanel();
         rowPanel.setOpaque(false);
         rowPanel.setLayout(new FlowLayout(FlowLayout.LEFT, FrameUtil.scale(frame, 30), FrameUtil.scale(frame, 30)));
@@ -265,6 +331,7 @@ public class WaitingRoom extends State {
      * @param deckID The ID of the deck.
      */
     private JPanel createDeckItem(String deckName, int deckID) {
+// ... (this method is identical to your existing WaitingRoom) ...
         JPanel deck = new JPanel();
         deck.setOpaque(false);
         deck.setLayout(new BoxLayout(deck, BoxLayout.Y_AXIS));
@@ -299,6 +366,7 @@ public class WaitingRoom extends State {
      * Updates the side panel to show the selected deck and the "Ready" button.
      */
     private void updateSidePanel(String deckName) {
+// ... (this method is identical to your existing WaitingRoom) ...
         sidePanel.removeAll();
         sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 50))));
         
@@ -345,6 +413,7 @@ public class WaitingRoom extends State {
      * NEW: Sets the player's status to 'Ready' in the database.
      */
     private void handleReadyUp() {
+// ... (this method is identical, but see modification below) ...
         if (selectedDeckID == -1) {
             JOptionPane.showMessageDialog(frame, "You must select a deck first.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -374,10 +443,13 @@ public class WaitingRoom extends State {
                 if (rowsAffected > 0) {
                     System.out.println("User " + userID + " is ready in room " + currentRoomID);
                     // Player is now locked in.
-                    // The server will handle what happens next.
-                    // We just disable the UI.
                     SwingUtilities.invokeLater(() -> {
                         readyButton.setText("Ready!");
+                        
+                        // --- *** NEW: START POLLING *** ---
+                        isWaitingForOpponent = true;
+                        // --- *** END NEW *** ---
+                        
                     });
                 } else {
                     throw new SQLException("Player not found in room, or update failed.");
@@ -399,6 +471,7 @@ public class WaitingRoom extends State {
      * NEW: Removes the player from the current room in the database and goes back.
      */
     private void handleLeaveRoom() {
+// ... (this method is identical to your existing WaitingRoom) ...
         if (currentRoomID == -1) {
             JOptionPane.showMessageDialog(frame, "Error: Not in a valid room.", "Error", JOptionPane.ERROR_MESSAGE);
             return;

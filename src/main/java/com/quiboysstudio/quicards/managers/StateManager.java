@@ -50,6 +50,7 @@ public class StateManager {
         State.createRoomMenu = new CreateRoomMenu();                        //create room
         State.joinRoomMenu = new JoinRoomMenu();                            //join room
         State.waitingRoom = new WaitingRoom();                              //waiting room
+        State.room = new Room();
         
         //setup initial current state after opening app
         State.currentState = State.serverMenu;
