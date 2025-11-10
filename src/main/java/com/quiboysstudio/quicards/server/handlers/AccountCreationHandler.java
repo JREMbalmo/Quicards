@@ -187,6 +187,24 @@ public class AccountCreationHandler {
                         username
                         )
                 );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT SELECT ON Server.PlayersInRoom TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT DELETE ON Server.PlayersInRoom TO '%s'@'%%';",
+                        username
+                        )
+                );
+                statement.executeUpdate(
+                        String.format(
+                        "GRANT UPDATE ON Server.PlayersInRoom TO '%s'@'%%';",
+                        username
+                        )
+                );
                 
                 //update process status on AccountCreation table
                 statement.executeUpdate(

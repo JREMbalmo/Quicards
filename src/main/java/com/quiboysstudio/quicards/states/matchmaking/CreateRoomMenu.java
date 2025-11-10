@@ -97,7 +97,7 @@ public class CreateRoomMenu extends State{
         creationMenuPanel.add(nameField);
         
         //buttons
-        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, previousState);
+        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 250, mainMenu);
         createButton = ComponentFactory.createCustomButton("Create Room", FrameConfig.SATOSHI_BOLD, 250, () -> {
                     // Call the new method to handle room creation
                     createRoom();
@@ -175,17 +175,19 @@ public class CreateRoomMenu extends State{
                 while (!resultFound && attempts < maxAttempts) {
                     // System.out.println("Polling for RequestID: " + requestID + ", Attempt: " + (attempts + 1));
                     
-                    String pollSql = "SELECT Valid FROM Result WHERE RequestID = " + requestID;
+                    String pollSql = "SELECT Valid, NumResult FROM Result WHERE RequestID = " + requestID;
                     Server.result = Server.statement.executeQuery(pollSql);
 
                     if (Server.result.next()) {
                         // Result row has been created, stop polling
                         resultFound = true;
                         int valid = Server.result.getInt("Valid");
+                        int roomID = Server.result.getInt("NumResult");
 
                         if (valid == 1) {
                             // SUCCESS
                             JOptionPane.showMessageDialog(frame, "Room created successfully!");
+                            WaitingRoom.setRoomID(roomID);
                             exit(waitingRoom);
                         } else {
                             // FAILED (Valid == 0)
@@ -245,6 +247,8 @@ public class CreateRoomMenu extends State{
         running = false;
         previousState = currentState;
         currentState = nextState;
+        backButton.setEnabled(true);
+        createButton.setEnabled(true);
         
         //cleanup
         clearFields();

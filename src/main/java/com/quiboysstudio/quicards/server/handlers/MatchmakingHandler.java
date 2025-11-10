@@ -21,16 +21,18 @@ public class MatchmakingHandler {
      */
     public MatchmakingHandler(ResultSet result, Statement mainStatement, Connection conn) {
         this.result = result;
-        this.mainStatement = mainStatement;
 
         // Create a second Statement to keep the main ResultSet stable
         Statement temp = null;
+        Statement temp1 = null;
         try {
             temp = conn.createStatement();
+            temp1 = conn.createStatement();
         } catch (Exception e) {
             System.err.println("Failed to create queryStatement for MatchmakingHandler: " + e);
         }
         this.queryStatement = temp;
+        this.mainStatement = temp1;
     }
 
     /**
@@ -109,7 +111,7 @@ public class MatchmakingHandler {
     private void handleCreateRoom(int requestID, int userID, String roomName) throws SQLException {
         // 1. Create a new row in the Rooms table
         // We ignore the roomName (Var1) as the 'Rooms' schema provided has no column for it.
-        mainStatement.executeUpdate("INSERT INTO Rooms (Finished) VALUES (0);");
+        mainStatement.executeUpdate("INSERT INTO Rooms (Name) VALUES ('" + roomName + "');");
 
         // 2. Get the new RoomID. We must query for it.
         int newRoomID = -1;
@@ -117,7 +119,6 @@ public class MatchmakingHandler {
         if (rs.next()) {
             newRoomID = rs.getInt("RoomID");
         }
-        rs.close();
 
         if (newRoomID == -1) {
             throw new SQLException("Could not retrieve new RoomID after creation.");
@@ -153,7 +154,6 @@ public class MatchmakingHandler {
         if (rs.next()) {
             playerCount = rs.getInt("playerCount");
         }
-        rs.close();
 
         // 2. Check if room is full (>= 2 players)
         if (playerCount >= 2) {

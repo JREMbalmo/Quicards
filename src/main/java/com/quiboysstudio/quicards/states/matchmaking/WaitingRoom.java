@@ -13,13 +13,15 @@ import java.awt.BorderLayout;
 import java.awt.Component; // For alignment
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.File; // For file handling
+// import java.io.File; // No longer needed
 import java.sql.PreparedStatement; // For safe queries
 import java.sql.ResultSet; // For getting results
 import java.sql.SQLException; // For errors
-import java.sql.Statement; // For getting generated keys
+// import java.sql.Statement; // No longer needed
 import java.util.ArrayList; // To store card names
+import java.util.HashMap; // To map DeckName -> DeckID
 import java.util.List; // To store card names
+import java.util.Map; // To map DeckName -> DeckID
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -28,6 +30,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane; // For error messages
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities; // For thread-safe UI updates
 import javax.swing.border.EmptyBorder;
 // --- END IMPORTS ---
 
@@ -51,13 +54,38 @@ public class WaitingRoom extends State {
     private JPanel contentPanel;
     private JPanel sidePanel;
     private JButton backButton;
+    private JButton readyButton; // Made a class member to disable it
     
-    // Stores the selected deck name (e.g., "My First Deck")
-    private String selectedDeck = null;
+    // Stores the selected deck name and ID
+    private int selectedDeckID = -1;
+    private String selectedDeckName = null;
+    
+    // Stores the current room
+    private static int currentRoomID = -1;
+
+    /**
+     * IMPORTANT: This method must be called from the previous state
+     * (e.g., JoinRoomMenu) before transitioning here.
+     * @param roomID The ID of the room the player has joined.
+     */
+    public static void setRoomID(int roomID) {
+        WaitingRoom.currentRoomID = roomID;
+    }
 
     @Override
     public void enter() {
         init();
+        
+        // Safety check
+        if (currentRoomID == -1) {
+            JOptionPane.showMessageDialog(frame, "Error: No RoomID set. Returning to previous menu.", "Room Error", JOptionPane.ERROR_MESSAGE);
+            // We must exit to the previous state, not mainMenu
+            if (previousState != null) {
+                exit(previousState);
+            } else {
+                exit(mainMenu); // Fallback
+            }
+        }
     }
 
     @Override
@@ -69,15 +97,21 @@ public class WaitingRoom extends State {
         if (running) return;
         running = true;
         
-        System.out.println("Showing Create Room menu");
+        System.out.println("Showing Waiting Room");
         
         layeredPane.add(FrameConfig.backgroundPanel, Integer.valueOf(0));
         
+        // Reset selections
+        selectedDeckID = -1;
+        selectedDeckName = null;
+        if (readyButton != null) readyButton.setEnabled(false);
+        if (backButton != null) backButton.setEnabled(true);
+        
         // Load decks every time to get a fresh list
         populateDecks();
-        updateSidePanel(selectedDeck);
+        updateSidePanel(null); // Start with no deck selected
         
-        cardLayout.show(cardPanel, "Create Room Menu");
+        cardLayout.show(cardPanel, "Waiting Room"); // Renamed card
         frame.revalidate();
         frame.repaint();
     }
@@ -105,13 +139,15 @@ public class WaitingRoom extends State {
         navigationPanel.setOpaque(false);
         navigationPanel.setLayout(new FlowLayout(FlowLayout.LEFT, FrameUtil.scale(frame, 20), FrameUtil.scale(frame, 20)));
         
-        backButton = ComponentFactory.createStateChangerButton("Back", FrameConfig.SATOSHI_BOLD, 150, mainMenu);
+        // --- MODIFIED BACK BUTTON ---
+        // Changed from createStateChangerButton to createCustomButton
+        backButton = ComponentFactory.createCustomButton("Back", FrameConfig.SATOSHI_BOLD, 150, () -> {
+            handleLeaveRoom();
+        });
         backButton.setVerticalAlignment(JButton.CENTER);
         backButton.setHorizontalAlignment(JButton.CENTER);
         
         navigationPanel.add(backButton);
-        
-        // Removed the categoryPanel
         
         topBarPanel.add(navigationPanel, BorderLayout.WEST);
         
@@ -141,7 +177,7 @@ public class WaitingRoom extends State {
         
         layeredPane.add(firstLayerPanel, Integer.valueOf(1));
         
-        cardPanel.add("Create Room Menu", layeredPane);
+        cardPanel.add("Waiting Room", layeredPane); // Renamed card
         
         initialized = true;
         
@@ -149,54 +185,65 @@ public class WaitingRoom extends State {
     }
     
     /**
-     * Loads deck names from the /decks/ folder.
+     * Loads deck names from the database for the current user.
+     * @return A Map where Key is the Deck Name (String) and Value is the DeckID (Integer).
      */
-    private List<String> loadPlayerDecks() {
-        List<String> deckNames = new ArrayList<>();
-        File deckDir = new File("decks");
-
-        // Ensure the directory exists
-        if (!deckDir.exists()) {
-            deckDir.mkdir();
-        }
+    private Map<String, Integer> loadPlayerDecks() {
+        Map<String, Integer> deckMap = new HashMap<>();
+        int userID = User.getUserID();
         
-        File[] files = deckDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".txt"));
+        String query = "SELECT DeckID, Name FROM Decks WHERE UserID = " + userID;
         
-        if (files != null) {
-            for (File file : files) {
-                deckNames.add(file.getName().replace(".txt", ""));
+        // Using Statement here as UserID is internal and less of an injection risk
+        // Swapping to PreparedStatement is safer if you have time.
+        try {
+            Server.result = Server.statement.executeQuery(query);
+            
+            while (Server.result.next()) {
+                deckMap.put(Server.result.getString("Name"), Server.result.getInt("DeckID"));
             }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Error loading decks: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-        return deckNames;
+        return deckMap;
     }
     
     /**
-     * Populates the contentPanel with 5-deck rows.
+     * Populates the contentPanel with 5-deck rows from the database.
      */
     private void populateDecks() {
         contentPanel.removeAll(); // Clear old decks
-        List<String> deckNames = loadPlayerDecks();
+        Map<String, Integer> deckMap = loadPlayerDecks();
         
-        if (deckNames.isEmpty()) {
+        if (deckMap.isEmpty()) {
             contentPanel.add(ComponentFactory.createTextLabel("No decks found. Go to Inventory to create one.", FrameConfig.SATOSHI_BOLD));
-            selectedDeck = null; // No deck to select
+            selectedDeckID = -1;
+            selectedDeckName = null;
         } else {
             // Gacha-style row population
             JPanel currentRowPanel = createRowPanel();
             contentPanel.add(currentRowPanel);
 
-            for (int i = 0; i < deckNames.size(); i++) {
+            int i = 0;
+            for (Map.Entry<String, Integer> entry : deckMap.entrySet()) {
+                String deckName = entry.getKey();
+                int deckID = entry.getValue();
+
                 if (i > 0 && i % 5 == 0) {
                     currentRowPanel = createRowPanel();
                     contentPanel.add(currentRowPanel);
                 }
-                JPanel deckItem = createDeckItem(deckNames.get(i));
+                JPanel deckItem = createDeckItem(deckName, deckID);
                 currentRowPanel.add(deckItem);
-            }
-            
-            // Set first deck as selected by default
-            if (selectedDeck == null) {
-                selectedDeck = deckNames.get(0);
+                
+                // Set first deck as selected by default
+                if (selectedDeckID == -1) {
+                    selectedDeckID = deckID;
+                    selectedDeckName = deckName;
+                }
+                i++;
             }
         }
     }
@@ -214,8 +261,10 @@ public class WaitingRoom extends State {
 
     /**
      * Creates a placeholder deck item.
+     * @param deckName The name of the deck.
+     * @param deckID The ID of the deck.
      */
-    private JPanel createDeckItem(String deckName) {
+    private JPanel createDeckItem(String deckName, int deckID) {
         JPanel deck = new JPanel();
         deck.setOpaque(false);
         deck.setLayout(new BoxLayout(deck, BoxLayout.Y_AXIS));
@@ -237,7 +286,8 @@ public class WaitingRoom extends State {
         // Add click listener to update side panel
         deck.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                selectedDeck = deckName;
+                selectedDeckID = deckID;
+                selectedDeckName = deckName;
                 updateSidePanel(deckName);
             }
         });
@@ -248,7 +298,7 @@ public class WaitingRoom extends State {
     /**
      * Updates the side panel to show the selected deck and the "Ready" button.
      */
-private void updateSidePanel(String deckName) {
+    private void updateSidePanel(String deckName) {
         sidePanel.removeAll();
         sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 50))));
         
@@ -277,10 +327,8 @@ private void updateSidePanel(String deckName) {
         sidePanel.add(Box.createRigidArea(new Dimension(0, FrameUtil.scale(frame, 50))));
         
         // --- Ready Button ---
-        JButton readyButton = ComponentFactory.createCustomButton("Ready", FrameConfig.SATOSHI_BOLD, 200, () -> {
-            // This is where you would transition to the lobby or start the game
-            System.out.println("Player is Ready with deck: " + selectedDeck);
-            createRoom(); // Call the new database method
+        readyButton = ComponentFactory.createCustomButton("Ready", FrameConfig.SATOSHI_BOLD, 200, () -> {
+            handleReadyUp();
         });
         readyButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         // Enable the button only if a deck is selected
@@ -294,70 +342,100 @@ private void updateSidePanel(String deckName) {
     }
     
     /**
-     * NEW: Creates a new room in the Rooms table.
+     * NEW: Sets the player's status to 'Ready' in the database.
      */
-    private void createRoom() {
-        if (selectedDeck == null) {
+    private void handleReadyUp() {
+        if (selectedDeckID == -1) {
             JOptionPane.showMessageDialog(frame, "You must select a deck first.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (currentRoomID == -1) {
+            JOptionPane.showMessageDialog(frame, "Error: Not in a valid room.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // --- MODIFICATION ---
-        // Get UserID from the static User class instead of querying the DB
-        int userID = User.getUserID();
-        if (userID == -1) {
-            JOptionPane.showMessageDialog(frame, "Error: Could not find user. Please log in again.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        // --- END MODIFICATION ---
-        
-        int deckID = getDeckID(selectedDeck, userID);
-        if (deckID == -1) {
-            JOptionPane.showMessageDialog(frame, "Error: Could not find selected deck in database.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // This query inserts a new room, setting User2 = User1 as a placeholder
-        // to satisfy the NOT NULL constraint.
-        String query = "INSERT INTO Rooms (User1, Deck1, User2) VALUES (?, ?, ?)";
-        
-        try (PreparedStatement ps = Server.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, userID);
-            ps.setInt(2, deckID);
-            ps.setInt(3, userID); // User2 placeholder
+        // Disable buttons to prevent double-clicks
+        readyButton.setEnabled(false);
+        backButton.setEnabled(false);
+        readyButton.setText("Waiting...");
+
+        // Run DB update on a new thread
+        new Thread(() -> {
+            int userID = User.getUserID();
+            String query = "UPDATE PlayersInRoom SET Status = 1, DeckID = ? WHERE UserID = ? AND RoomID = ?";
             
-            int rowsAffected = ps.executeUpdate();
-            
-            if (rowsAffected > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        int roomID = rs.getInt(1);
-                        System.out.println("Successfully created room " + roomID);
-                        // TODO: Transition to the lobby/waiting state
-                        // Example: exit(new LobbyState(roomID));
-                    }
+            try (PreparedStatement ps = Server.connection.prepareStatement(query)) {
+                ps.setInt(1, selectedDeckID);
+                ps.setInt(2, userID);
+                ps.setInt(3, currentRoomID);
+                
+                int rowsAffected = ps.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    System.out.println("User " + userID + " is ready in room " + currentRoomID);
+                    // Player is now locked in.
+                    // The server will handle what happens next.
+                    // We just disable the UI.
+                    SwingUtilities.invokeLater(() -> {
+                        readyButton.setText("Ready!");
+                    });
+                } else {
+                    throw new SQLException("Player not found in room, or update failed.");
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                // Re-enable buttons if something went wrong
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(frame, "Error readying up: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                    readyButton.setEnabled(true);
+                    backButton.setEnabled(true);
+                    readyButton.setText("Ready");
+                });
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Error creating room: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        }).start();
     }
-    
-    private int getDeckID(String deckName, int userID) {
-        String query = "SELECT DeckID FROM Decks WHERE Name = ? AND UserID = ?";
-        try (PreparedStatement ps = Server.connection.prepareStatement(query)) {
-            ps.setString(1, deckName);
-            ps.setInt(2, userID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("DeckID");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    /**
+     * NEW: Removes the player from the current room in the database and goes back.
+     */
+    private void handleLeaveRoom() {
+        if (currentRoomID == -1) {
+            JOptionPane.showMessageDialog(frame, "Error: Not in a valid room.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        return -1; // Not found or error
+
+        // Run DB delete on a new thread
+        new Thread(() -> {
+            int userID = User.getUserID();
+            String query = "DELETE FROM PlayersInRoom WHERE UserID = ? AND RoomID = ?";
+            
+            try (PreparedStatement ps = Server.connection.prepareStatement(query)) {
+                ps.setInt(1, userID);
+                ps.setInt(2, currentRoomID);
+                
+                int rowsAffected = ps.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    System.out.println("User " + userID + " left room " + currentRoomID);
+                } else {
+                    // This can happen if the user was already kicked or left
+                    System.out.println("User " + userID + " was already not in room " + currentRoomID);
+                }
+                
+                // Always transition back
+                SwingUtilities.invokeLater(() -> {
+                    // Reset room ID for next time
+                    currentRoomID = -1;
+                    exit(previousState);
+                });
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(frame, "Error leaving room: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        }).start();
     }
     
     @Override

@@ -10,7 +10,6 @@ import com.quiboysstudio.quicards.states.State;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -53,8 +52,6 @@ public class JoinRoomMenu extends State {
     @Override
     public void enter() {
         init();
-        // Populate rooms every time the menu is entered - REMOVED to prevent auto-refresh
-        // populateRooms();
     }
 
     @Override
@@ -76,8 +73,7 @@ public class JoinRoomMenu extends State {
         joinButton.setEnabled(false);
         
         // --- ADDED ---
-        // Clear the panel on entry and prompt user to refresh.
-        // This prevents the list from auto-loading.
+        populateRooms();
         contentPanel.removeAll();
         JLabel promptLabel = ComponentFactory.createTextLabel("Press Refresh to load rooms.", FrameConfig.SATOSHI);
         promptLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
@@ -194,22 +190,6 @@ public class JoinRoomMenu extends State {
         System.out.println("Entering JoinRoomMenu state");
     }
     
-    private List<String> loadPlayerDecks() {
-        // This method is no longer used by handleJoinRoomRequest,
-        // but left in case other parts of the class use it.
-        List<String> deckNames = new ArrayList<>();
-        File deckDir = new File("decks");
-        if (!deckDir.exists()) return deckNames;
-
-        File[] files = deckDir.listFiles((dir, name) -> name.endsWith(".txt"));
-        if (files != null) {
-            for (File file : files) {
-                deckNames.add(file.getName().replace(".txt", ""));
-            }
-        }
-        return deckNames;
-    }
-    
     /**
      * Fetches available rooms from the database and displays them.
      */
@@ -238,27 +218,27 @@ public class JoinRoomMenu extends State {
             */
 
             // SQL to find rooms with < 2 players
-            String sql = "SELECT r.RoomID, COUNT(p.UserID) AS PlayerCount " +
+            String sql = "SELECT r.RoomID, r.Name, COUNT(p.UserID) AS PlayerCount " +
                          "FROM Rooms r " +
                          "LEFT JOIN PlayersInRoom p ON r.RoomID = p.RoomID " +
                          "WHERE r.Finished = 0 " +
                          "GROUP BY r.RoomID " +
                          "HAVING PlayerCount < 2;";
 
-            try (
-                 Statement statement = Server.connection.createStatement();
-                 ResultSet rs = statement.executeQuery(sql)) {
+            try {
 
-                if (rs.isBeforeFirst()) { // Check if there are any rows at all
+                Server.result = Server.statement.executeQuery(sql);
+                if (Server.result.isBeforeFirst()) { // Check if there are any rows at all
                     hasRooms = true;
                 }
 
-                while (rs.next()) {
-                    int roomID = rs.getInt("RoomID");
-                    int playerCount = rs.getInt("PlayerCount");
+                while (Server.result.next()) {
+                    int roomID = Server.result.getInt("RoomID");
+                    String roomName = Server.result.getString("Name");
+                    int playerCount = Server.result.getInt("PlayerCount");
 
                     // Create button for each room
-                    JButton roomButton = createRoomButton(roomID, playerCount);
+                    JButton roomButton = createRoomButton(roomID, playerCount, roomName);
                     
                     // Add button to the temporary list instead of directly to panel
                     newRoomButtons.add(roomButton);
@@ -310,8 +290,8 @@ public class JoinRoomMenu extends State {
      * @param playerCount The current number of players in the room.
      * @return A JButton configured to represent the room.
      */
-    private JButton createRoomButton(int roomID, int playerCount) {
-        String roomName = "Room " + roomID + " (" + playerCount + "/2)";
+    private JButton createRoomButton(int roomID, int playerCount, String roomNameMain) {
+        String roomName = roomNameMain + " (" + playerCount + "/2)";
         JButton roomButton = ComponentFactory.createCustomButton(roomName, FrameConfig.SATOSHI_BOLD, 577, () -> {});
         roomButton.setMaximumSize(new Dimension(FrameUtil.scale(frame, 577), FrameUtil.scale(frame, 70)));
         roomButton.setPreferredSize(new Dimension(FrameUtil.scale(frame, 577), FrameUtil.scale(frame, 70)));
@@ -341,8 +321,7 @@ public class JoinRoomMenu extends State {
 
         // 2. Run request on new thread
         new Thread(() -> {
-            try (Connection conn = Server.connection;
-                 Statement statement = conn.createStatement()) {
+            try {
 
                 // --- DECKID QUERY REMOVED ---
 
@@ -352,22 +331,20 @@ public class JoinRoomMenu extends State {
                 int actionID = 9; // Join Room
                 String var1 = String.valueOf(selectedRoomID);
                 // String var2 = String.valueOf(deckID); // Removed
-                String var2 = "NULL"; // Set Var2 to NULL as deck is no longer handled here
 
                 // WARNING: SQL Injection vulnerability
-                String insertSql = "INSERT INTO Request (UserID, Password, ActionID, Var1, Var2, Processed) VALUES (" +
-                                   userID + ", '" + password.replace("'", "''") + "', " + actionID + ", '" + var1 + "', " + var2 + ", 0);";
+                String insertSql = "INSERT INTO Request (UserID, Password, ActionID, Var1) VALUES (" +
+                                   userID + ", '" + password.replace("'", "''") + "', " + actionID + ", '" + var1 + "');";
                 
-                statement.executeUpdate(insertSql);
+                Server.statement.executeUpdate(insertSql);
 
                 // 5. Get RequestID
                 int requestID = -1;
                 String sqlGetID = "SELECT RequestID FROM Request WHERE UserID = " + userID + " ORDER BY RequestID DESC LIMIT 1;";
-                ResultSet rsID = statement.executeQuery(sqlGetID);
-                if (rsID.next()) {
-                    requestID = rsID.getInt("RequestID");
+                Server.result = Server.statement.executeQuery(sqlGetID);
+                if (Server.result.next()) {
+                    requestID = Server.result.getInt("RequestID");
                 }
-                rsID.close();
 
                 if (requestID == -1) {
                     throw new SQLException("Failed to retrieve RequestID after insert.");
@@ -377,17 +354,19 @@ public class JoinRoomMenu extends State {
                 boolean requestFulfilled = false;
                 while (!requestFulfilled) {
                     String sqlResult = "SELECT Valid FROM Result WHERE RequestID = " + requestID;
-                    ResultSet rsResult = statement.executeQuery(sqlResult);
+                    Server.result = Server.statement.executeQuery(sqlResult);
 
-                    if (rsResult.next()) {
+                    if (Server.result.next()) {
                         requestFulfilled = true;
-                        int valid = rsResult.getInt("Valid");
+                        int valid = Server.result.getInt("Valid");
 
                         if (valid == 1) {
                             // Success
                             SwingUtilities.invokeLater(() -> {
                                 // As requested:
                                 if (waitingRoom != null) {
+                                    JOptionPane.showMessageDialog(null, "Joined room successfully");
+                                    WaitingRoom.setRoomID(selectedRoomID);
                                     exit(waitingRoom);
                                 } else {
                                     System.err.println("Join successful, but 'waitingRoom' state is null!");
@@ -399,7 +378,6 @@ public class JoinRoomMenu extends State {
                             SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(frame, "Failed to join room. It might be full or no longer exists.", "Join Failed", JOptionPane.ERROR_MESSAGE));
                         }
                     }
-                    rsResult.close();
                     Thread.sleep(1000); // Poll every 1 second
                 }
 

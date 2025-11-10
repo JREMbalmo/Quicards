@@ -456,6 +456,7 @@ public class ServerHostClient {
                         """
                         CREATE TABLE Rooms(
                         RoomID INT PRIMARY KEY AUTO_INCREMENT,
+                        Name TEXT NOT NULL,
                         Finished TINYINT(1) DEFAULT 0
                         ) AUTO_INCREMENT = 1;
                         """
